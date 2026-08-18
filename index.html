@@ -282,6 +282,9 @@
     opacity: .65; margin-bottom: 8px; }
   .reading .lead { font-style: italic; font-size: .88rem; color: var(--gold-soft);
     opacity: .9; margin-bottom: 6px; }
+  .poslens { font-size: .9rem; color: var(--gold-soft); line-height: 1.5;
+    background: rgba(212,175,55,.08); border-left: 3px solid rgba(212,175,55,.5);
+    padding: 8px 12px; border-radius: 6px; margin-bottom: 10px; }
   .reading p { font-size: .95rem; line-height: 1.55; }
   .reading .advice { margin-top: 10px; font-style: italic; color: var(--gold-soft);
     font-size: .9rem; border-top: 1px dashed rgba(212,175,55,.35); padding-top: 10px; }
@@ -761,6 +764,31 @@ var MODES = {
               hint: "Sorunu içinden geçir… hazır olunca desteye dokun." }
 };
 var state = { mode: null, drawn: [] };
+
+/* pozisyon merceği: kartın teması, düştüğü pozisyonun bağlamında okunur */
+var POS_LENS = {
+  "Günün Kartı": function (t, n) { return "Bugünün mayası: " + t + ". Gün içinde bu tema karşına çıktığında şaşırma — davet edilmeden gelmiş değil."; },
+  "Cevap": function (t, n) { return "Sorunun aynasına " + n + " düştü: cevabını '" + t + "' temasının içinde ara — soru neyse, çözüm bu enerjiden geçiyor."; },
+  "Kartın Cevabı": function (t, n) { return "Hükmün dayanağı: " + t + ". Karar bu temanın terazisinde tartıldı."; },
+  "Geçmiş": function (t, n) { return "Geçmişten uzanan el: " + n + ", '" + t + "' temalı bir dönemi işaret ediyor — o günler kapanmış olsa da izi bugünkü tabloyu hâlâ şekillendiriyor."; },
+  "Şimdi": function (t, n) { return "Şu an tam ortasındasın: '" + t + "' bugünlerinin ana teması — etrafında olan biteni bu gözlükle okursan taşlar yerine oturur."; },
+  "Gelecek": function (t, n) { return "Önündeki dönemin mayası bu: '" + t + "' seni bekliyor. Bugünden atılan her adım, o güne verilmiş bir selam."; },
+  "Sen": function (t, n) { return "Bu meselede senin taşıdığın enerji: '" + t + "'. Karşı taraf ne yaparsa yapsın, senin masaya koyduğun bu."; },
+  "O": function (t, n) { return "Onun tarafında esen rüzgar: '" + t + "' — şu sıralar onun dünyasının ana tonu bu. Davranışlarını bu merceksiz okumak haksızlık olur."; },
+  "İlişkinin Gidişatı": function (t, n) { return "Bu bağın rotası '" + t + "' yönüne akıyor. Akıntı bu — kürekler yine de ikinizin elinde."; },
+  "Ortak Kartınız": function (t, n) { return "İkinizin kesişimindeki enerji: '" + t + "' — bu bağın ortak dili. Anlaşamadığınız yerde bu temaya dönün."; },
+  "Durum": function (t, n) { return "Masadaki tabloyu özetleyen enerji: '" + t + "'. İş hayatındaki gelişmeleri bu çerçevede okuyun."; },
+  "Mevcut Durum": function (t, n) { return "Meselenin şu anki kalbi: '" + t + "'. Etrafında dönen her şey bu merkezin etrafında dönüyor."; },
+  "Engel": function (t, n) { return "Dikkat — bu pozisyonda " + n + " düşman olarak değil, yolunu yavaşlatan güç olarak okunur: '" + t + "' kulağa olumlu gelse bile, iyi bir şeyin fazlası ya da zamansızı da köstektir. Seni tutan şey bu temanın gölge yüzü."; },
+  "Tavsiye": function (t, n) { return "Kartların reçetesi: '" + t + "' enerjisini bilinçli olarak yanına al — bu meselede eksik olan malzeme bu."; },
+  "Temel (Bilinçaltı)": function (t, n) { return "Bilinçaltında, sen farkında olmadan işleyen güç: '" + t + "'. Yüzeyde başka şeyler konuşuluyor olabilir ama kökte bu var."; },
+  "Hedef (Bilinç)": function (t, n) { return "Bilinçli olarak yöneldiğin ideal: '" + t + "'. Zihnin rotayı buraya kilitledi — bilinçaltıyla uyuşup uyuşmadığına dikkat."; },
+  "Yakın Gelecek": function (t, n) { return "Önümüzdeki günlerde sahneye çıkacak olan: '" + t + "'. Bu bir son değil, yolun bir sonraki virajı."; },
+  "Çevre": function (t, n) { return "Çevrendekilerin bu meseleye kattığı hava: '" + t + "'. İnsanların tavrını bu tema üzerinden okursan kimin ne dediği netleşir."; },
+  "Umutlar ve Korkular": function (t, n) { return "İlginç bir aynadasın: '" + t + "' burada hem umudun hem korkun olabilir — en çok istediklerimizle en çok korktuklarımız çoğu zaman aynı kapıdan girer."; },
+  "Sonuç": function (t, n) { return "Her şey mecrasında akarsa varış noktası: '" + t + "'. Yol boyunca yapılan seçimler bu sonucu yumuşatır ya da mühürler."; }
+};
+var LENS_REV = " Kartın ters düşmesi, bu enerjinin şu an tıkalı, gecikmeli ya da içe dönük çalıştığını söylüyor — güç orada, ama akışı ayarlanmayı bekliyor.";
 
 function getName() {
   try { return localStorage.getItem("tarot_kisi") || ""; } catch (e) { return ""; }
@@ -1635,10 +1663,15 @@ function reveal() {
     if (state.mode === "chart") return; /* haritada özel bloklar kullanılır */
     var r = document.createElement("div");
     r.className = "reading";
+    var lensFn = POS_LENS[conf.positions[i]];
+    var lensHtml = lensFn
+      ? '<div class="poslens">🎯 ' + lensFn(cardTheme(d), d.card.name) + (d.reversed ? LENS_REV : "") + "</div>"
+      : "";
     r.innerHTML =
       "<h3>" + d.card.sym + " " + d.card.name + (d.reversed ? " (ters)" : "") + "</h3>" +
       '<div class="pos">' + conf.positions[i] + "</div>" +
       '<div class="lead">' + conf.leads[i] + "</div>" +
+      lensHtml +
       "<p>" + (d.reversed ? d.card.rev : d.card.up) + "</p>" +
       '<div class="advice">✨ ' + d.card.adv + "</div>";
     readings.appendChild(r);
