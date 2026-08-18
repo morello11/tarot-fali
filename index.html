@@ -870,6 +870,58 @@ function weave(drawn, mode) {
   return "Geçmişten bugüne uzanan iz " + n[0] + ": " + t[0] + ". Bugünün merkezinde " + n[1] +
     " duruyor: " + t[1] + ". Yolun ucunda ise " + n[2] + " görünüyor: " + t[2] + ".";
 }
+/* --- yorum motoru v2: element onurları, sayı tekrarı, saray kalabalığı, ünlü ikililer, zamanlama --- */
+var ELEM_MINOR = { asa: 0, kupa: 1, kilic: 2, tilsim: 3 }; /* ateş, su, hava, toprak */
+var ELEM_MAJOR = [2, 2, 1, 3, 0, 3, 2, 1, 0, 3, 0, 2, 1, 1, 0, 3, 0, 2, 1, 0, 0, 3];
+var ELEM_AD = ["ateş", "su", "hava", "toprak"];
+function cardElem(c) {
+  return c.suit === "major" ? ELEM_MAJOR[parseInt(c.img.slice(1, 3), 10)] : ELEM_MINOR[c.suit];
+}
+function elemRel(a, b) {
+  if (a === b) return 2;
+  if ((a === 0 && b === 2) || (a === 2 && b === 0)) return 1;
+  if ((a === 1 && b === 3) || (a === 3 && b === 1)) return 1;
+  if ((a === 0 && b === 1) || (a === 1 && b === 0)) return -1;
+  if ((a === 2 && b === 3) || (a === 3 && b === 2)) return -1;
+  return 0;
+}
+var MAJOR_COMBOS = [
+  [16, 19, "Kule ile Güneş aynı açılımda: kadim okumada bu, yıkımın hemen ardından doğan güneştir — kaybedilen şey, yerini daha aydınlık bir düzene bırakıyor."],
+  [13, 17, "Dönüşüm ile Yıldız yan yana: bitişin ardından şifa — kartlar açıkça 'bırak ki iyileşesin' diyor."],
+  [6, 15, "Aşıklar ile Zincir aynı masada: tutku ile bağımlılık arasındaki ince çizgiye dikkat — bu seçim özgürleştiren mi, bağlayan mı?"],
+  [0, 21, "Deli ile Dünya buluşmuş: döngünün iki ucu aynı açılımda — büyük bir bitiş, taze bir başlangıcın kapısını tutuyor."],
+  [18, 19, "Ay ile Güneş birlikte: sisten aydınlığa geçiş hikayesi — belirsizlik göründüğü kadar uzun sürmeyecek."],
+  [1, 2, "Büyücü ile Azize el ele: yapma gücü ile bilme gücü aynı anda açık — hem sezgine hem becerine güvenebilirsin."],
+  [3, 4, "İmparatoriçe ile İmparator aynı sofrada: bereket ile düzen birleşmiş — kurduğun yapı meyve vermeye hazır."],
+  [12, 13, "Asılan Adam ile Dönüşüm: bekleyiş boşuna değilmiş — askıda kalan, artık dönüşerek çözülüyor."],
+  [10, 16, "Kader Çarkı ile Kule: değişim iki koldan birden geliyor — bu dönemde plan değil, uyum yeteneği kazandırır."],
+  [8, 11, "Güç ile Adalet birlikte: sabır ile hakkaniyet birleşmiş — kazanılacak olan hem hak edilmiş hem kalıcı."],
+  [9, 17, "Ermiş ile Yıldız: umut, sessizlikte tazelenecek — aradığın cevap kalabalıkta değil."],
+  [0, 5, "Deli ile Aziz karşı karşıya: gelenek ile cesaret çekişiyor — 'kural mı, kalp mi' sorusu bu açılımın omurgası."]
+];
+var RANK_REPEAT = {
+  1: "yeni başlangıçlar tek kapıdan değil, birden çok alandan geliyor — As kümesi, kadim okumada taze enerji patlamasıdır",
+  2: "denge ve ortaklık temaları katlanmış: kararlar tek başına değil, karşılıklı alınacak",
+  3: "büyüme ve ilk meyveler dönemi — emekler aynı anda filizleniyor",
+  4: "sağlamlaşma arayışı baskın: birden çok alanda zemin tahkim etme vakti",
+  5: "beşler kümelenmiş — kadim okumada bu, sınav dönemidir: birden çok cephede mücadele var, ama beşler geçicidir",
+  6: "uyum ve iyileşme dalgası: düğümler kendiliğinden çözülme eğiliminde",
+  7: "değerlendirme haftası: birden çok konuda 'devam mı, rota değişimi mi' sorusu masada",
+  8: "hız ve ustalık katlanıyor: işler aynı anda ivme kazanıyor",
+  9: "eşikler çoğalmış: birkaç konu birden son düzlükte",
+  10: "kapanışlar üst üste: birden çok döngü aynı anda tamamlanıyor",
+  11: "haberciler çoğalmış: kısa sürede birden çok haber ya da mesaj beklenir",
+  12: "hareket kartları kümelenmiş: olaylar hızla yer değiştirecek",
+  13: "olgun ve güçlü figürler sahnede: çevrendeki deneyimli seslere kulak ver",
+  14: "otorite figürleri toplanmış: kararlar deneyimli ellerden geçecek"
+};
+var TIMING_SUIT = {
+  asa: "Asa ailesinden — zamanlama geleneğinde bu 'günler' demektir: gelişme hızlı olur",
+  kilic: "Kılıç ailesinden — 'haftalar' ölçeği: fikir hızlı doğar, sonuç orta vadede oturur",
+  kupa: "Kupa ailesinden — 'aylar' ölçeği: duygular kendi mevsiminde olgunlaşır, aceleye gelmez",
+  tilsim: "Tılsım ailesinden — uzun vade: bir mevsim değişimi ister, ama geldiğinde kalıcı olur",
+  major: "Büyük Arkana'dan — takvimi kadere bağlıdır: zorlamayla hızlanmaz, vakti gelince bir anda olur"
+};
 function generalReading(drawn, mode) {
   var parts = [weave(drawn, mode)];
 
@@ -886,28 +938,98 @@ function generalReading(drawn, mode) {
         : "bu kartların enerjisi şimdilik içe dönük akıyor; takıldıkları yerde birer ders taşıyorlar."));
   }
 
+  var insights = [];
+  /* 1) ünlü majör ikilileri */
+  var majSet = {};
+  drawn.forEach(function (d) {
+    if (d.card.suit === "major") majSet[parseInt(d.card.img.slice(1, 3), 10)] = true;
+  });
+  for (var ci = 0; ci < MAJOR_COMBOS.length; ci++) {
+    if (majSet[MAJOR_COMBOS[ci][0]] && majSet[MAJOR_COMBOS[ci][1]]) {
+      insights.push(MAJOR_COMBOS[ci][2]);
+      break;
+    }
+  }
+  /* 2) sayı tekrarı (küçük arkana) */
+  var rankCount = {};
+  drawn.forEach(function (d) {
+    if (d.card.suit !== "major") {
+      var rk = parseInt(d.card.img.slice(-6, -4), 10);
+      rankCount[rk] = (rankCount[rk] || 0) + 1;
+    }
+  });
+  var bestRank = null;
+  Object.keys(rankCount).forEach(function (k) {
+    if (rankCount[k] >= 2 && (!bestRank || rankCount[k] > rankCount[bestRank])) bestRank = k;
+  });
+  if (bestRank) {
+    insights.push("Destede dikkat çeken bir tekrar var — " + rankCount[bestRank] + " kez aynı sayı: " +
+      RANK_REPEAT[bestRank] + ". Tekrarlanan sayı, tarotta altı çizilen mesajdır.");
+  }
+  /* 3) element onurları (Altın Şafak) */
+  var elems = drawn.map(function (d) { return cardElem(d.card); });
+  if (mode === "celtic") {
+    var rel01 = elemRel(elems[0], elems[1]);
+    if (rel01 === -1) {
+      insights.push("Element okumasında Durum (" + ELEM_AD[elems[0]] + ") ile Engel (" + ELEM_AD[elems[1]] +
+        ") birbirini söndüren zıt elementlerden: engel, tam da senin enerjini emen cinsten — onunla güç yarışına girme, etrafından dolan.");
+    } else if (rel01 >= 1) {
+      insights.push("Element okumasında Durum ile Engel akraba elementlerden (" + ELEM_AD[elems[0]] + "-" + ELEM_AD[elems[1]] +
+        "): engelin hammaddesi senin enerjinle aynı mayadan — onu düşmandan çok, yön değiştirici olarak kullanabilirsin.");
+    }
+  } else if (drawn.length === 3) {
+    var r1 = elemRel(elems[1], elems[0]), r2 = elemRel(elems[1], elems[2]);
+    if (r1 >= 1 && r2 >= 1) {
+      insights.push("Element onurları (kadim Altın Şafak okuması) bu açılımda tam uyumda: merkezdeki <b>" + drawn[1].card.name +
+        "</b> kartının " + ELEM_AD[elems[1]] + " enerjisi iki yandan besleniyor — ana tema net ve güçlü konuşuyor.");
+    } else if (r1 === -1 || r2 === -1) {
+      var hostileIdx = r1 === -1 ? 0 : 2;
+      insights.push("Element okumasında bir gerilim var: <b>" + drawn[1].card.name + "</b> (" + ELEM_AD[elems[1]] + ") ile <b>" +
+        drawn[hostileIdx].card.name + "</b> (" + ELEM_AD[elems[hostileIdx]] +
+        ") birbirini zayıflatan elementlerden — bu iki tema aynı anda tam güç çalışamaz; asıl düğüm aralarındaki çekişmede.");
+    }
+  }
+  /* 4) saray kalabalığı */
+  var courtCount = 0;
+  drawn.forEach(function (d) {
+    if (d.card.suit !== "major") {
+      var rk2 = parseInt(d.card.img.slice(-6, -4), 10);
+      if (rk2 >= 11) courtCount++;
+    }
+  });
+  if (courtCount >= 2) {
+    insights.push("Sarayda kalabalık var: " + courtCount +
+      " saray kartı birden açıldı — kadim okumada bu, meselenin yalnız iç dünyanla değil, gerçek kişilerle örülü olduğunu söyler; sahnedeki insanları hesaba kat.");
+  }
+  /* 5) majör/minör dengesi */
   var counts = {};
   drawn.forEach(function (d) { counts[d.card.suit] = (counts[d.card.suit] || 0) + 1; });
   var majorCount = counts["major"] || 0;
   if (majorCount >= 2) {
-    parts.push(majorCount + " Büyük Arkana'nın birden açılması tesadüf sayılmaz: bu dönem gündelik akışın değil, yön belirleyen dönemeçlerin dönemi.");
+    insights.push(majorCount + " Büyük Arkana'nın birden açılması tesadüf sayılmaz: bu dönem gündelik akışın değil, yön belirleyen dönemeçlerin dönemi.");
+  } else if (majorCount === 0 && drawn.length >= 3) {
+    insights.push("Açılımda hiç Büyük Arkana yok: bu mesele kaderin sahnesi değil, günlük seçimlerin sahası — dümen tamamen senin elinde.");
   }
+  /* 6) baskın / eksik seri */
   var domSuit = null;
   ["kupa", "asa", "kilic", "tilsim"].forEach(function (k) {
     if ((counts[k] || 0) >= 2 && (!domSuit || counts[k] > counts[domSuit])) domSuit = k;
   });
   if (domSuit) {
-    parts.push("Serilerden en yüklüsü " + SUIT_NAME[domSuit] + ": " + SUIT_THEMES[domSuit] + " bu açılımın ana sahnesi.");
+    insights.push("Serilerden en yüklüsü " + SUIT_NAME[domSuit] + ": " + SUIT_THEMES[domSuit] + " bu açılımın ana sahnesi.");
   }
   if (drawn.length >= 8) {
     var missing = ["kupa", "asa", "kilic", "tilsim"].filter(function (k) { return !counts[k]; });
     if (missing.length === 1) {
-      parts.push("Dikkat çekici bir eksik de var: açılımda hiç " + SUIT_NAME[missing[0]] + " yok — " +
+      insights.push("Dikkat çekici bir eksik de var: açılımda hiç " + SUIT_NAME[missing[0]] + " yok — " +
         SUIT_THEMES[missing[0]] + " bu meselede şimdilik sessiz kalmayı seçmiş.");
     }
   }
-
+  /* 7) zamanlama fısıltısı */
   var son = drawn[drawn.length - 1];
+  insights.push("Zamanlama fısıltısı: sonuç kartın " + TIMING_SUIT[son.card.suit === "major" ? "major" : son.card.suit] + ".");
+
+  parts.push(insights.slice(0, 3).join(" "));
   parts.push("Kapanış sözünü son kart söylesin — <b>" + son.card.name + "</b>: “" + son.card.adv + "”");
   return parts.join(" ");
 }
