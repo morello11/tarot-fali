@@ -43,17 +43,21 @@
   .divider { margin: 16px auto; width: 180px; height: 1px;
     background: linear-gradient(90deg, transparent, var(--gold), transparent); }
 
-  .modes { display: flex; flex-direction: column; gap: 12px; margin: 8px 0 4px; }
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 8px 0 4px; }
+  .modes .deckpick, .modes .deckdesc, .modes .mode-cat { grid-column: 1 / -1; }
+  .mode-cat { text-align: left; color: var(--gold-soft); font-size: .82rem;
+    letter-spacing: .14em; text-transform: uppercase; margin-top: 10px;
+    border-bottom: 1px solid rgba(212,175,55,.25); padding-bottom: 5px; }
   .mode-btn {
-    font-family: inherit; font-size: 1.1rem; color: var(--cream);
+    font-family: inherit; color: var(--cream);
     background: linear-gradient(180deg, rgba(212,175,55,.16), rgba(212,175,55,.05));
     border: 1px solid rgba(212,175,55,.55); border-radius: 14px;
-    padding: 15px 20px; cursor: pointer; text-align: left;
+    padding: 12px 13px; cursor: pointer; text-align: left;
     transition: transform .15s, box-shadow .15s;
   }
   .mode-btn:active { transform: scale(.97); }
-  .mode-btn .t { display: block; font-size: 1.12rem; color: var(--gold-soft); margin-bottom: 3px; }
-  .mode-btn .d { display: block; font-size: .85rem; opacity: .75; font-style: italic; }
+  .mode-btn .t { display: block; font-size: 1rem; color: var(--gold-soft); margin-bottom: 3px; }
+  .mode-btn .d { display: block; font-size: .76rem; opacity: .75; font-style: italic; }
 
   .deck-area { display: none; }
   .deck-hint { font-style: italic; opacity: .8; margin: 14px 0 22px; min-height: 1.4em; }
@@ -171,6 +175,43 @@
   }
   .reading p i { opacity: .75; }
   .reading summary { cursor: pointer; color: var(--gold-soft); font-size: 1.02rem; }
+
+  /* rün taşları */
+  .face.rback { background: radial-gradient(circle at 35% 30%, #6b7180, #3d4250 75%);
+    border-color: #8b91a0; }
+  .face.rback::after { content: "᛫"; position: absolute; inset: 0; display: grid;
+    place-items: center; color: #9aa0ae; font-size: 1.6rem; }
+  .face.rfront { transform: rotateY(180deg);
+    background: radial-gradient(circle at 40% 30%, #9aa0ae, #565c6a 78%);
+    border-color: #b8bec9; display: grid; place-items: center; }
+  .rglyph { font-size: 3.4rem; color: #262a35;
+    text-shadow: 0 1px 0 rgba(255,255,255,.35), 0 -1px 1px rgba(0,0,0,.45); }
+  .rname { position: absolute; bottom: 8px; left: 0; right: 0; text-align: center;
+    font-size: .74rem; font-weight: bold; color: #1f232d; }
+
+  /* kader çarkı */
+  .wheel-area { display: none; }
+  .wheel-wrap { position: relative; width: 250px; margin: 6px auto 0; }
+  .wheel-pin { position: absolute; top: -6px; left: 50%; transform: translateX(-50%);
+    color: var(--gold); font-size: 26px; z-index: 2;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,.6)); }
+  .wheel { width: 250px; height: 250px; border-radius: 50%; border: 6px solid var(--gold);
+    cursor: pointer; position: relative; margin: 0 auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 0 30px rgba(0,0,0,.35);
+    background: conic-gradient(
+      #4b2a7a 0 45deg, #1e3a5c 45deg 90deg, #6b2a52 90deg 135deg, #1e5c4a 135deg 180deg,
+      #7a4b2a 180deg 225deg, #2a2a6e 225deg 270deg, #5c1e3a 270deg 315deg, #2a5c1e 315deg 360deg);
+    transition: transform 4s cubic-bezier(.15, .9, .22, 1); }
+  .wheel span { position: absolute; left: 50%; top: 50%; margin: -15px;
+    font-size: 24px; transform: rotate(var(--a)) translateY(-92px); }
+  .wheel .hub { position: absolute; left: 50%; top: 50%; width: 54px; height: 54px;
+    margin: -27px; border-radius: 50%; background: var(--gold); display: grid;
+    place-items: center; font-size: 26px; box-shadow: 0 2px 8px rgba(0,0,0,.5); }
+
+  /* görsel paylaşım önizleme */
+  #imgOverlay img { width: 100%; border-radius: 12px; border: 1px solid rgba(212,175,55,.5); }
+  #imgOverlay .box { max-width: 380px; }
+  #imgOverlay p { margin-top: 10px; }
   details.reading p { margin-top: 8px; }
   .bookimg { width: 140px; border-radius: 10px; margin: 10px auto; display: block;
     border: 2px solid rgba(212,175,55,.5); }
@@ -306,6 +347,25 @@
   </div>
 </div>
 
+<div class="overlay" id="wishOverlay">
+  <div class="box">
+    <h2>⭐ Dilek Kuyusu</h2>
+    <p>Dileğini yaz; kayan bir yıldıza<br>bağlayıp gökyüzüne gönderelim:</p>
+    <input type="text" id="wishInput" maxlength="120" placeholder="Dileğim…" autocomplete="off">
+    <button class="btn" id="wishSave">Yıldıza Gönder 🌠</button>
+    <p class="mini" id="wishNote"></p>
+  </div>
+</div>
+
+<div class="overlay" id="imgOverlay">
+  <div class="box">
+    <h2>🖼️ Fal Kartın Hazır</h2>
+    <img id="shareImg" alt="Fal görseli">
+    <p class="mini">Paylaşım açılmadıysa: görsele uzun basıp kaydedebilirsin.</p>
+    <button class="btn ghost" id="imgClose">Kapat</button>
+  </div>
+</div>
+
 <div class="overlay" id="matchOverlay">
   <div class="box">
     <h2>💞 Uyum Falı</h2>
@@ -349,53 +409,73 @@
       <button data-deck="klasik">🖼️ Rider-Waite (1909)</button><button data-deck="marsel">🏰 Marsilya (1701)</button><button data-deck="sola">🗿 Sola Busca (1491)</button><button data-deck="sade">✨ Sembol</button><button data-deck="surpriz">🎲 Sürpriz</button>
     </div>
     <div class="deckdesc" id="deckdesc"></div>
+
+    <div class="mode-cat">🔮 Fallar</div>
     <button class="mode-btn" data-mode="daily">
       <span class="t">🌙 Günün Kartı</span>
-      <span class="d">Sana özel bugünün kartı, şanslı rengin ve sayın</span>
+      <span class="d">Bugüne özel kart + şans köşesi</span>
     </button>
     <button class="mode-btn" data-mode="three">
-      <span class="t">🔮 Üç Kart Açılımı</span>
-      <span class="d">Geçmiş · Şimdi · Gelecek + genel yorum</span>
-    </button>
-    <button class="mode-btn" data-mode="love">
-      <span class="t">💘 Aşk Açılımı</span>
-      <span class="d">Sen · O · İlişkinin gidişatı</span>
-    </button>
-    <button class="mode-btn" data-mode="career">
-      <span class="t">💼 Kariyer Açılımı</span>
-      <span class="d">Durum · Engel · Tavsiye</span>
-    </button>
-    <button class="mode-btn" data-mode="life">
-      <span class="t">🎂 Yaşam Kartların</span>
-      <span class="d">Doğum tarihine göre kişilik, ruh ve yıl kartın</span>
+      <span class="t">🔮 Üç Kart</span>
+      <span class="d">Geçmiş · Şimdi · Gelecek</span>
     </button>
     <button class="mode-btn" data-mode="celtic">
       <span class="t">✦ Kelt Haçı</span>
-      <span class="d">10 kartlık büyük açılım — derin ve ciddi okuma</span>
+      <span class="d">10 kartlık derin açılım</span>
     </button>
-    <button class="mode-btn" data-mode="chart">
-      <span class="t">🌌 Doğum Haritası</span>
-      <span class="d">Güneş, Ay, yükselen ve gezegen burçların</span>
+    <button class="mode-btn" data-mode="love">
+      <span class="t">💘 Aşk Açılımı</span>
+      <span class="d">Sen · O · Gidişat</span>
     </button>
-    <button class="mode-btn" data-mode="match">
-      <span class="t">💞 Uyum Falı</span>
-      <span class="d">İki ismin uyum yüzdesi ve ortak kartı</span>
-    </button>
-    <button class="mode-btn" data-mode="mirror">
-      <span class="t">🪞 Sihirli Ayna</span>
-      <span class="d">Soruyu içinden geçir; aynamız biraz küstahtır</span>
-    </button>
-    <button class="mode-btn" data-mode="book">
-      <span class="t">📖 Kart Kitaplığı</span>
-      <span class="d">78 kartı görselleri ve anlamlarıyla incele</span>
-    </button>
-    <button class="mode-btn" data-mode="yesno">
-      <span class="t">🌗 Evet mi, Hayır mı?</span>
-      <span class="d">Sorunu sor, kart kararını versin</span>
+    <button class="mode-btn" data-mode="career">
+      <span class="t">💼 Kariyer</span>
+      <span class="d">Durum · Engel · Tavsiye</span>
     </button>
     <button class="mode-btn" data-mode="question">
       <span class="t">💫 Soru Kartı</span>
-      <span class="d">Aklından bir soru geçir, tek kart yorumlasın</span>
+      <span class="d">Tek kart, derin cevap</span>
+    </button>
+    <button class="mode-btn" data-mode="yesno">
+      <span class="t">🌗 Evet mi, Hayır mı?</span>
+      <span class="d">Hızlı hüküm</span>
+    </button>
+    <button class="mode-btn" data-mode="rune">
+      <span class="t">ᚱ Rün Falı</span>
+      <span class="d">Viking taşlarından üçlü çekim</span>
+    </button>
+
+    <div class="mode-cat">🌟 Sana Özel</div>
+    <button class="mode-btn" data-mode="life">
+      <span class="t">🎂 Yaşam Kartların</span>
+      <span class="d">Doğum tarihinden kişilik ve ruh</span>
+    </button>
+    <button class="mode-btn" data-mode="chart">
+      <span class="t">🌌 Doğum Haritası</span>
+      <span class="d">Güneş, Ay, yükselen, gezegenler</span>
+    </button>
+    <button class="mode-btn" data-mode="match">
+      <span class="t">💞 Uyum Falı</span>
+      <span class="d">İki ismin uyumu ve ortak kartı</span>
+    </button>
+
+    <div class="mode-cat">🎪 Eğlence Köşesi</div>
+    <button class="mode-btn" data-mode="mirror">
+      <span class="t">🪞 Sihirli Ayna</span>
+      <span class="d">Küstah aynamıza soru sor</span>
+    </button>
+    <button class="mode-btn" data-mode="wheel">
+      <span class="t">🎡 Kader Çarkı</span>
+      <span class="d">Çevir, günün fısıltısını al</span>
+    </button>
+    <button class="mode-btn" data-mode="wish">
+      <span class="t">⭐ Dilek Kuyusu</span>
+      <span class="d">Dileğini yıldıza gönder</span>
+    </button>
+
+    <div class="mode-cat">📖 Başvuru</div>
+    <button class="mode-btn" data-mode="book">
+      <span class="t">📖 Kart Kitaplığı</span>
+      <span class="d">78 kartı görsel ve anlamlarıyla incele</span>
     </button>
   </div>
 
@@ -413,6 +493,20 @@
     <div class="mirror" id="mirror"><div class="sheen"></div><div class="mface">🪞</div></div>
   </div>
 
+  <div class="wheel-area" id="wheelArea">
+    <p class="deck-hint">Çarka dokun; kader bugünlük ne fısıldayacak?</p>
+    <div class="wheel-wrap">
+      <div class="wheel-pin">▼</div>
+      <div class="wheel" id="wheel">
+        <span style="--a:22.5deg">🍀</span><span style="--a:67.5deg">🪨</span>
+        <span style="--a:112.5deg">🎁</span><span style="--a:157.5deg">😄</span>
+        <span style="--a:202.5deg">🌀</span><span style="--a:247.5deg">💘</span>
+        <span style="--a:292.5deg">🌾</span><span style="--a:337.5deg">✨</span>
+        <div class="hub">🎡</div>
+      </div>
+    </div>
+  </div>
+
   <div class="big-answer" id="bigAnswer"><div class="ans" id="bigAnswerText"></div></div>
   <div class="spread" id="spread"></div>
   <div class="read-intro" id="readIntro"></div>
@@ -420,6 +514,7 @@
 
   <div class="actions" id="actions">
     <button class="btn" id="shareBtn">Falı Paylaş 💌</button>
+    <button class="btn" id="shareImgBtn">🖼️ Görsel Kart</button>
     <button class="btn ghost" id="againBtn">Yeni Fal</button>
   </div>
 
@@ -647,6 +742,10 @@ var MODES = {
   match:    { count: 1, positions: ["Ortak Kartınız"], leads: ["İki kalbin kesişimindeki kart:"],
               hint: "İki ismi aklından geçir… desteye dokun. 💞" },
   book:     { count: 0, positions: [], leads: [], hint: "" },
+  rune:     { count: 3, positions: ["Durum", "Yol", "Sonuç"],
+              leads: ["Şu an taşların gösterdiği zemin:", "Önünde uzanan yolun işareti:", "Taşların vardığı hüküm:"],
+              hint: "Gözlerini kapat, sorunu düşün… taş torbası için desteye dokun. ᚱ" },
+  wheel:    { count: 0, positions: [], leads: [], hint: "" },
   question: { count: 1, positions: ["Cevap"], leads: ["Sorduğun sorunun aynası:"],
               hint: "Sorunu içinden geçir… hazır olunca desteye dokun." }
 };
@@ -1365,6 +1464,7 @@ document.querySelectorAll(".mode-btn").forEach(function (btn) {
     }
     if (mode === "chart") { openChartOverlay(); return; }
     if (mode === "match") { openMatchOverlay(); return; }
+    if (mode === "wish") { openWishOverlay(); return; }
     startMode(mode);
   });
 });
@@ -1375,13 +1475,16 @@ function startMode(mode) {
   if (mode === "chart") prepareChart();
   $("modes").style.display = "none";
   $("mirrorArea").style.display = mode === "mirror" ? "block" : "none";
-  $("deckArea").style.display = (mode === "mirror" || mode === "book") ? "none" : "block";
+  $("wheelArea").style.display = mode === "wheel" ? "block" : "none";
+  $("deckArea").style.display = (mode === "mirror" || mode === "book" || mode === "wheel") ? "none" : "block";
   if (mode === "mirror") {
     $("mirrorHint").innerHTML =
       MIRROR_GREETS[Math.floor(Math.random() * MIRROR_GREETS.length)].replace(/\{ef\}/g, mirrorEf());
   }
-  if (mode !== "mirror" && mode !== "book") $("deckHint").textContent = MODES[mode].hint;
+  if (mode !== "mirror" && mode !== "book" && mode !== "wheel") $("deckHint").textContent = MODES[mode].hint;
   $("shareBtn").style.display = "";
+  $("shareImgBtn").style.display =
+    (mode === "mirror" || mode === "book" || mode === "wheel") ? "none" : "";
   $("bigAnswer").style.display = "none";
   $("spread").style.display = "none";
   $("spread").innerHTML = "";
@@ -1404,6 +1507,7 @@ $("deck").addEventListener("click", function () {
 });
 
 function reveal() {
+  if (state.mode === "rune") return revealRunes();
   var conf = MODES[state.mode];
   var rng = state.mode === "daily" ? mulberry32(dailySeed()) : mulberry32((Math.random() * 1e9) | 0);
   state.drawn = state.mode === "life" ? state.life.drawn
@@ -1416,6 +1520,7 @@ function reveal() {
   spread.style.display = "flex";
 
   var falDeck = resolveDeck();
+  state.falDeck = falDeck;
   var useArt = falDeck !== "sade";
   state.drawn.forEach(function (d, i) {
     var slot = document.createElement("div");
@@ -1467,6 +1572,15 @@ function reveal() {
 
   var readings = $("readings");
   readings.style.display = "block";
+  if (state.mode === "celtic") {
+    var info = document.createElement("div");
+    info.className = "reading general show";
+    info.innerHTML = "<h3>✦ Kelt Haçı Nedir?</h3><p>Tarotun en köklü büyük açılımı — yaklaşık 150 yıllık gelenek. " +
+      "10 kart, meselenin bütün katmanlarını tek tek açar: görünen durum, karşı güç, bilinçaltındaki kök, geçmişin izi, " +
+      "bilinçli hedef, yakın gelecek, senin duruşun, çevrenin etkisi, umutlarla korkular ve nihai sonuç. " +
+      "Kısacası: tek soruya on pencereden bakmak. Aşağıda her pencere sırayla açılıyor.</p>";
+    readings.appendChild(info);
+  }
   state.drawn.forEach(function (d, i) {
     if (state.mode === "chart") return; /* haritada özel bloklar kullanılır */
     var r = document.createElement("div");
@@ -1563,19 +1677,28 @@ var MODE_TITLES = {
   daily: "Günün Kartı", three: "Üç Kart Açılımı", love: "Aşk Açılımı",
   career: "Kariyer Açılımı", yesno: "Evet mi Hayır mı", question: "Soru Kartı",
   life: "Yaşam Kartları", chart: "Doğum Haritası", mirror: "Sihirli Ayna",
-  celtic: "Kelt Haçı", match: "Uyum Falı", book: "Kart Kitaplığı"
+  celtic: "Kelt Haçı", match: "Uyum Falı", book: "Kart Kitaplığı",
+  rune: "Rün Falı", wheel: "Kader Çarkı"
 };
 $("shareBtn").addEventListener("click", function () {
   var conf = MODES[state.mode];
   var name = getName();
   var lines = ["🔮 Tarot Falı — " + MODE_TITLES[state.mode] + (name ? " · " + name : ""), ""];
   if (state.mode === "yesno") lines.push("Cevap: " + ynAnswer(state.drawn[0]), "");
-  if (state.mode !== "mirror" && state.mode !== "chart") state.drawn.forEach(function (d, i) {
+  if (["mirror", "chart", "rune", "wheel"].indexOf(state.mode) === -1 && state.drawn) state.drawn.forEach(function (d, i) {
     lines.push(conf.positions[i] + ": " + d.card.sym + " " + d.card.name + (d.reversed ? " (ters)" : ""));
     lines.push(d.reversed ? d.card.rev : d.card.up);
     lines.push("");
   });
-  if (state.mode === "match") {
+  if (state.mode === "rune") {
+    state.runes.forEach(function (r, i) {
+      lines.push(MODES.rune.positions[i] + ": " + r.g + " " + r.n);
+      lines.push(r.mean);
+      lines.push("");
+    });
+  } else if (state.mode === "wheel") {
+    lines.push("🎡 Kader Çarkı: " + state.wheelR.e + " " + state.wheelR.n + " — " + state.wheelR.m, "");
+  } else if (state.mode === "match") {
     lines.push("💞 " + state.match.a + " & " + state.match.b + " uyumu: %" + state.matchR.score, "");
   } else if (state.mode === "mirror") {
     lines.push("🪞 Ayna dedi ki: " + (state.mirrorAnswer || ""), "");
@@ -1603,14 +1726,16 @@ $("shareBtn").addEventListener("click", function () {
   }
 });
 
-function showToast() {
+function showToast(msg) {
   var t = $("toast");
+  t.textContent = msg || "Kopyalandı ✨";
   t.classList.add("show");
   setTimeout(function () { t.classList.remove("show"); }, 1800);
 }
 
 $("againBtn").addEventListener("click", function () {
   $("mirrorArea").style.display = "none";
+  $("wheelArea").style.display = "none";
   $("bigAnswer").style.display = "none";
   $("spread").style.display = "none";
   $("readIntro").style.display = "none";
@@ -1655,6 +1780,301 @@ $("againBtn").addEventListener("click", function () {
   }
   setTimeout(spawn, 2500);
 })();
+
+/* ---------- rün falı: 24 kadim taş ---------- */
+var RUNES = [
+  { n: "Fehu", g: "ᚠ", th: "bolluk ve kazanç", mean: "Emeğin karşılığı geliyor: maddi bir kazanç, beklenen bir ödeme ya da bereketli bir dönem kapıda.", adv: "Kazandığını hemen saçma; tohumluk ayır." },
+  { n: "Uruz", g: "ᚢ", th: "ham güç ve dayanıklılık", mean: "İçinde yabani bir güç birikmiş; sağlığın ve dayanıklılığın yükselişte.", adv: "Gücünü kaba kuvvete değil, tek hedefe ver." },
+  { n: "Thurisaz", g: "ᚦ", th: "diken ve uyarı", mean: "Yolda bir diken var: ani bir çatışma ya da düşüncesizce atılmış bir adım canını yakabilir.", adv: "Kapıyı çarpmadan önce üçe kadar say." },
+  { n: "Ansuz", g: "ᚨ", th: "haber ve bilgelik", mean: "Önemli bir haber, yerinde bir öğüt ya da ağızdan çıkacak doğru bir söz gündemde.", adv: "Bugün gelen mesajı iki kez oku." },
+  { n: "Raidho", g: "ᚱ", th: "yolculuk ve yön", mean: "Bir yolculuk ya da yön değişimi görünüyor — fiziksel de olabilir, içsel de.", adv: "Rotayı sen çiz; sürüklenme." },
+  { n: "Kenaz", g: "ᚲ", th: "meşale ve ilham", mean: "Zihninde bir meşale yandı: yaratıcı bir çözüm, bir aydınlanma yaklaşıyor.", adv: "Fikri bugün not al; yarın söner." },
+  { n: "Gebo", g: "ᚷ", th: "hediye ve ortaklık", mean: "Bir hediye, bir iyilik ya da dengeli bir ortaklık kapıda.", adv: "Alırken vermeyi de bil; denge bozulmasın." },
+  { n: "Wunjo", g: "ᚹ", th: "sevinç ve uyum", mean: "Neşe ve uyum dönemi; küçük mutluluklar üst üste gelecek.", adv: "Sevincini paylaş; katlanır." },
+  { n: "Hagalaz", g: "ᚺ", th: "dolu fırtınası", mean: "Kontrol dışı bir sarsıntı olabilir; doğanın dolusu gibi — kişisel algılama, geçicidir.", adv: "Fırtınada çatı ara; inşaata kalkışma." },
+  { n: "Nauthiz", g: "ᚾ", th: "ihtiyaç ve sabır", mean: "Bir kısıtlama seni sıkıyor; ama ihtiyaç, en iyi öğretmendir.", adv: "Neyin gerçekten gerekli olduğunu listele." },
+  { n: "Isa", g: "ᛁ", th: "buz ve duraklama", mean: "Her şey donmuş gibi; bu bir bekleme dönemi, ceza değil.", adv: "Buzu kırma; erimesini bekle." },
+  { n: "Jera", g: "ᛃ", th: "hasat ve döngü", mean: "Ektiklerinin hasadı geliyor; bir döngü hakkıyla tamamlanıyor.", adv: "Hasat sabırla olgunlaşır; erken koparma." },
+  { n: "Eihwaz", g: "ᛇ", th: "köklü dayanıklılık", mean: "Porsuk ağacı gibisin: zor bir geçişte köklerin seni ayakta tutuyor.", adv: "Eğil ama kırılma." },
+  { n: "Perthro", g: "ᛈ", th: "kader kadehi ve sır", mean: "Şansın zarları atılıyor; gizli kalmış bir şey açığa çıkabilir.", adv: "Bilinmeyene biraz yer bırak; her şeyi bilmek zorunda değilsin." },
+  { n: "Algiz", g: "ᛉ", th: "koruma ve içgüdü", mean: "Korunuyorsun: içgüdülerin seni tehlikeden bir adım uzak tutuyor.", adv: "İçindeki alarm çalarsa dinle." },
+  { n: "Sowilo", g: "ᛊ", th: "güneş ve başarı", mean: "Güneş rünü düştü: başarı, netlik ve moral yükselişi.", adv: "Işık varken yol al." },
+  { n: "Tiwaz", g: "ᛏ", th: "adalet ve zafer", mean: "Haklı olduğun bir konuda zafer görünüyor; cesaretin ödüllenecek.", adv: "Dürüst kal; kılıcın o zaman keskin." },
+  { n: "Berkano", g: "ᛒ", th: "filiz ve yeni başlangıç", mean: "Yeni bir başlangıç filizleniyor: bir proje, bir ilişki ya da taze bir sayfa.", adv: "Filizi gölgeleme; ışık ver." },
+  { n: "Ehwaz", g: "ᛖ", th: "güvenilir ilerleyiş", mean: "Sadık bir yoldaşla ya da oturmuş bir düzenle ilerleme zamanı.", adv: "Atını iyi besle: alışkanlıkların seni taşıyor." },
+  { n: "Mannaz", g: "ᛗ", th: "insan ve topluluk", mean: "İnsanlarla bağların gündemde; beklediğin destek de oradan gelecek.", adv: "Yalnız kahramanlık yerine akıl ortaklığı." },
+  { n: "Laguz", g: "ᛚ", th: "su ve sezgi", mean: "Sezgilerin yükselişte; akışa güvenme zamanı.", adv: "Kürek çekme; yelken aç." },
+  { n: "Ingwaz", g: "ᛜ", th: "olgunlaşan tohum", mean: "İçinde uzun süredir olgunlaşan bir şey tamamlanıp meyveye dönüyor.", adv: "Bitir, kutla; yenisine sonra başla." },
+  { n: "Dagaz", g: "ᛞ", th: "şafak ve aydınlanma", mean: "Bir şafak söküyor: uzun süren bir belirsizlik nihayet aydınlanıyor.", adv: "Gün ışırken karar ver." },
+  { n: "Othala", g: "ᛟ", th: "kökler ve miras", mean: "Kökler, aile ve kalıcı değerler öne çıkıyor; güç oradan gelecek.", adv: "Asıl miras eşya değil, değerlerdir; onları taşı." }
+];
+function revealRunes() {
+  var conf = MODES.rune;
+  var idx = RUNES.map(function (_, i) { return i; });
+  var picks = [];
+  for (var k = 0; k < 3; k++) picks.push(idx.splice(Math.floor(Math.random() * idx.length), 1)[0]);
+  state.runes = picks.map(function (i) { return RUNES[i]; });
+  state.drawn = [];
+  $("deckArea").style.display = "none";
+  var spread = $("spread");
+  spread.style.display = "flex";
+  state.runes.forEach(function (r, i) {
+    var slot = document.createElement("div");
+    slot.className = "slot";
+    slot.innerHTML =
+      '<div class="pos-label">' + conf.positions[i] + "</div>" +
+      '<div class="flip"><div class="flip-inner">' +
+      '<div class="face rback"></div>' +
+      '<div class="face rfront"><div class="rglyph">' + r.g + '</div><div class="rname">' + r.n + "</div></div>" +
+      "</div></div>";
+    spread.appendChild(slot);
+    setTimeout(function () {
+      slot.classList.add("revealed");
+      if (navigator.vibrate) navigator.vibrate(25);
+    }, 350 + i * 650);
+  });
+  var name = getName();
+  if (name) {
+    $("readIntro").textContent = name + ", taşlar şöyle diyor…";
+    $("readIntro").style.display = "block";
+  }
+  var readings = $("readings");
+  readings.style.display = "block";
+  state.runes.forEach(function (r, i) {
+    var b = document.createElement("div");
+    b.className = "reading";
+    b.innerHTML = "<h3>" + r.g + " " + r.n + "</h3>" +
+      '<div class="pos">' + conf.positions[i] + "</div>" +
+      '<div class="lead">' + conf.leads[i] + "</div>" +
+      "<p>" + r.mean + "</p>" +
+      '<div class="advice">✨ ' + r.adv + "</div>";
+    readings.appendChild(b);
+    setTimeout(function () { b.classList.add("show"); }, 900 + i * 650);
+  });
+  var g = document.createElement("div");
+  g.className = "reading general";
+  g.innerHTML = "<h3>🌟 Taşların Sentezi</h3><p>Zemini <b>" + state.runes[0].n + "</b> anlatıyor: " +
+    state.runes[0].th + ". Önündeki yolu <b>" + state.runes[1].n + "</b> gösteriyor: " +
+    state.runes[1].th + ". Varış noktasında ise <b>" + state.runes[2].n + "</b> duruyor: " +
+    state.runes[2].th + ". Rünler tarottan daha az konuşur ama daha net fısıldar: bu üçlünün ortak sesi, kulak verene yeter.</p>";
+  readings.appendChild(g);
+  setTimeout(function () { g.classList.add("show"); }, 900 + 3 * 650);
+  setTimeout(function () { $("actions").style.display = "flex"; }, 1300 + 3 * 650);
+}
+
+/* ---------- kader çarkı ---------- */
+var WHEEL_SEGS = [
+  { e: "🍀", n: "Büyük Şans", m: ["Bugün denk gelmeler senden yana: doğru yerde, doğru anda olacaksın.", "Kaybettiğin bir şey bugün kendiliğinden ortaya çıkabilir.", "Küçük bir riskin bugün büyük bir gülümsemesi var."] },
+  { e: "🪨", n: "Sabır Taşı", m: ["Bugünün ödülü gecikmeli gelir; sabrına yatırım günü.", "Acele karar yok: bekleyen kazanacak.", "Taş gibi sağlam dur; bugün sallanan sen olmayacaksın."] },
+  { e: "🎁", n: "Sürpriz Kapıda", m: ["Beklemediğin bir haber ya da küçük bir hediye görünüyor.", "Sürpriz bir davet alabilirsin; programını esnek tut.", "Kapı zili, telefon ya da mesaj: biri seni şaşırtacak."] },
+  { e: "😄", n: "Kahkaha Günü", m: ["Bugün en az bir kez gözünden yaş gelene kadar güleceksin.", "Neşen bulaşıcı: yanındakilerin gününü sen kurtaracaksın.", "Komik bir yanlış anlaşılma tatlıya bağlanacak."] },
+  { e: "🌀", n: "Merkür Muzip", m: ["Ufak aksilikler olabilir; gülümse, hepsi akşama espri olacak.", "Mesajları iki kez oku; çıkmadan anahtarı kontrol et.", "Teknoloji bugün nazlı; yedekle, sabret, gerekirse üfle."] },
+  { e: "💘", n: "Aşk Rüzgârı", m: ["Kalp tarafında kıpırtı var: bir bakış, bir mesaj, bir gülümseme.", "Bugün birine içten bir iltifat et; rüzgâr döner, sana gelir.", "Eski bir his tazelenebilir; kapıyı aralık bırak."] },
+  { e: "🌾", n: "Bereket", m: ["Emeğinin küçük ama somut bir karşılığı bugün görünür olacak.", "Paylaştıkça çoğalan bir gündesin: sofranı aç.", "Bugün başladığın iş bereketli büyür."] },
+  { e: "✨", n: "Kozmik Onay", m: ["İçinden geçen o şeye evren bugün 'olur' verdi.", "İşaret bekliyordun ya — bu, o işaret.", "Bugün attığın adım evren tarafından mühürlenir."] }
+];
+var wheelRot = 0, wheelBusy = false;
+$("wheel").addEventListener("click", function () {
+  if (wheelBusy) return;
+  wheelBusy = true;
+  var seg = Math.floor(Math.random() * 8);
+  var target = 360 * (5 + Math.floor(Math.random() * 3)) + (360 - (seg * 45 + 22.5));
+  wheelRot = wheelRot - (wheelRot % 360) + target;
+  $("wheel").style.transform = "rotate(" + wheelRot + "deg)";
+  if (navigator.vibrate) navigator.vibrate(20);
+  setTimeout(function () {
+    wheelBusy = false;
+    var s = WHEEL_SEGS[seg];
+    state.wheelR = { n: s.n, e: s.e, m: s.m[Math.floor(Math.random() * s.m.length)] };
+    var readings = $("readings");
+    readings.innerHTML = "";
+    readings.style.display = "block";
+    var b = document.createElement("div");
+    b.className = "reading general show";
+    b.innerHTML = "<h3>" + s.e + " " + s.n + "</h3><p>" + state.wheelR.m + "</p>" +
+      '<div class="advice">🎡 Çark günde istediğin kadar çevrilir; kader esnektir, biz de öyleyiz.</div>';
+    readings.appendChild(b);
+    if (navigator.vibrate) navigator.vibrate([30, 60, 30]);
+    $("actions").style.display = "flex";
+  }, 4100);
+});
+
+/* ---------- dilek kuyusu ---------- */
+function moonAge() {
+  var days = (Date.now() - Date.UTC(2000, 0, 6, 18, 14)) / 86400000;
+  return ((days % 29.5306) + 29.5306) % 29.5306;
+}
+function getWishes() {
+  try { return JSON.parse(localStorage.getItem("tarot_dilek")) || []; } catch (e) { return []; }
+}
+function openWishOverlay() {
+  var w = getWishes();
+  $("wishNote").textContent = w.length
+    ? "Kuyuda bekleyen " + w.length + " dileğin var; dolunay gecesi hatırlatılır. 🌕"
+    : "Dileğin sadece bu cihazda saklanır; dolunay gecesi sana hatırlatılır. 🌕";
+  $("wishOverlay").classList.add("show");
+}
+$("wishSave").addEventListener("click", function () {
+  var v = $("wishInput").value.trim();
+  if (!v) return;
+  var w = getWishes();
+  w.push({ t: v, d: todayKey() });
+  while (w.length > 12) w.shift();
+  try { localStorage.setItem("tarot_dilek", JSON.stringify(w)); } catch (e) {}
+  $("wishInput").value = "";
+  $("wishOverlay").classList.remove("show");
+  var el = document.createElement("div");
+  el.className = "shooter emoji";
+  el.textContent = "🌠";
+  el.style.left = "45vw";
+  el.style.top = "70vh";
+  document.body.appendChild(el);
+  if (el.animate) {
+    el.animate([
+      { transform: "translate(0,0) scale(1)", opacity: 1 },
+      { transform: "translate(38vw,-64vh) scale(.4)", opacity: 0 }
+    ], { duration: 1800, easing: "cubic-bezier(.3,.1,.4,1)" }).onfinish = function () { el.remove(); };
+  } else { setTimeout(function () { el.remove(); }, 1800); }
+  showToast("Dileğin gökyüzüne emanet 🌠");
+});
+(function fullMoonReminder() {
+  var age = moonAge();
+  if (age >= 13.8 && age <= 15.8) {
+    var w = getWishes();
+    if (w.length) {
+      $("duyuru").innerHTML = "🌕 <b>Dolunay!</b> Kuyudaki dileğin unutulmadı: “" +
+        escapeHtml(w[w.length - 1].t) + "” — evren bu gece mesaide.<br>" + $("duyuru").textContent;
+    }
+  }
+})();
+
+/* ---------- görsel fal kartı ---------- */
+function loadImgP(src) {
+  return new Promise(function (res) {
+    var im = new Image();
+    im.onload = function () { res(im); };
+    im.onerror = function () { res(null); };
+    im.src = src;
+  });
+}
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+$("shareImgBtn").addEventListener("click", function () {
+  var mode = state.mode;
+  var deck = state.falDeck || "klasik";
+  var cards = (state.drawn || []).slice(0, 3);
+  if (mode === "rune" && state.runes) {
+    deck = "sade";
+    cards = state.runes.map(function (r) {
+      return { card: { sym: r.g, name: r.n }, reversed: false };
+    });
+  }
+  if (!cards.length) return;
+  var W = 1000, H = 1250;
+  var cv = document.createElement("canvas");
+  cv.width = W; cv.height = H;
+  var ctx = cv.getContext("2d");
+  var grd = ctx.createLinearGradient(0, 0, 0, H);
+  grd.addColorStop(0, "#2a1a5e");
+  grd.addColorStop(1, "#120b2e");
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, W, H);
+  for (var i = 0; i < 70; i++) {
+    ctx.fillStyle = "rgba(255,255,255," + (0.15 + Math.random() * 0.6) + ")";
+    ctx.beginPath();
+    ctx.arc(Math.random() * W, Math.random() * H, Math.random() * 2 + 0.5, 0, 7);
+    ctx.fill();
+  }
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#e8cf7a";
+  ctx.font = "bold 58px Georgia, serif";
+  ctx.fillText("✦ TAROT FALI ✦", W / 2, 105);
+  ctx.font = "italic 34px Georgia, serif";
+  ctx.fillStyle = "#f5ecd7";
+  var name = getName();
+  ctx.fillText((MODE_TITLES[mode] || "") + (name ? " · " + name : ""), W / 2, 165);
+  var conf = MODES[mode] || { positions: [] };
+  var cw = 250, ch = 417, gap = 40;
+  var totalW = cards.length * cw + (cards.length - 1) * gap;
+  var x0 = (W - totalW) / 2, y0 = 250;
+  var jobs = cards.map(function (d, i) {
+    var x = x0 + i * (cw + gap);
+    var wantImg = deck !== "sade";
+    return (wantImg ? loadImgP(imgSrc(d.card, deck)) : Promise.resolve(null)).then(function (im) {
+      ctx.save();
+      ctx.translate(x + cw / 2, y0 + ch / 2);
+      if (d.reversed) ctx.rotate(Math.PI);
+      ctx.fillStyle = "#f7efdb";
+      roundRect(ctx, -cw / 2, -ch / 2, cw, ch, 18);
+      ctx.fill();
+      ctx.strokeStyle = "#d4af37";
+      ctx.lineWidth = 6;
+      roundRect(ctx, -cw / 2, -ch / 2, cw, ch, 18);
+      ctx.stroke();
+      if (im) {
+        ctx.save();
+        roundRect(ctx, -cw / 2 + 6, -ch / 2 + 6, cw - 12, ch - 12, 12);
+        ctx.clip();
+        ctx.drawImage(im, -cw / 2 + 6, -ch / 2 + 6, cw - 12, ch - 12);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = "#2b1c4e";
+        ctx.font = "110px serif";
+        ctx.fillText(d.card.sym, 0, 25);
+        ctx.font = "bold 24px Georgia, serif";
+        ctx.fillText(d.card.name, 0, ch / 2 - 36);
+      }
+      ctx.restore();
+      ctx.fillStyle = "#e8cf7a";
+      ctx.font = "24px Georgia, serif";
+      if (conf.positions[i]) ctx.fillText(conf.positions[i], x + cw / 2, y0 - 16);
+      ctx.fillStyle = "#f5ecd7";
+      ctx.font = "bold 25px Georgia, serif";
+      ctx.fillText(d.card.name + (d.reversed ? " (ters)" : ""), x + cw / 2, y0 + ch + 42);
+    });
+  });
+  Promise.all(jobs).then(function () {
+    var yExtra = y0 + ch + 110;
+    ctx.fillStyle = "#e8cf7a";
+    if ((state.drawn || []).length > 3) {
+      ctx.font = "italic 30px Georgia, serif";
+      ctx.fillText("+ " + (state.drawn.length - 3) + " kart daha açıldı", W / 2, yExtra);
+    } else if (mode === "match" && state.matchR) {
+      ctx.font = "bold 66px Georgia, serif";
+      ctx.fillText("💞 %" + state.matchR.score, W / 2, yExtra + 10);
+    } else if (mode === "yesno" && state.drawn[0]) {
+      ctx.font = "bold 62px Georgia, serif";
+      ctx.fillText(ynAnswer(state.drawn[0]), W / 2, yExtra + 10);
+    }
+    ctx.fillStyle = "#e8cf7a";
+    ctx.font = "italic 26px Georgia, serif";
+    ctx.fillText("🔮 " + masterTitle, W / 2, H - 128);
+    ctx.fillText("Mehmet Arar güvencesiyle", W / 2, H - 92);
+    ctx.fillStyle = "rgba(245,236,215,.75)";
+    ctx.font = "24px Georgia, serif";
+    ctx.fillText("morello11.github.io/tarot-fali", W / 2, H - 42);
+    cv.toBlob(function (blob) {
+      var file = null;
+      try { file = new File([blob], "tarot-fali.png", { type: "image/png" }); } catch (e) {}
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({ files: [file] }).catch(function () {});
+      } else {
+        $("shareImg").src = cv.toDataURL("image/png");
+        $("imgOverlay").classList.add("show");
+      }
+    }, "image/png");
+  });
+});
+$("imgClose").addEventListener("click", function () {
+  $("imgOverlay").classList.remove("show");
+});
 
 /* ---------- çevrimdışı destek (PWA) ---------- */
 if ("serviceWorker" in navigator) {
