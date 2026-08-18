@@ -2040,6 +2040,49 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.arcTo(x, y, x + w, y, r);
   ctx.closePath();
 }
+function wrapText(ctx, text, x, y, maxW, lh, maxLines) {
+  var words = text.split(" "), line = "", lines = 0;
+  for (var i = 0; i < words.length; i++) {
+    var t = line ? line + " " + words[i] : words[i];
+    if (ctx.measureText(t).width > maxW && line) {
+      lines++;
+      if (maxLines && lines >= maxLines) {
+        while (ctx.measureText(line + "…").width > maxW && line.length) line = line.slice(0, -1);
+        ctx.fillText(line + "…", x, y);
+        return y + lh;
+      }
+      ctx.fillText(line, x, y);
+      y += lh;
+      line = words[i];
+    } else line = t;
+  }
+  if (line) { ctx.fillText(line, x, y); y += lh; }
+  return y;
+}
+function imgSummary() {
+  var strip = function (s) { return s.replace(/<[^>]+>/g, ""); };
+  var m = state.mode;
+  if (m === "rune") return "Zemini " + state.runes[0].n + " anlatıyor: " + state.runes[0].th +
+    ". Yolu " + state.runes[1].n + " gösteriyor: " + state.runes[1].th +
+    ". Varış noktasında " + state.runes[2].n + " duruyor: " + state.runes[2].th + ".";
+  if (m === "match") return strip(matchText(state.matchR.score, state.match.a, state.match.b));
+  if (m === "life") return "Doğum sayılarının kadim hesabı: " + state.life.expl + ".";
+  if (m === "chart") return state.chart.rows.map(function (r) {
+    return r.emo + " " + r.label + ": " + r.sign;
+  }).join("  ·  ");
+  if (state.drawn.length >= 3) return strip(weave(state.drawn, m));
+  var d = state.drawn[0];
+  return strip(d.reversed ? d.card.rev : d.card.up);
+}
+function imgLabel() {
+  var m = state.mode;
+  if (m === "yesno") return "Cevap: " + ynAnswer(state.drawn[0]);
+  if (m === "match") return "💞 Uyum: %" + state.matchR.score;
+  if (m === "rune") return "🌟 Taşların Sentezi";
+  if (m === "life") return "🔢 Kadim Hesap";
+  if (m === "chart") return "🌌 Gök Haritası";
+  return "🌟 Kartların Fısıltısı";
+}
 $("shareImgBtn").addEventListener("click", function () {
   var mode = state.mode;
   var deck = state.falDeck || "klasik";
@@ -2055,29 +2098,82 @@ $("shareImgBtn").addEventListener("click", function () {
   var cv = document.createElement("canvas");
   cv.width = W; cv.height = H;
   var ctx = cv.getContext("2d");
+  /* zemin: degrade + ışıltı bulutları + yıldızlar */
   var grd = ctx.createLinearGradient(0, 0, 0, H);
   grd.addColorStop(0, "#2a1a5e");
+  grd.addColorStop(0.55, "#1a0f45");
   grd.addColorStop(1, "#120b2e");
   ctx.fillStyle = grd;
   ctx.fillRect(0, 0, W, H);
-  for (var i = 0; i < 70; i++) {
-    ctx.fillStyle = "rgba(255,255,255," + (0.15 + Math.random() * 0.6) + ")";
+  function blob(x, y, r, col) {
+    var g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, col);
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  blob(160, 240, 420, "rgba(123,79,216,.20)");
+  blob(860, 1030, 400, "rgba(42,168,160,.14)");
+  blob(880, 140, 260, "rgba(232,207,122,.10)");
+  for (var i = 0; i < 90; i++) {
+    ctx.fillStyle = "rgba(255,255,255," + (0.12 + Math.random() * 0.6) + ")";
     ctx.beginPath();
-    ctx.arc(Math.random() * W, Math.random() * H, Math.random() * 2 + 0.5, 0, 7);
+    ctx.arc(Math.random() * W, Math.random() * H, Math.random() * 2 + 0.4, 0, 7);
     ctx.fill();
   }
-  ctx.textAlign = "center";
+  /* kayan yıldız */
+  var sg = ctx.createLinearGradient(690, 95, 850, 135);
+  sg.addColorStop(0, "rgba(255,255,255,0)");
+  sg.addColorStop(1, "rgba(255,255,255,.85)");
+  ctx.strokeStyle = sg;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath(); ctx.moveTo(690, 95); ctx.lineTo(850, 135); ctx.stroke();
+  ctx.fillStyle = "#fff";
+  ctx.beginPath(); ctx.arc(852, 135, 4, 0, 7); ctx.fill();
+  /* süslü çift çerçeve + köşe yıldızları + ay */
+  ctx.strokeStyle = "#d4af37";
+  ctx.lineWidth = 3;
+  roundRect(ctx, 24, 24, W - 48, H - 48, 26); ctx.stroke();
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = "rgba(212,175,55,.55)";
+  roundRect(ctx, 36, 36, W - 72, H - 72, 20); ctx.stroke();
   ctx.fillStyle = "#e8cf7a";
-  ctx.font = "bold 58px Georgia, serif";
-  ctx.fillText("✦ TAROT FALI ✦", W / 2, 105);
-  ctx.font = "italic 34px Georgia, serif";
+  ctx.font = "26px serif";
+  ctx.textAlign = "center";
+  [[46, 56], [W - 46, 56], [46, H - 40], [W - 46, H - 40]].forEach(function (p) {
+    ctx.fillText("✦", p[0], p[1]);
+  });
+  ctx.font = "54px serif";
+  ctx.fillText("🌙", W - 92, 112);
+  /* başlıklar */
+  ctx.fillStyle = "#e8cf7a";
+  ctx.font = "bold 56px Georgia, serif";
+  ctx.fillText("✦ TAROT FALI ✦", W / 2, 122);
+  function divider(y, w) {
+    var dg = ctx.createLinearGradient(W / 2 - w, y, W / 2 + w, y);
+    dg.addColorStop(0, "rgba(212,175,55,0)");
+    dg.addColorStop(0.5, "rgba(212,175,55,.9)");
+    dg.addColorStop(1, "rgba(212,175,55,0)");
+    ctx.strokeStyle = dg;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(W / 2 - w, y); ctx.lineTo(W / 2 + w, y); ctx.stroke();
+    ctx.fillStyle = "#e8cf7a";
+    ctx.font = "16px serif";
+    ctx.fillText("✦", W / 2, y + 6);
+  }
+  divider(148, 240);
+  ctx.font = "italic 33px Georgia, serif";
   ctx.fillStyle = "#f5ecd7";
   var name = getName();
-  ctx.fillText((MODE_TITLES[mode] || "") + (name ? " · " + name : ""), W / 2, 165);
+  ctx.fillText((MODE_TITLES[mode] || "") + (name ? " · " + name : ""), W / 2, 196);
+  ctx.font = "24px Georgia, serif";
+  ctx.fillStyle = "rgba(245,236,215,.65)";
+  ctx.fillText(new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" }), W / 2, 232);
+  /* kartlar */
   var conf = MODES[mode] || { positions: [] };
-  var cw = 250, ch = 417, gap = 40;
+  var cw = 240, ch = 400, gap = 38;
   var totalW = cards.length * cw + (cards.length - 1) * gap;
-  var x0 = (W - totalW) / 2, y0 = 250;
+  var x0 = (W - totalW) / 2, y0 = 272;
   var jobs = cards.map(function (d, i) {
     var x = x0 + i * (cw + gap);
     var wantImg = deck !== "sade";
@@ -2085,55 +2181,91 @@ $("shareImgBtn").addEventListener("click", function () {
       ctx.save();
       ctx.translate(x + cw / 2, y0 + ch / 2);
       if (d.reversed) ctx.rotate(Math.PI);
+      ctx.shadowColor = "rgba(0,0,0,.55)";
+      ctx.shadowBlur = 22;
+      ctx.shadowOffsetY = 8;
       ctx.fillStyle = "#f7efdb";
-      roundRect(ctx, -cw / 2, -ch / 2, cw, ch, 18);
+      roundRect(ctx, -cw / 2, -ch / 2, cw, ch, 16);
       ctx.fill();
+      ctx.shadowColor = "transparent";
       ctx.strokeStyle = "#d4af37";
-      ctx.lineWidth = 6;
-      roundRect(ctx, -cw / 2, -ch / 2, cw, ch, 18);
+      ctx.lineWidth = 5;
+      roundRect(ctx, -cw / 2, -ch / 2, cw, ch, 16);
       ctx.stroke();
       if (im) {
         ctx.save();
-        roundRect(ctx, -cw / 2 + 6, -ch / 2 + 6, cw - 12, ch - 12, 12);
+        roundRect(ctx, -cw / 2 + 6, -ch / 2 + 6, cw - 12, ch - 12, 11);
         ctx.clip();
         ctx.drawImage(im, -cw / 2 + 6, -ch / 2 + 6, cw - 12, ch - 12);
         ctx.restore();
       } else {
         ctx.fillStyle = "#2b1c4e";
-        ctx.font = "110px serif";
-        ctx.fillText(d.card.sym, 0, 25);
-        ctx.font = "bold 24px Georgia, serif";
-        ctx.fillText(d.card.name, 0, ch / 2 - 36);
+        ctx.font = "104px serif";
+        ctx.fillText(d.card.sym, 0, 24);
+        ctx.font = "bold 23px Georgia, serif";
+        ctx.fillText(d.card.name, 0, ch / 2 - 34);
       }
       ctx.restore();
       ctx.fillStyle = "#e8cf7a";
-      ctx.font = "24px Georgia, serif";
+      ctx.font = "23px Georgia, serif";
       if (conf.positions[i]) ctx.fillText(conf.positions[i], x + cw / 2, y0 - 16);
       ctx.fillStyle = "#f5ecd7";
-      ctx.font = "bold 25px Georgia, serif";
-      ctx.fillText(d.card.name + (d.reversed ? " (ters)" : ""), x + cw / 2, y0 + ch + 42);
+      ctx.font = "bold 24px Georgia, serif";
+      ctx.fillText(d.card.name + (d.reversed ? " (ters)" : ""), x + cw / 2, y0 + ch + 40);
     });
   });
   Promise.all(jobs).then(function () {
-    var yExtra = y0 + ch + 110;
-    ctx.fillStyle = "#e8cf7a";
+    /* Kelt: kalan kartlar mini yelpaze olarak */
     if ((state.drawn || []).length > 3) {
-      ctx.font = "italic 30px Georgia, serif";
-      ctx.fillText("+ " + (state.drawn.length - 3) + " kart daha açıldı", W / 2, yExtra);
-    } else if (mode === "match" && state.matchR) {
-      ctx.font = "bold 66px Georgia, serif";
-      ctx.fillText("💞 %" + state.matchR.score, W / 2, yExtra + 10);
-    } else if (mode === "yesno" && state.drawn[0]) {
-      ctx.font = "bold 62px Georgia, serif";
-      ctx.fillText(ynAnswer(state.drawn[0]), W / 2, yExtra + 10);
+      var extra = state.drawn.length - 3;
+      var fy = y0 + ch + 78, fw = 40, fh = 64;
+      var startA = -((extra - 1) / 2) * 9;
+      for (var k = 0; k < extra; k++) {
+        ctx.save();
+        ctx.translate(W / 2 - 55 + k * 16, fy + fh / 2);
+        ctx.rotate((startA + k * 9) * Math.PI / 180);
+        ctx.fillStyle = "#241552";
+        roundRect(ctx, -fw / 2, -fh / 2, fw, fh, 6);
+        ctx.fill();
+        ctx.strokeStyle = "#d4af37";
+        ctx.lineWidth = 2;
+        roundRect(ctx, -fw / 2, -fh / 2, fw, fh, 6);
+        ctx.stroke();
+        ctx.fillStyle = "#d4af37";
+        ctx.font = "16px serif";
+        ctx.fillText("✦", 0, 6);
+        ctx.restore();
+      }
+      ctx.fillStyle = "#e8cf7a";
+      ctx.font = "italic 26px Georgia, serif";
+      ctx.textAlign = "left";
+      ctx.fillText("+ " + extra + " kart daha", W / 2 + 40, fy + fh / 2 + 8);
+      ctx.textAlign = "center";
     }
+    /* genel yorum kutusu */
+    var boxTop = 806, boxH = 300, boxX = 92, boxW = W - 184;
+    ctx.fillStyle = "rgba(247,239,219,.06)";
+    roundRect(ctx, boxX, boxTop, boxW, boxH, 18);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(212,175,55,.6)";
+    ctx.lineWidth = 1.5;
+    roundRect(ctx, boxX, boxTop, boxW, boxH, 18);
+    ctx.stroke();
     ctx.fillStyle = "#e8cf7a";
-    ctx.font = "italic 26px Georgia, serif";
-    ctx.fillText("🔮 " + masterTitle, W / 2, H - 128);
-    ctx.fillText("Mehmet Arar güvencesiyle", W / 2, H - 92);
-    ctx.fillStyle = "rgba(245,236,215,.75)";
-    ctx.font = "24px Georgia, serif";
-    ctx.fillText((location.host + location.pathname).replace(/\/$/, ""), W / 2, H - 42);
+    ctx.font = "bold 27px Georgia, serif";
+    ctx.fillText(imgLabel(), W / 2, boxTop + 44);
+    ctx.fillStyle = "#f5ecd7";
+    ctx.font = "25px Georgia, serif";
+    wrapText(ctx, imgSummary(), W / 2, boxTop + 90, boxW - 70, 36, 6);
+    /* unvan plaketi + link */
+    divider(H - 150, 300);
+    ctx.fillStyle = "#e8cf7a";
+    ctx.font = "italic 25px Georgia, serif";
+    var fy2 = wrapText(ctx, "🔮 " + masterTitle, W / 2, H - 118, W - 220, 32, 2);
+    ctx.fillText("Mehmet Arar güvencesiyle", W / 2, fy2 + 2);
+    ctx.fillStyle = "rgba(245,236,215,.6)";
+    ctx.font = "21px Georgia, serif";
+    ctx.fillText((location.host + location.pathname).replace(/\/$/, ""), W / 2, Math.min(fy2 + 34, H - 34));
     cv.toBlob(function (blob) {
       var file = null;
       try { file = new File([blob], "tarot-fali.png", { type: "image/png" }); } catch (e) {}
