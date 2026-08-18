@@ -123,6 +123,30 @@
   .front.suit-kilic .num { color: #55677a; }
   .front.suit-tilsim .num { color: #3e7d3e; }
 
+  /* görselli (klasik deste) kart yüzü */
+  .face.front .emojiface { position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: space-between; padding: 10px 6px; }
+  .face.front.artface { padding: 0; background: #1a1233; }
+  .face.front.artface::before, .face.front.artface::after { content: none; }
+  .face.front.artface .emojiface { display: none; }
+  .face.front:not(.artface) .art, .face.front:not(.artface) .artname { display: none; }
+  .art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 10px; }
+  .front.is-rev .art { transform: rotate(180deg); }
+  .artname { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; text-align: center;
+    font-size: .7rem; font-weight: bold; color: #f5ecd7; padding: 16px 3px 6px;
+    background: linear-gradient(transparent, rgba(10,6,26,.95)); border-radius: 0 0 10px 10px; }
+  .artname .rt { color: #ff9d9d; font-style: italic; font-weight: normal; }
+
+  .deckpick { font-size: .85rem; margin-bottom: 4px; }
+  .deckpick button { font-family: inherit; font-size: .85rem; color: var(--cream);
+    background: transparent; border: 1px solid rgba(212,175,55,.45); border-radius: 999px;
+    padding: 6px 14px; margin: 0 4px; cursor: pointer; opacity: .65; }
+  .deckpick button.on { background: rgba(212,175,55,.2); color: var(--gold-soft);
+    opacity: 1; border-color: var(--gold); }
+
+  .master { margin-bottom: 10px; color: var(--gold-soft); opacity: .9;
+    font-size: .85rem; font-style: italic; }
+
   .read-intro { display: none; margin-top: 24px; font-style: italic; color: var(--gold-soft); }
   .readings { display: none; text-align: left; margin-top: 14px; }
   .reading {
@@ -206,6 +230,9 @@
   </header>
 
   <div class="modes" id="modes">
+    <div class="deckpick" id="deckpick">🎴 Deste:
+      <button data-deck="klasik">Klasik</button><button data-deck="sade">Sade</button>
+    </div>
     <button class="mode-btn" data-mode="daily">
       <span class="t">🌙 Günün Kartı</span>
       <span class="d">Sana özel bugünün kartı, şanslı rengin ve sayın</span>
@@ -252,6 +279,7 @@
   </div>
 
   <footer>
+    <div class="master" id="master"></div>
     Bu uygulama tamamen eğlence amaçlıdır. 🌟<br>
     Kararlarınızı kartlara değil, kendinize güvenerek verin.<br>
     78 kartlık tam deste ile hazırlanmıştır.
@@ -422,11 +450,13 @@ var SUITS = [
   ]}
 ];
 
-var CARDS = MAJORS.map(function (c) { c.suit = "major"; return c; });
+function pad2(n) { return (n < 10 ? "0" : "") + n; }
+var CARDS = MAJORS.map(function (c, i) { c.suit = "major"; c.img = "m" + pad2(i) + ".jpg"; return c; });
 SUITS.forEach(function (s) {
-  s.cards.forEach(function (row) {
+  s.cards.forEach(function (row, ri) {
     CARDS.push({
       n: s.label, name: s.name + " " + row[0], sym: s.sym, suit: s.key,
+      img: s.key + pad2(ri + 1) + ".jpg",
       up: row[1], rev: row[2], adv: row[3], yn: row[4]
     });
   });
@@ -529,6 +559,43 @@ function generalReading(drawn, mode) {
   return parts.join(" ");
 }
 
+/* ---------- deste seçimi ---------- */
+function getDeck() {
+  try { return localStorage.getItem("tarot_deste") || "klasik"; } catch (e) { return "klasik"; }
+}
+function refreshDeckUI() {
+  document.querySelectorAll("#deckpick button").forEach(function (b) {
+    b.classList.toggle("on", b.dataset.deck === getDeck());
+  });
+}
+document.querySelectorAll("#deckpick button").forEach(function (b) {
+  b.addEventListener("click", function () {
+    try { localStorage.setItem("tarot_deste", b.dataset.deck); } catch (e) {}
+    refreshDeckUI();
+  });
+});
+refreshDeckUI();
+
+/* ---------- büyük üstat ---------- */
+var TITLES = [
+  "Kadim Sırların Yeminli Bekçisi",
+  "Yedi Kuşak Falcı Soyunun Son Temsilcisi Büyük Üstat",
+  "Kartların Fısıltısını Çıplak Kulakla Duyabilen Efsanevi Kâhin",
+  "Uluslararası Onaylı Kader Mühendisi",
+  "Evrenin Gizli Excel Tablosunu Tutan Yüce Bilge",
+  "Merkür Retrosundan Üç Kez Sağ Çıkmış Büyük Kâhin",
+  "Destelerin Efendisi, Açılımların İmparatoru",
+  "Gizli İlimler Akademisi Altın Madalyalı Şeref Üyesi",
+  "Ay Işığında Eğitilmiş Grand Tarot Master",
+  "Kahvesi Soğumadan Üç Geleceği Birden Gören Usta",
+  "Zamanın ve Mekânın Ötesinden Bildiren Yüce Falcı",
+  "Kartlara Danışılan, Kendisi Asla Şaşırmayan Üstat",
+  "Galaksiler Arası Tarot Federasyonu Onursal Başkanı",
+  "Rüyasında Bile Ters Kart Açmayan Yaşayan Efsane"
+];
+var masterTitle = TITLES[Math.floor(Math.random() * TITLES.length)];
+$("master").innerHTML = "🔮 " + masterTitle + "<br><b>Mehmet Arar</b> güvencesiyle sunulmuştur.";
+
 /* ---------- isim ekranı ---------- */
 function refreshGreet() {
   var name = getName();
@@ -595,6 +662,7 @@ function reveal() {
   var spread = $("spread");
   spread.style.display = "flex";
 
+  var useArt = getDeck() === "klasik";
   state.drawn.forEach(function (d, i) {
     var slot = document.createElement("div");
     slot.className = "slot";
@@ -602,11 +670,18 @@ function reveal() {
       '<div class="pos-label">' + conf.positions[i] + "</div>" +
       '<div class="flip"><div class="flip-inner">' +
       '<div class="face back"></div>' +
-      '<div class="face front suit-' + d.card.suit + (d.reversed ? " is-rev" : "") + '">' +
+      '<div class="face front suit-' + d.card.suit + (d.reversed ? " is-rev" : "") + (useArt ? " artface" : "") + '">' +
+      (useArt
+        ? '<img class="art" src="img/' + d.card.img + '" alt="" ' +
+          'onerror="this.parentElement.classList.remove(\'artface\')">' +
+          '<div class="artname">' + d.card.name + (d.reversed ? ' <span class="rt">(ters)</span>' : "") + "</div>"
+        : "") +
+      '<div class="emojiface">' +
       '<div class="num">' + d.card.n + "</div>" +
       '<div class="sym">' + d.card.sym + "</div>" +
       '<div class="nm">' + d.card.name + "</div>" +
       '<div class="rev-tag">' + (d.reversed ? "ters" : "") + "</div>" +
+      "</div>" +
       "</div></div></div>";
     spread.appendChild(slot);
     setTimeout(function () {
@@ -684,6 +759,7 @@ $("shareBtn").addEventListener("click", function () {
     lines.push("");
   });
   if (state.drawn.length >= 3) lines.push("🌟 " + generalReading(state.drawn, state.mode), "");
+  lines.push("🔮 " + masterTitle + " Mehmet Arar güvencesiyle", "");
   lines.push("Sen de bak: " + location.href.split("#")[0]);
   var text = lines.join("\n");
   if (navigator.share) {

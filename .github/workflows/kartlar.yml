@@ -1,0 +1,54 @@
+name: Kart gorsellerini indir
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rider-Waite destesini indir (kamu mali, Wikimedia Commons)
+        run: |
+          set -e
+          mkdir -p img
+          MAJORS=(
+            RWS_Tarot_00_Fool.jpg RWS_Tarot_01_Magician.jpg RWS_Tarot_02_High_Priestess.jpg
+            RWS_Tarot_03_Empress.jpg RWS_Tarot_04_Emperor.jpg RWS_Tarot_05_Hierophant.jpg
+            RWS_Tarot_06_Lovers.jpg RWS_Tarot_07_Chariot.jpg RWS_Tarot_08_Strength.jpg
+            RWS_Tarot_09_Hermit.jpg RWS_Tarot_10_Wheel_of_Fortune.jpg RWS_Tarot_11_Justice.jpg
+            RWS_Tarot_12_Hanged_Man.jpg RWS_Tarot_13_Death.jpg RWS_Tarot_14_Temperance.jpg
+            RWS_Tarot_15_Devil.jpg RWS_Tarot_16_Tower.jpg RWS_Tarot_17_Star.jpg
+            RWS_Tarot_18_Moon.jpg RWS_Tarot_19_Sun.jpg RWS_Tarot_20_Judgement.jpg
+            RWS_Tarot_21_World.jpg
+          )
+          fetch() { # $1 = commons dosya adi, $2 = hedef dosya
+            local url="https://commons.wikimedia.org/wiki/Special:FilePath/$1?width=400"
+            curl -sL --retry 3 --retry-delay 2 -o "img/$2" "$url"
+            if [ "$(stat -c%s "img/$2" 2>/dev/null || echo 0)" -lt 5000 ]; then
+              curl -sL --retry 3 --retry-delay 2 -o "img/$2" \
+                "https://commons.wikimedia.org/wiki/Special:FilePath/$1"
+            fi
+            if [ "$(stat -c%s "img/$2" 2>/dev/null || echo 0)" -lt 5000 ]; then
+              echo "INDIRILEMEDI: $1"; return 1
+            fi
+            echo "ok: $2"
+          }
+          fail=0
+          for i in "${!MAJORS[@]}"; do
+            fetch "${MAJORS[$i]}" "$(printf 'm%02d.jpg' "$i")" || fail=1
+          done
+          declare -A SUITMAP=( [kupa]=Cups [asa]=Wands [kilic]=Swords [tilsim]=Pents )
+          for key in kupa asa kilic tilsim; do
+            for r in $(seq 1 14); do
+              fetch "$(printf '%s%02d.jpg' "${SUITMAP[$key]}" "$r")" "$(printf '%s%02d.jpg' "$key" "$r")" || fail=1
+            done
+          done
+          [ "$fail" -eq 0 ] || { echo "Bazi kartlar indirilemedi"; exit 1; }
+          ls img | wc -l
+      - name: Depoya kaydet
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add img
+          git commit -m "Rider-Waite kart gorselleri (kamu mali, Wikimedia Commons)"
+          git push
