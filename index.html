@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Tarot Falı ✨</title>
+<meta name="description" content="Eğlence amaçlı tarot falı — günün kartı ve üç kart açılımı">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg1: #120b2e; --bg2: #1e1145; --bg3: #2a1a5e;
+    --gold: #d4af37; --gold-soft: #e8cf7a; --cream: #f5ecd7;
+    --card-w: min(30vw, 150px);
+  }
+  html, body { height: 100%; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    background: radial-gradient(ellipse at 50% -10%, var(--bg3), var(--bg1) 70%);
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* yıldızlı gökyüzü */
+  .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .stars span {
+    position: absolute; background: #fff; border-radius: 50%;
+    animation: twinkle 3s ease-in-out infinite;
+  }
+  @keyframes twinkle { 0%,100% { opacity: .15; } 50% { opacity: .9; } }
+
+  .wrap { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; padding: 24px 16px 48px; text-align: center; }
+
+  header h1 {
+    font-size: 2rem; letter-spacing: .12em; color: var(--gold-soft);
+    text-shadow: 0 0 18px rgba(212,175,55,.45);
+  }
+  header .sub { font-style: italic; opacity: .75; margin-top: 6px; font-size: .95rem; }
+  .divider { margin: 18px auto; width: 180px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+
+  /* mod seçimi */
+  .modes { display: flex; flex-direction: column; gap: 14px; margin: 8px 0 4px; }
+  .mode-btn {
+    font-family: inherit; font-size: 1.1rem; color: var(--cream);
+    background: linear-gradient(180deg, rgba(212,175,55,.16), rgba(212,175,55,.05));
+    border: 1px solid rgba(212,175,55,.55); border-radius: 14px;
+    padding: 18px 20px; cursor: pointer; text-align: left;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .mode-btn:active { transform: scale(.97); }
+  .mode-btn .t { display: block; font-size: 1.15rem; color: var(--gold-soft); margin-bottom: 4px; }
+  .mode-btn .d { display: block; font-size: .88rem; opacity: .75; font-style: italic; }
+
+  /* deste ekranı */
+  .deck-area { display: none; }
+  .deck-hint { font-style: italic; opacity: .8; margin: 14px 0 22px; min-height: 1.4em; }
+  .deck {
+    position: relative; width: var(--card-w); aspect-ratio: 3 / 5;
+    margin: 0 auto; cursor: pointer;
+  }
+  .deck .stackcard {
+    position: absolute; inset: 0; border-radius: 12px;
+    background:
+      radial-gradient(circle at 50% 38%, rgba(212,175,55,.35) 0 8%, transparent 9%),
+      repeating-linear-gradient(45deg, #2a1a5e 0 8px, #241552 8px 16px);
+    border: 2px solid var(--gold); box-shadow: 0 6px 18px rgba(0,0,0,.5);
+  }
+  .deck .stackcard::after {
+    content: "✦"; position: absolute; inset: 0; display: grid; place-items: center;
+    color: var(--gold); font-size: 1.6rem; text-shadow: 0 0 10px rgba(212,175,55,.8);
+  }
+  .deck.shuffling .stackcard:nth-child(1) { animation: shuf1 .5s ease-in-out 3; }
+  .deck.shuffling .stackcard:nth-child(2) { animation: shuf2 .5s ease-in-out 3; }
+  @keyframes shuf1 { 50% { transform: translateX(-46%) rotate(-9deg); } }
+  @keyframes shuf2 { 50% { transform: translateX(46%) rotate(9deg); } }
+
+  /* açılan kartlar */
+  .spread { display: none; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 8px; }
+  .slot { width: var(--card-w); }
+  .slot .pos-label { font-size: .8rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--gold-soft); opacity: 0; margin-bottom: 8px; transition: opacity .5s; }
+  .slot.revealed .pos-label { opacity: .9; }
+  .flip { perspective: 900px; width: 100%; aspect-ratio: 3 / 5; }
+  .flip-inner { position: relative; width: 100%; height: 100%;
+    transform-style: preserve-3d; transition: transform .8s cubic-bezier(.4,.1,.2,1); }
+  .slot.revealed .flip-inner { transform: rotateY(180deg); }
+  .face { position: absolute; inset: 0; backface-visibility: hidden;
+    -webkit-backface-visibility: hidden; border-radius: 12px; border: 2px solid var(--gold);
+    box-shadow: 0 6px 18px rgba(0,0,0,.5); }
+  .face.back {
+    background:
+      radial-gradient(circle at 50% 38%, rgba(212,175,55,.35) 0 8%, transparent 9%),
+      repeating-linear-gradient(45deg, #2a1a5e 0 8px, #241552 8px 16px);
+  }
+  .face.back::after { content: "✦"; position: absolute; inset: 0; display: grid;
+    place-items: center; color: var(--gold); font-size: 1.6rem; }
+  .face.front {
+    transform: rotateY(180deg);
+    background: linear-gradient(160deg, #f7efdb, #e9dbb5);
+    color: #2b1c4e; display: flex; flex-direction: column; align-items: center;
+    justify-content: space-between; padding: 10px 6px; overflow: hidden;
+  }
+  .face.front .num { font-size: .75rem; letter-spacing: .18em; color: #7a5c12; }
+  .face.front .sym { font-size: 2.6rem; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,.25)); }
+  .face.front .nm { font-size: .82rem; font-weight: bold; letter-spacing: .04em;
+    text-align: center; padding: 0 2px; }
+  .face.front .rev-tag { font-size: .66rem; color: #a03030; font-style: italic; min-height: 1em; }
+  .slot .front.is-rev .sym { transform: rotate(180deg); }
+
+  /* yorumlar */
+  .readings { display: none; text-align: left; margin-top: 26px; }
+  .reading {
+    background: rgba(255,255,255,.05); border: 1px solid rgba(212,175,55,.35);
+    border-radius: 14px; padding: 16px 18px; margin-bottom: 14px;
+    opacity: 0; transform: translateY(12px); transition: opacity .6s, transform .6s;
+  }
+  .reading.show { opacity: 1; transform: none; }
+  .reading h3 { color: var(--gold-soft); font-size: 1.05rem; margin-bottom: 2px; }
+  .reading .pos { font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
+    opacity: .65; margin-bottom: 8px; }
+  .reading p { font-size: .95rem; line-height: 1.55; }
+  .reading .advice { margin-top: 10px; font-style: italic; color: var(--gold-soft);
+    font-size: .9rem; border-top: 1px dashed rgba(212,175,55,.35); padding-top: 10px; }
+
+  .actions { display: none; gap: 12px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+  .btn {
+    font-family: inherit; font-size: 1rem; color: var(--bg1); background: var(--gold);
+    border: none; border-radius: 999px; padding: 12px 26px; cursor: pointer;
+    transition: transform .15s;
+  }
+  .btn:active { transform: scale(.95); }
+  .btn.ghost { background: transparent; color: var(--gold-soft);
+    border: 1px solid rgba(212,175,55,.55); }
+
+  .home-link { display: none; margin-top: 10px; }
+  footer { margin-top: 40px; font-size: .78rem; opacity: .55; font-style: italic; line-height: 1.5; }
+  .toast {
+    position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(80px);
+    background: var(--gold); color: var(--bg1); padding: 10px 22px; border-radius: 999px;
+    font-size: .9rem; transition: transform .35s; z-index: 5;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="stars" id="stars"></div>
+<div class="wrap">
+  <header>
+    <h1>✦ TAROT FALI ✦</h1>
+    <div class="sub">Kartlar ne fısıldıyor?</div>
+    <div class="divider"></div>
+  </header>
+
+  <div class="modes" id="modes">
+    <button class="mode-btn" data-mode="daily">
+      <span class="t">🌙 Günün Kartı</span>
+      <span class="d">Bugüne özel tek kart — günde bir kez çekilir</span>
+    </button>
+    <button class="mode-btn" data-mode="three">
+      <span class="t">🔮 Üç Kart Açılımı</span>
+      <span class="d">Geçmiş · Şimdi · Gelecek</span>
+    </button>
+    <button class="mode-btn" data-mode="question">
+      <span class="t">💫 Soru Kartı</span>
+      <span class="d">Aklından bir soru geçir, tek kart cevaplasın</span>
+    </button>
+  </div>
+
+  <div class="deck-area" id="deckArea">
+    <p class="deck-hint" id="deckHint"></p>
+    <div class="deck" id="deck">
+      <div class="stackcard"></div>
+      <div class="stackcard"></div>
+      <div class="stackcard"></div>
+    </div>
+  </div>
+
+  <div class="spread" id="spread"></div>
+  <div class="readings" id="readings"></div>
+
+  <div class="actions" id="actions">
+    <button class="btn" id="shareBtn">Falı Paylaş 💌</button>
+    <button class="btn ghost" id="againBtn">Yeni Fal</button>
+  </div>
+
+  <footer>
+    Bu uygulama tamamen eğlence amaçlıdır. 🌟<br>
+    Kararlarınızı kartlara değil, kendinize güvenerek verin.
+  </footer>
+</div>
+<div class="toast" id="toast">Kopyalandı ✨</div>
+
+<script>
+/* ---------- Kart destesi: 22 Büyük Arkana ---------- */
+var CARDS = [
+  { n: "0", name: "Deli", sym: "🃏",
+    up: "Yeni bir başlangıcın eşiğindesin. İçindeki merak ve cesaret seni bilinmedik ama heyecan verici bir yola çağırıyor. Plansızlık bu kez şans getirebilir.",
+    rev: "Aceleyle atılan bir adım düşündüğünden pahalıya patlayabilir. Özgürlük arzun güzel, ama önce ayağını nereye bastığına bak.",
+    adv: "Cesur ol, ama cebinde bir harita bulunsun." },
+  { n: "I", name: "Büyücü", sym: "🎩",
+    up: "İhtiyacın olan her yetenek zaten elinde. Sözlerinin ve becerilerinin gücü bugün her zamankinden etkili — istediğini gerçeğe dönüştürme zamanı.",
+    rev: "Birileri göz boyuyor olabilir; belki de sen kendine sihir yaptığını sanıyorsun. Gerçek güç gösterişte değil, hazırlıkta.",
+    adv: "Elindekileri say; eksik olan malzeme değil, niyet." },
+  { n: "II", name: "Azize", sym: "🌙",
+    up: "İç sesin bugünlerde çok net konuşuyor, yeter ki dinle. Henüz açığa çıkmamış bir bilgi, sabırla bekleyene kendini gösterecek.",
+    rev: "Sezgilerini susturup herkesin aklıyla hareket ediyorsun. Cevap dışarıda değil, sessiz kaldığın anlarda.",
+    adv: "Bugün az konuş, çok dinle — özellikle kendini." },
+  { n: "III", name: "İmparatoriçe", sym: "🌾",
+    up: "Bolluk ve üretkenlik dönemindesin. Emek verdiğin şeyler filizleniyor; ilişkilerinde de şefkatin karşılık buluyor.",
+    rev: "Kendine bakmayı en sona bırakmışsın. Herkesi besleyen el, kendi tabağını da doldurmalı.",
+    adv: "Bugün kendine küçük bir iyilik yap, hak ettin." },
+  { n: "IV", name: "İmparator", sym: "👑",
+    up: "Düzen ve kararlılık kazandırıyor. Sağlam kurduğun yapı, fırtınada bile ayakta kalacak. Otoriten bugün saygı görüyor.",
+    rev: "Kontrol etme isteği seni yoruyor, çevreni de. Her şeyi tek başına taşımak güç değil, inatçılık olabilir.",
+    adv: "Dizginleri biraz gevşet; dünya sensiz de dönmeyi bilir." },
+  { n: "V", name: "Aziz", sym: "🕯️",
+    up: "Deneyimli birinin tavsiyesi bugün altın değerinde. Gelenekler ve kurallar şu an senin lehine işliyor.",
+    rev: "Ezberlenmiş yollar artık dar geliyor. Kendi doğrunu bulma vaktin gelmiş olabilir — saygıyla ama kararlılıkla.",
+    adv: "Akıl danış, ama son sözü kendin söyle." },
+  { n: "VI", name: "Aşıklar", sym: "💞",
+    up: "Kalbinle aklın aynı yöne bakıyor — bu nadir bir uyum. İlişkilerde derinleşme, seçimlerde netlik zamanı.",
+    rev: "İki arada bir derede kalmışsın. Karar vermemek de bir karardır ve genelde en pahalısıdır.",
+    adv: "Neyi gerçekten istediğini yazarsan, cevap kendini gösterir." },
+  { n: "VII", name: "Savaş Arabası", sym: "🏇",
+    up: "İraden bugün çelik gibi. Zıt güçleri aynı hedefe koşturmayı başarıyorsun — zafer, disiplinle gelen cinsten.",
+    rev: "Direksiyona sen değil, telaşın geçmiş. Hız kesmeden yön düzeltilmez.",
+    adv: "Önce rotayı netleştir, sonra gaza bas." },
+  { n: "VIII", name: "Güç", sym: "🦁",
+    up: "Gerçek güç bağırmaz; sabırla ve yumuşaklıkla dizginler. İçindeki aslan bugün senin dostun.",
+    rev: "Öfke ya da özgüven eksikliği ipleri eline almanı engelliyor. Unutma: korkuyu yenmek değil, evcilleştirmek gerekir.",
+    adv: "Nazik olmak zayıflık değildir; en zor kapılar öyle açılır." },
+  { n: "IX", name: "Ermiş", sym: "🏮",
+    up: "Biraz yalnızlık şu an ilaç gibi gelecek. Kendi fenerinin ışığında, kalabalıkta bulamadığın cevabı bulacaksın.",
+    rev: "İnzivan kaçışa dönüşmüş olabilir. Kapıyı aralık bırak; bilgelik paylaşınca çoğalır.",
+    adv: "Telefonu bir saat sessize al, kendinle çay iç." },
+  { n: "X", name: "Kader Çarkı", sym: "🎡",
+    up: "Çark dönüyor ve bu kez senin lehine. Beklenmedik bir gelişme, tıkanan işleri açabilir. Şansın kapısını tıklatma — zaten aralık.",
+    rev: "İşler planladığın gibi gitmiyor, ama çarkın her dönüşü geçicidir. İnişte olan, çıkışa en yakın olandır.",
+    adv: "Kontrol edemediğini bırak, edebildiğine odaklan." },
+  { n: "XI", name: "Adalet", sym: "⚖️",
+    up: "Terazi doğru tartıyor: emeğin karşılığını, doğruluğun itibarını getiriyor. Bir karar aşamasındaysan vicdanın pusulan olsun.",
+    rev: "Bir haksızlık düzeltilmeyi bekliyor — belki senin yaptığın, belki sana yapılan. Dürüst bir konuşma dengeyi kurar.",
+    adv: "Kendine karşı da adil ol; herkes kadar sen de hak ediyorsun." },
+  { n: "XII", name: "Asılan Adam", sym: "🙃",
+    up: "Bazen ilerlemenin yolu durmaktan geçer. Dünyaya ters bakınca göremediğin çözüm netleşecek.",
+    rev: "Kurban rolüne fazla alışmışsın; bekleyiş fedakarlık değil, erteleme olmuş. İpi çözmek senin elinde.",
+    adv: "Bugün bir şeyi tam tersinden düşünmeyi dene." },
+  { n: "XIII", name: "Dönüşüm", sym: "🦋",
+    up: "Bir kapı kapanıyor, ama duvar örülmüyor — yenisi açılıyor. Eskiyi onurlandır ve bırak; kozadan çıkma vakti.",
+    rev: "Bitmesi gerekene tutunmak, yeninin gelişini geciktiriyor. Korkma: kaybettiğin kabuk, kanadın kadar değerli değil.",
+    adv: "Dolabından ya da hayatından eskimiş bir şeyi bugün uğurla." },
+  { n: "XIV", name: "Denge", sym: "🏺",
+    up: "Ölçülü olmak bugün süper gücün. Uçlara savrulmadan, suyu şaraba karıştırmadan ilerliyorsun — bu huzur kalıcı olabilir.",
+    rev: "Bir tarafa fazla yüklenmişsin: iş, duygu ya da harcama. Sarkacın ortası seni bekliyor.",
+    adv: "Her şeyin azı karar, çoğu zarar — bugünlük şiar bu." },
+  { n: "XV", name: "Zincir", sym: "⛓️",
+    up: "Seni bağlayan şeyin farkına varıyorsun — alışkanlık, kıskançlık ya da konfor. Farkındalık, zincirin ilk halkasını çözer.",
+    rev: "Özgürleşme başlamış bile. Bir bağımlılıktan, yükten ya da toksik bir düzenden uzaklaşıyorsun — devam et.",
+    adv: "Zincirlerin çoğu kilitli değildir; bir dene." },
+  { n: "XVI", name: "Kule", sym: "🌩️",
+    up: "Sarsıcı ama aydınlatıcı bir değişim kapıda. Yıkılan, zaten çürük olandı; enkazın altından daha sağlam bir zemin çıkacak.",
+    rev: "Kaçınılmaz bir değişimi ertelemeye çalışıyorsun. Küçük onarımlar yetmeyecekse, cesur yıkım daha az acıtır.",
+    adv: "Fırtınadan sonra ilk iş: temeli sağlam atmak." },
+  { n: "XVII", name: "Yıldız", sym: "⭐",
+    up: "Umut geri geldi. Yaralar sarılıyor, ilham yenileniyor; dileğini yüksek sesle söylemekten çekinme — evren dinliyor.",
+    rev: "Yıldızını bulutlar kapatmış görünüyor, ama sönmedi. Umutsuzluk geçici bir hava durumu, iklim değil.",
+    adv: "Bu gece gökyüzüne bak ve bir dilek tut — cidden." },
+  { n: "XVIII", name: "Ay", sym: "🌕",
+    up: "Her şey göründüğü gibi olmayabilir; sezgin fenerin olsun. Belirsizlik korkutucu değil, yaratıcılık için verimli bir topraktır.",
+    rev: "Sis dağılıyor, gerçekler netleşiyor. Kuruntularının çoğunun gölgeden ibaret olduğunu göreceksin.",
+    adv: "Karanlıkta karar verme; sabah ola, hayrola." },
+  { n: "XIX", name: "Güneş", sym: "☀️",
+    up: "Destenin en neşeli kartı seninle! Başarı, sağlık ve çocuksu bir sevinç dönemi. Işığını saklama — bulaşıcı cinsten.",
+    rev: "Güneşin orada, sadece perdeyi kapatmışsın. Küçük sevinçleri görmezden gelme; mutluluk detaylarda güneşlenir.",
+    adv: "Bugün en az bir kez kahkaha at — sesli olanından." },
+  { n: "XX", name: "Yargı", sym: "📯",
+    up: "Geçmişle hesaplaşma ve yeniden doğuş zamanı. Eski bir konu kapanıyor, vicdanın rahatlıyor; ikinci bir şans borazan çalıyor.",
+    rev: "Kendini fazla sert yargılıyorsun. Geçmişin hakimi değil, geleceğin mimarı ol.",
+    adv: "Kendini affet; dosya kapansın artık." },
+  { n: "XXI", name: "Dünya", sym: "🌍",
+    up: "Bir döngü muhteşem şekilde tamamlanıyor. Emek verdiğin yolculuk ödülünü getiriyor — kutlamayı hak ettin, dans et!",
+    rev: "Bitiş çizgisine az kaldı ama son adımı atmıyorsun. Tamamlanmamış işler enerji sızdırır; bitir, rahatla.",
+    adv: "Yarım kalan o işi bugün bitir, sonra kendini ödüllendir." }
+];
+
+/* ---------- yardımcılar ---------- */
+var $ = function (id) { return document.getElementById(id); };
+var MODES = {
+  daily:    { count: 1, positions: ["Günün Kartı"], hint: "Desteye dokun, bugünün kartı gelsin…" },
+  three:    { count: 3, positions: ["Geçmiş", "Şimdi", "Gelecek"], hint: "Desteye dokun, üç kartın açılsın…" },
+  question: { count: 1, positions: ["Cevap"], hint: "Sorunu içinden geçir… hazır olunca desteye dokun." }
+};
+var state = { mode: null, drawn: [] };
+
+function todayKey() {
+  var d = new Date();
+  return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+}
+
+function mulberry32(seed) {
+  return function () {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function drawCards(count, rng) {
+  var idx = CARDS.map(function (_, i) { return i; });
+  var out = [];
+  for (var k = 0; k < count; k++) {
+    var i = Math.floor(rng() * idx.length);
+    var ci = idx.splice(i, 1)[0];
+    out.push({ card: CARDS[ci], reversed: rng() < 0.35 });
+  }
+  return out;
+}
+
+/* günün kartı: aynı gün aynı kart gelsin diye tarihten tohum üretilir */
+function dailySeed() {
+  var s = todayKey(), h = 0;
+  try { s += "|" + (localStorage.getItem("tarot_kisi") || ""); } catch (e) {}
+  for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return h;
+}
+
+/* ---------- ekran akışı ---------- */
+document.querySelectorAll(".mode-btn").forEach(function (btn) {
+  btn.addEventListener("click", function () { startMode(btn.dataset.mode); });
+});
+
+function startMode(mode) {
+  state.mode = mode;
+  $("modes").style.display = "none";
+  $("deckArea").style.display = "block";
+  $("deckHint").textContent = MODES[mode].hint;
+  $("spread").style.display = "none";
+  $("spread").innerHTML = "";
+  $("readings").style.display = "none";
+  $("readings").innerHTML = "";
+  $("actions").style.display = "none";
+}
+
+$("deck").addEventListener("click", function () {
+  var deck = $("deck");
+  if (deck.classList.contains("shuffling")) return;
+  deck.classList.add("shuffling");
+  $("deckHint").textContent = "Kartlar karışıyor…";
+  setTimeout(function () {
+    deck.classList.remove("shuffling");
+    reveal();
+  }, 1600);
+});
+
+function reveal() {
+  var conf = MODES[state.mode];
+  var rng = state.mode === "daily" ? mulberry32(dailySeed()) : mulberry32((Math.random() * 1e9) | 0);
+  state.drawn = drawCards(conf.count, rng);
+
+  $("deckArea").style.display = "none";
+  var spread = $("spread");
+  spread.style.display = "flex";
+
+  state.drawn.forEach(function (d, i) {
+    var slot = document.createElement("div");
+    slot.className = "slot";
+    slot.innerHTML =
+      '<div class="pos-label">' + conf.positions[i] + "</div>" +
+      '<div class="flip"><div class="flip-inner">' +
+      '<div class="face back"></div>' +
+      '<div class="face front' + (d.reversed ? " is-rev" : "") + '">' +
+      '<div class="num">' + d.card.n + "</div>" +
+      '<div class="sym">' + d.card.sym + "</div>" +
+      '<div class="nm">' + d.card.name + "</div>" +
+      '<div class="rev-tag">' + (d.reversed ? "ters" : "") + "</div>" +
+      "</div></div></div>";
+    spread.appendChild(slot);
+    setTimeout(function () { slot.classList.add("revealed"); }, 350 + i * 650);
+  });
+
+  var readings = $("readings");
+  readings.style.display = "block";
+  state.drawn.forEach(function (d, i) {
+    var r = document.createElement("div");
+    r.className = "reading";
+    r.innerHTML =
+      "<h3>" + d.card.sym + " " + d.card.name + (d.reversed ? " (ters)" : "") + "</h3>" +
+      '<div class="pos">' + conf.positions[i] + "</div>" +
+      "<p>" + (d.reversed ? d.card.rev : d.card.up) + "</p>" +
+      '<div class="advice">✨ ' + d.card.adv + "</div>";
+    readings.appendChild(r);
+    setTimeout(function () { r.classList.add("show"); }, 900 + i * 650);
+  });
+
+  setTimeout(function () {
+    $("actions").style.display = "flex";
+  }, 900 + conf.count * 650);
+}
+
+/* ---------- paylaş & tekrar ---------- */
+$("shareBtn").addEventListener("click", function () {
+  var conf = MODES[state.mode];
+  var lines = ["🔮 Tarot Falım (" + todayKey() + ")", ""];
+  state.drawn.forEach(function (d, i) {
+    lines.push(conf.positions[i] + ": " + d.card.sym + " " + d.card.name + (d.reversed ? " (ters)" : ""));
+    lines.push((d.reversed ? d.card.rev : d.card.up));
+    lines.push("");
+  });
+  lines.push("Sen de bak: " + location.href.split("#")[0]);
+  var text = lines.join("\n");
+  if (navigator.share) {
+    navigator.share({ text: text }).catch(function () {});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(showToast);
+  } else {
+    showToast();
+  }
+});
+
+function showToast() {
+  var t = $("toast");
+  t.classList.add("show");
+  setTimeout(function () { t.classList.remove("show"); }, 1800);
+}
+
+$("againBtn").addEventListener("click", function () {
+  $("spread").style.display = "none";
+  $("readings").style.display = "none";
+  $("actions").style.display = "none";
+  $("modes").style.display = "flex";
+});
+
+/* ---------- yıldızlar ---------- */
+(function makeStars() {
+  var box = $("stars");
+  for (var i = 0; i < 60; i++) {
+    var s = document.createElement("span");
+    var size = Math.random() * 2 + 1;
+    s.style.width = size + "px";
+    s.style.height = size + "px";
+    s.style.left = Math.random() * 100 + "%";
+    s.style.top = Math.random() * 100 + "%";
+    s.style.animationDelay = (Math.random() * 3).toFixed(2) + "s";
+    box.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>
