@@ -138,6 +138,9 @@
   .artname .rt { color: #ff9d9d; font-style: italic; font-weight: normal; }
 
   .deckpick { font-size: .85rem; margin-bottom: 4px; }
+  .deckdesc { font-size: .78rem; font-style: italic; opacity: .7; margin-bottom: 6px; min-height: 1.2em; }
+  .duyuru { margin-top: 10px; font-size: .8rem; font-style: italic; opacity: .8;
+    color: var(--gold-soft); }
   .deckpick button { font-family: inherit; font-size: .85rem; color: var(--cream);
     background: transparent; border: 1px solid rgba(212,175,55,.45); border-radius: 999px;
     padding: 6px 14px; margin: 0 4px; cursor: pointer; opacity: .65; }
@@ -240,8 +243,9 @@
 
   <div class="modes" id="modes">
     <div class="deckpick" id="deckpick">🎴 Deste:
-      <button data-deck="klasik">Klasik</button><button data-deck="sade">Sade</button>
+      <button data-deck="klasik">🖼️ Resimli (1909)</button><button data-deck="sade">✨ Sembol</button><button data-deck="surpriz">🎲 Sürpriz</button>
     </div>
+    <div class="deckdesc" id="deckdesc"></div>
     <button class="mode-btn" data-mode="daily">
       <span class="t">🌙 Günün Kartı</span>
       <span class="d">Sana özel bugünün kartı, şanslı rengin ve sayın</span>
@@ -296,6 +300,7 @@
     Bu uygulama tamamen eğlence amaçlıdır. 🌟<br>
     Kararlarınızı kartlara değil, kendinize güvenerek verin.<br>
     78 kartlık tam deste ile hazırlanmıştır.
+    <div class="duyuru" id="duyuru"></div>
   </footer>
 </div>
 <div class="toast" id="toast">Kopyalandı ✨</div>
@@ -655,13 +660,29 @@ $("dobSave").addEventListener("click", function () {
 });
 
 /* ---------- deste seçimi ---------- */
+var DECK_INFO = {
+  klasik: "1909 Rider-Waite — dünyanın en ünlü tarot çizimleri",
+  sade: "Sembollerle modern ve hızlı görünüm",
+  surpriz: "Her falda desteyi kartlar seçer 🎲"
+};
+var ART_DECKS = ["klasik"]; /* yeni resimli desteler geldikçe genişler */
 function getDeck() {
   try { return localStorage.getItem("tarot_deste") || "klasik"; } catch (e) { return "klasik"; }
+}
+function resolveDeck() {
+  var d = getDeck();
+  if (d === "surpriz") return ART_DECKS[Math.floor(Math.random() * ART_DECKS.length)];
+  return d;
 }
 function refreshDeckUI() {
   document.querySelectorAll("#deckpick button").forEach(function (b) {
     b.classList.toggle("on", b.dataset.deck === getDeck());
   });
+  $("deckdesc").textContent = DECK_INFO[getDeck()] || "";
+}
+function imgSrc(card, deck) {
+  /* her resimli deste için kart → dosya eşlemesi */
+  return "img/" + card.img;
 }
 document.querySelectorAll("#deckpick button").forEach(function (b) {
   b.addEventListener("click", function () {
@@ -706,6 +727,39 @@ var TITLES = [
 ];
 var masterTitle = TITLES[Math.floor(Math.random() * TITLES.length)];
 $("master").innerHTML = "🔮 " + masterTitle + "<br><b>Mehmet Arar</b> güvencesiyle sunulmuştur.";
+
+/* ---------- mistik duyurular ---------- */
+var DUYURULAR = [
+  "📢 Sayın misafirlerimiz: bu saatte büyücülerimiz kapalıdır, acil büyü ihtiyaçlarınız için sabahı bekleyiniz.",
+  "📢 Merkür retrosu nedeniyle kehanetlerde 15 dakikaya varan rötar yaşanabilir; anlayışınız için teşekkür ederiz.",
+  "📢 Nazar boncuğumuz bakımdadır; koruma geçici olarak tahtaya vurma sistemiyle sağlanmaktadır.",
+  "📢 Kristal küremiz buğulanmıştır; net görüş için camlar silinene kadar sabrınızı rica ederiz.",
+  "📢 Kayıp eşya falına bakan arkadaşımız kendi anahtarını kaybettiği için bugün hizmet verememektedir.",
+  "📢 Kader çarkımız periyodik bakımdadır; kaderiniz kısa süreliğine elle döndürülmektedir.",
+  "📢 Ay tutulması sırasında çekilen fallar, tutulma bitince kendiliğinden düzelecektir.",
+  "📢 Fal kuyruğunda yer tutan ruhların, fiziksel misafirlerimize öncelik vermesi rica olunur.",
+  "📢 Bugün enerjiler yoğundur; falınız sıcak gelirse üfleyerek soğutunuz.",
+  "📢 Dileği kabul olan misafirlerimizin yıldızlara teşekkür etmeyi unutmaması rica olunur.",
+  "📢 Büyü bozma servisimiz, büyü yapma servisimizle aynı odada çalıştığından sonuç garantisi verilememektedir.",
+  "📢 Şanslı renginiz bugünlük stoklarda kalmamıştır; yarın tekrar deneyiniz.",
+  "📢 Uğurlu sayısını unutan misafirlerimize danışma masamız 7 numaralı gişede hizmet vermektedir.",
+  "📢 Üçüncü gözümüz numara değişikliği nedeniyle bugün gözlüklüdür; yorumlar bir tık bulanık gelebilir."
+];
+$("duyuru").textContent = DUYURULAR[Math.floor(Math.random() * DUYURULAR.length)];
+
+/* ---------- karıştırma esprileri ---------- */
+var SHUFFLE_LINES = [
+  "Kartlar karışıyor… (büyücü çayını tazeliyor, az bekleyin)",
+  "Kartlar karışıyor… evrenle bağlantı kuruluyor, çevir sesi geliyor…",
+  "Kartlar karışıyor… kader şu an başka bir misafirle ilgileniyor, sıradasınız…",
+  "Kartlar karışıyor… üçüncü göz gözlüğünü arıyor…",
+  "Kartlar karışıyor… Merkür'e soruldu, retrodan dönüşü bekleniyor…",
+  "Kartlar karışıyor… fal sunucularına tütsü çekiliyor…",
+  "Kartlar karışıyor… Deli kartı yine ortalıkta yok, aranıyor…",
+  "Kartlar karışıyor… evrenin şifresi giriliyor: ✨✨✨✨",
+  "Kartlar karışıyor… kristal küre buğulandı, kolla siliniyor…",
+  "Kartlar karışıyor… kader çarkının gıcırtısına yağ sıkılıyor…"
+];
 
 /* ---------- isim ekranı ---------- */
 function refreshGreet() {
@@ -769,7 +823,7 @@ $("deck").addEventListener("click", function () {
   var deck = $("deck");
   if (deck.classList.contains("shuffling")) return;
   deck.classList.add("shuffling");
-  $("deckHint").textContent = "Kartlar karışıyor…";
+  $("deckHint").textContent = SHUFFLE_LINES[Math.floor(Math.random() * SHUFFLE_LINES.length)];
   setTimeout(function () {
     deck.classList.remove("shuffling");
     reveal();
@@ -785,7 +839,8 @@ function reveal() {
   var spread = $("spread");
   spread.style.display = "flex";
 
-  var useArt = getDeck() === "klasik";
+  var falDeck = resolveDeck();
+  var useArt = falDeck !== "sade";
   state.drawn.forEach(function (d, i) {
     var slot = document.createElement("div");
     slot.className = "slot";
@@ -795,7 +850,7 @@ function reveal() {
       '<div class="face back"></div>' +
       '<div class="face front suit-' + d.card.suit + (d.reversed ? " is-rev" : "") + (useArt ? " artface" : "") + '">' +
       (useArt
-        ? '<img class="art" src="img/' + d.card.img + '" alt="" ' +
+        ? '<img class="art" src="' + imgSrc(d.card, falDeck) + '" alt="" ' +
           'onerror="this.parentElement.classList.remove(\'artface\')">' +
           '<div class="artname">' + d.card.name + (d.reversed ? ' <span class="rt">(ters)</span>' : "") + "</div>"
         : "") +

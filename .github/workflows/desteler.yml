@@ -5,61 +5,55 @@ permissions:
 jobs:
   fetch:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Sola Busca ve Jean Dodal destelerini indir (kamu mali)
         run: |
           mkdir -p img2
           : > img2/report.txt
-          fetch() { # $1 = commons dosya adi, $2 = hedef
-            curl -sL --retry 2 --retry-delay 2 -o "img2/$2" \
-              "https://commons.wikimedia.org/wiki/Special:FilePath/$1?width=400"
-            [ "$(stat -c%s "img2/$2" 2>/dev/null || echo 0)" -ge 5000 ] || { rm -f "img2/$2"; return 1; }
-          }
-          # --- Sola Busca (1491): 00-77 sirali tam deste ---
+          : > /tmp/list.txt
+          add() { echo "$1 $2" >> /tmp/list.txt; }
+          # Sola Busca (1491): 00-77 tam deste (orijinaller zaten kucuk)
           for i in $(seq 0 77); do
             n=$(printf '%02d' "$i")
-            fetch "Sola_Busca_tarot_card_$n.jpg" "sola_$n.jpg" || echo "SOLA $n YOK" >> img2/report.txt
+            add "Sola_Busca_tarot_card_$n.jpg" "sola_$n.jpg"
           done
-          # --- Jean Dodal (1701) buyuk kartlar ---
-          fetch "Jean_Dodal_Tarot_trump_Fool.jpg" "dodal_t00.jpg" || echo "DODAL Fool YOK" >> img2/report.txt
+          # Jean Dodal (1701) buyuk kartlar
+          add "Jean_Dodal_Tarot_trump_Fool.jpg" "dodal_t00.jpg"
           for i in $(seq 1 21); do
             n=$(printf '%02d' "$i")
-            fetch "Jean_Dodal_Tarot_trump_$n.jpg" "dodal_t$n.jpg" || echo "DODAL trump $n YOK" >> img2/report.txt
+            add "Jean_Dodal_Tarot_trump_$n.jpg" "dodal_t$n.jpg"
           done
-          # --- Jean Dodal kucuk kartlar: isim kalibi kesfi ---
-          for suit in cups coins deniers pentacles swords batons wands staves clubs; do
-            for r in 1 2; do
-              for nn in "$(printf '%02d' $r)" "$r"; do
-                if fetch "Jean_Dodal_Tarot_${suit}_${nn}.jpg" "dodal_${suit}_${nn}.jpg"; then
-                  echo "PATTERN ${suit} ${nn} OK" >> img2/report.txt
-                fi
-              done
-            done
-          done
-          # bulunan kaliplarla 1-14 tamamla
-          for suit in cups coins deniers pentacles swords batons wands staves clubs; do
-            if grep -q "PATTERN ${suit} 01 OK" img2/report.txt; then fmt="%02d";
-            elif grep -q "PATTERN ${suit} 1 OK" img2/report.txt; then fmt="%d";
-            else continue; fi
+          # Jean Dodal kucuk kartlar (muhtemel isim kaliplari)
+          for suit in cups coins swords batons; do
             for r in $(seq 1 14); do
-              nn=$(printf "$fmt" "$r")
-              fetch "Jean_Dodal_Tarot_${suit}_${nn}.jpg" "dodal_${suit}_$(printf '%02d' $r).jpg" \
-                || echo "DODAL ${suit} ${r} YOK" >> img2/report.txt
-            done
-            # saray kartlari ayri isimli olabilir
-            for cname in valet page knight cavalier queen reine king roi; do
-              if fetch "Jean_Dodal_Tarot_${suit}_${cname}.jpg" "dodal_${suit}_${cname}.jpg"; then
-                echo "COURT ${suit} ${cname} OK" >> img2/report.txt
-              fi
+              nn=$(printf '%02d' "$r")
+              add "Jean_Dodal_Tarot_${suit}_${nn}.jpg" "dodal_${suit}_${nn}.jpg"
             done
           done
-          echo "--- indirilen dosyalar ---" >> img2/report.txt
+          fetchone() {
+            src="$1"; out="$2"
+            curl -sL --max-time 25 -o "img2/$out" \
+              "https://commons.wikimedia.org/wiki/Special:FilePath/$src?width=400" || true
+            if [ "$(stat -c%s "img2/$out" 2>/dev/null || echo 0)" -lt 5000 ]; then
+              curl -sL --max-time 40 -o "img2/$out" \
+                "https://commons.wikimedia.org/wiki/Special:FilePath/$src" || true
+            fi
+            if [ "$(stat -c%s "img2/$out" 2>/dev/null || echo 0)" -lt 5000 ]; then
+              rm -f "img2/$out"
+              echo "YOK $out ($src)" >> img2/report.txt
+            fi
+          }
+          export -f fetchone
+          xargs -P 8 -n 2 bash -c 'fetchone "$0" "$1"' < /tmp/list.txt
+          echo "--- indirilen: $(ls img2 | grep -c jpg) dosya ---" >> img2/report.txt
           ls img2 >> img2/report.txt
       - name: Depoya kaydet
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
           git add img2
           git commit -m "Sola Busca ve Jean Dodal deste gorselleri (kamu mali, Wikimedia Commons)"
           git push
