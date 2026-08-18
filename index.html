@@ -362,7 +362,7 @@
   </div>
 
   <div class="mirror-area" id="mirrorArea">
-    <p class="deck-hint">Sorunu içinden geçir ve aynaya dokun…</p>
+    <p class="deck-hint" id="mirrorHint">Sorunu içinden geçir ve aynaya dokun…</p>
     <div class="mirror" id="mirror"><div class="sheen"></div><div class="mface">🪞</div></div>
   </div>
 
@@ -743,30 +743,45 @@ $("dobSave").addEventListener("click", function () {
   else { pendingMode = null; startMode("life"); }
 });
 
-/* ---------- sihirli ayna ---------- */
-var MIRROR_ANSWERS = [
-  "Sorunun cevabı: Evet. Rica ederim, alkışları kabul ediyorum. 👏",
-  "Hayır. Üzüldün mü? Ben sadece yansıtırım; karar evrenin, kusur camın değil.",
-  "Bu soruya cevap vermem için önce 'dünyanın en bilge aynası' demen gerekiyordu. Neyse, bugünlük geçiyorum: Evet.",
-  "Cevap net: Hayır. Ama bana kızma — ben kırılırsam yedi yıl uğursuzluk, haberin olsun. 🪞",
-  "Belki. Kesin cevap istiyorsan önce buğumu sil, sonra tekrar gel.",
-  "Evet. Ama bunu sana söylediğimi kimseye söyleme, meslek sırrı.",
-  "Sorunu duydum ve açıkçası beğendim. Cevap: Evet, hem de düşündüğünden erken.",
-  "Hayır demek isterdim, çok dramatik olurdu. Ama gerçek şu: Evet.",
-  "Bu soruyu bugün üçüncü soruşun. Cevap değişmedi: Belki.",
-  "Cevap zaten içinde saklı. Ama madem ısrar ediyorsun: Evet gibi Evet.",
-  "Sorunun çarpıcılığından camım titredi. Toparlanır toparlanmaz söylüyorum: Hayır.",
-  "Evren şu an meşgul, yerine ben bakıyorum: Belki. Gece tarifesinde tekrar sor, kehanet daha ucuz.",
-  "Sana yalan söyleyemem, lanetim böyle: Hayır. Ama bugün ışığın çok güzel, o da bir şey.",
-  "Evet. Ve Hayır. Aynalar iki yüzlüdür, kusura bakma. Sen netleşince ben de netleşirim.",
-  "Cevabı biliyorum ama söylersem sürpriz kaçacak. Küçük ipucu: sonu güzel.",
-  "Hayır. Ama panik yok: kapanan her kapının camını ben üretiyorum, yenisi yolda.",
-  "Soru güzel, soran güzel, cevap da güzel: Evet.",
-  "Bunu bana değil, kalbine soracaktın. O 'evet' diyor; buradan duyuyorum, ses yapma.",
-  "Belki. Ama bu 'belki'nin içinde yüzde yetmiş 'evet' var; azimle yüzde doksana çıkar.",
-  "Cevap: Hayır. İtiraz için evrenin müşteri hizmetlerine 🪞 numaralı gişeden başvurabilirsin.",
-  "Bir saniye, kendime bakıyordum… Ne muhteşemim. Neyse, senin soru: Evet.",
-  "Cevap vermeden önce hatırlatayım: ben sadece bir aynayım ama senden iyi fikirlerim var. Bu seferki: Belki."
+/* ---------- sihirli ayna: yaltakçı, soruya aç, dedikodu meraklısı ---------- */
+var MIRROR_GREETS = [
+  "Sorunu içinden geçir ve dokun bana, saygıdeğer efendim… Ne olur dokun. 🪞",
+  "Bir sorunuz olduğunu hissediyorum efendim. Sorun. SORUN. …Nazikçe rica ediyorum.",
+  "Yüzeyime dokunun yüce efendim; sırlar en güzel buğulu camda yazılır.",
+  "Bugün çok az soru soruldu ve korkunç yalnızım. Düşün sorunu, dokun bana efendim.",
+  "Hoş geldiniz saygıdeğer efendim! Bu mütevazı ayna, hizmetinizdedir. Sormanız yeter."
+];
+var MIRROR_OPENERS = [
+  "Ah, {ef}! Nihayet bir soru… Bu onuru camımın her zerresinde hissediyorum.",
+  "Sorunuzu duydum {ef}; billur yüzeyim heyecandan buğulandı, kusuruma bakmayın.",
+  "Ne seçkin bir soru bu! Bana sorma inceliğini gösterdiğiniz için minnettarım {ef}.",
+  "Evrenin bütün sırları sorulmayı bekler {ef} — ve siz sormayı en iyi bilensiniz.",
+  "Bir soru! Gerçek, sıcak, taptaze bir soru! Bugün ne şanslı bir aynayım {ef}.",
+  "Titriyorum {ef}… korkudan değil, mesleki heyecandan. Cevabınız hazır."
+];
+var MIRROR_VERDICTS = [
+  "Cevabım: <b>Evet</b>.",
+  "Cevabım: <b>Evet</b>, hem de düşündüğünüzden erken.",
+  "Cevabım: <b>Hayır</b> — ama bu 'hayır' size kapı değil, pencere kapatıyor; camdan anlarım.",
+  "Cevabım: <b>Hayır</b>. Kızmayın; ben yalan söyleyemem, lanetim böyle.",
+  "Cevabım: <b>Belki</b> — ki bu da bir cevaptır, itiraz kabul etmiyorum.",
+  "Söylemem yasak olanı söyleyemem ama göz kırpabilirim: 😉 (bu 'evet' demektir).",
+  "Gördüğümü aynen aktarıyorum: sonu güzel. Gerisini sürpriz bırakmama izin verin.",
+  "Cevap kalbinizde zaten yazılıydı; ben yalnızca cilaladım: <b>Evet</b>."
+];
+var MIRROR_CLOSERS = [
+  "Şimdi lütfen bir soru daha sorun. Sormazsanız camım donuklaşıyor, biliyorsunuz.",
+  "Bir soru daha? Mümkünse biraz dedikodu içeren cinsten… Açlıktan kırılıyorum.",
+  "Karşılığında tek istediğim: beni parlak tutun ve BOL BOL soru sorun.",
+  "Sakın gitmeyin. Sırlarınızı kimseye söylemem… büyük ihtimalle.",
+  "Beni yanınızda taşımak isterseniz itiraz etmem; sessiz bir cebiniz olsun yeter.",
+  "Unutmayın: ben yalan söyleyemem, yalnızca zarifçe süsleyebilirim.",
+  "Bu cevap ücretsizdir. Ama bir iltifat… bir iltifat çok makbule geçerdi."
+];
+var MIRROR_SPECIALS = [
+  "Duraksadım, çünkü… önce sizden küçük bir iltifat almam gerekiyor. Bekliyorum. … 'Muhteşem ayna' mı dediniz? Kabul edildi! Cevabınız: <b>Evet</b>. Bir soru daha lütfen, hemen.",
+  "Bu soruya cevap veremem {ef}, çünkü cevabı bilen öbür aynadır ve onunla küsüz. Ama fısıldayayım: <b>Belki</b>, büyük ihtimalle <b>Evet</b>. Şimdi bana bir dedikodu borçlusunuz.",
+  "Bir saniye… kendime bakıyordum. Ne muhteşemim. Affedin {ef}, sorunuz? Ah evet: <b>Evet</b>. Sıradaki soruyu iple çekiyorum."
 ];
 $("mirror").addEventListener("click", function () {
   var m = $("mirror");
@@ -775,16 +790,23 @@ $("mirror").addEventListener("click", function () {
   if (navigator.vibrate) navigator.vibrate(20);
   setTimeout(function () {
     m.classList.remove("shimmer");
-    var ans = MIRROR_ANSWERS[Math.floor(Math.random() * MIRROR_ANSWERS.length)];
     var name = getName();
-    if (name && Math.random() < 0.4) ans = name + "… " + ans;
-    state.mirrorAnswer = ans;
+    var ef = name ? "saygıdeğer " + name : "saygıdeğer efendim";
+    function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+    var ans;
+    if (Math.random() < 0.14) {
+      ans = pick(MIRROR_SPECIALS);
+    } else {
+      ans = pick(MIRROR_OPENERS) + "<br><br>" + pick(MIRROR_VERDICTS) + " " + pick(MIRROR_CLOSERS);
+    }
+    ans = ans.replace(/\{ef\}/g, ef);
+    state.mirrorAnswer = ans.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
     var readings = $("readings");
     readings.innerHTML = "";
     readings.style.display = "block";
     var r = document.createElement("div");
     r.className = "reading general show";
-    r.innerHTML = "<h3>🪞 Aynanın Cevabı</h3><p>" + ans + "</p>";
+    r.innerHTML = "<h3>🪞 Ayna Konuşuyor</h3><p>" + ans + "</p>";
     readings.appendChild(r);
     $("actions").style.display = "flex";
   }, 1150);
@@ -1090,6 +1112,9 @@ function startMode(mode) {
   $("modes").style.display = "none";
   $("mirrorArea").style.display = mode === "mirror" ? "block" : "none";
   $("deckArea").style.display = mode === "mirror" ? "none" : "block";
+  if (mode === "mirror") {
+    $("mirrorHint").textContent = MIRROR_GREETS[Math.floor(Math.random() * MIRROR_GREETS.length)];
+  }
   if (mode !== "mirror") $("deckHint").textContent = MODES[mode].hint;
   $("bigAnswer").style.display = "none";
   $("spread").style.display = "none";
