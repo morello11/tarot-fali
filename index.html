@@ -696,33 +696,80 @@ function luckyLine(rng) {
   return "🎨 Şanslı rengin: <b>" + renk + "</b> &nbsp;·&nbsp; 🔢 Şanslı sayın: <b>" + sayi + "</b>";
 }
 
-/* açılımın genel yorumu: kart temaları + ters/düz dengesi birleştirilir */
+/* açılımın genel yorumu: açılan kartların isimleri ve temalarıyla örülen sentez */
+/* küçük kartlarda gerçek pip tekniği: seri = yaşam alanı, sayı = evre */
+var RANK_THEMES = [
+  "taze bir başlangıcın kıvılcımı", "bir ikilem ve denge arayışı", "ilk meyveler ve işbirliği",
+  "sağlamlaşma ama biraz da yerinde sayma", "bir çatışma ve kayıp sınavı", "uyum, iyileşme ve akış",
+  "durup değerlendirme ve strateji", "ustalaşma ve hızlanma", "eşiğe dayanmış bir bekleyiş",
+  "bir döngünün tamamlanması ve yükün devri", "yeni bir haber ve öğrenme hevesi",
+  "cesaretle harekete geçiş", "olgun ve şefkatli bir sahiplenme", "ustalık ve yönetme gücü"
+];
+var SUIT_DOMAIN = {
+  kupa: "duygular ve ilişkiler alanında", asa: "iş, heves ve girişimler alanında",
+  kilic: "zihin ve kararlar alanında", tilsim: "maddi düzen ve emek alanında"
+};
+var SUIT_NAME = { kupa: "Kupa", asa: "Asa", kilic: "Kılıç", tilsim: "Tılsım" };
+function cardTheme(d) {
+  var c = d.card;
+  if (c.suit === "major") return c.th;
+  return SUIT_DOMAIN[c.suit] + " " + RANK_THEMES[parseInt(c.img.slice(-6, -4), 10) - 1];
+}
+function cardNm(d) { return "<b>" + d.card.name + (d.reversed ? " (ters)" : "") + "</b>"; }
+function weave(drawn, mode) {
+  var n = drawn.map(cardNm), t = drawn.map(cardTheme);
+  if (mode === "love")
+    return "Senin tarafında " + n[0] + " var: " + t[0] + ". Onun tarafında " + n[1] +
+      " duruyor: " + t[1] + ". Bu bağın gidişatını ise " + n[2] + " anlatıyor: " + t[2] + ".";
+  if (mode === "career")
+    return "Masadaki tabloyu " + n[0] + " çiziyor: " + t[0] + ". Karşındaki asıl engel " + n[1] +
+      ": " + t[1] + ". Kartların önerisi " + n[2] + " üzerinden geliyor: " + t[2] + ".";
+  if (mode === "celtic")
+    return "Meselenin kalbinde " + n[0] + " duruyor: " + t[0] + ". Karşısına dikilen " + n[1] +
+      ": " + t[1] + ". Görünmeyen zeminde " + n[2] + " çalışıyor: " + t[2] +
+      ". Ve tüm yolların vardığı noktada " + n[9] + " bekliyor: " + t[9] + ".";
+  return "Geçmişten bugüne uzanan iz " + n[0] + ": " + t[0] + ". Bugünün merkezinde " + n[1] +
+    " duruyor: " + t[1] + ". Yolun ucunda ise " + n[2] + " görünüyor: " + t[2] + ".";
+}
 function generalReading(drawn, mode) {
-  var revCount = drawn.filter(function (d) { return d.reversed; }).length;
+  var parts = [weave(drawn, mode)];
+
+  var revs = drawn.filter(function (d) { return d.reversed; });
+  if (revs.length === 0) {
+    parts.push("Kartların hepsi düz açıldı: enerji akışkan, kapılar açık — niyet koymak için temiz bir gökyüzü.");
+  } else if (revs.length === drawn.length) {
+    parts.push("Kartların tümü ters: dış dünyada hamle zamanı değil, iç muhasebe zamanı. Bu bir ceza değil, kuluçka.");
+  } else {
+    var revNames = revs.map(function (d) { return "<b>" + d.card.name + "</b>"; }).join(" ve ");
+    parts.push("Ters açılan " + revNames + " ise acele etme diyor: " +
+      (revs.length === 1
+        ? "bu kartın enerjisi şimdilik içe dönük ya da gecikmeli akıyor; onu zorlamak değil, dinlemek gerek."
+        : "bu kartların enerjisi şimdilik içe dönük akıyor; takıldıkları yerde birer ders taşıyorlar."));
+  }
+
   var counts = {};
   drawn.forEach(function (d) { counts[d.card.suit] = (counts[d.card.suit] || 0) + 1; });
-  var dominant = null;
-  Object.keys(counts).forEach(function (k) { if (!dominant || counts[k] > counts[dominant]) dominant = k; });
-
-  var parts = [];
-  if (counts[dominant] >= 2) {
-    parts.push("Bu açılımın ağırlığı " + SUIT_THEMES[dominant] + " üzerinde toplanmış — kartlar dikkatini özellikle oraya çekiyor.");
-  } else {
-    parts.push("Kartların her biri hayatının ayrı bir alanına dokunuyor; dağınıklık değil, genişlik bu — birden çok cephede aynı anda hareket var.");
-  }
   var majorCount = counts["major"] || 0;
   if (majorCount >= 2) {
-    parts.push("Üstelik " + majorCount + " Büyük Arkana birden açıldı: bu döneme sıradan günler değil, yön belirleyen günler diyebiliriz.");
+    parts.push(majorCount + " Büyük Arkana'nın birden açılması tesadüf sayılmaz: bu dönem gündelik akışın değil, yön belirleyen dönemeçlerin dönemi.");
   }
-  if (revCount === 0) {
-    parts.push("Kartların hepsinin düz gelmesi güzel işaret: enerji akışkan, yollar açık. İçinden geleni yapmak için uygun bir dönemdesin.");
-  } else if (revCount === drawn.length) {
-    parts.push("Kartların tümü ters geldi — bu bir uyarı değil, bir iç muhasebe daveti: dış dünyada hamle yapmadan önce içeride toparlanacak şeyler var.");
-  } else {
-    parts.push("Ters gelen kart" + (revCount > 1 ? "lar" : "") + " ise şunu hatırlatıyor: her şey aynı hızda ilerlemek zorunda değil; takılan yerde biraz dur, orada bir ders var.");
+  var domSuit = null;
+  ["kupa", "asa", "kilic", "tilsim"].forEach(function (k) {
+    if ((counts[k] || 0) >= 2 && (!domSuit || counts[k] > counts[domSuit])) domSuit = k;
+  });
+  if (domSuit) {
+    parts.push("Serilerden en yüklüsü " + SUIT_NAME[domSuit] + ": " + SUIT_THEMES[domSuit] + " bu açılımın ana sahnesi.");
   }
-  var mid = drawn[Math.floor((drawn.length - 1) / 2)];
-  parts.push("Bu açılımdan cebine koyacağın cümle şu olsun: “" + mid.card.adv + "”");
+  if (drawn.length >= 8) {
+    var missing = ["kupa", "asa", "kilic", "tilsim"].filter(function (k) { return !counts[k]; });
+    if (missing.length === 1) {
+      parts.push("Dikkat çekici bir eksik de var: açılımda hiç " + SUIT_NAME[missing[0]] + " yok — " +
+        SUIT_THEMES[missing[0]] + " bu meselede şimdilik sessiz kalmayı seçmiş.");
+    }
+  }
+
+  var son = drawn[drawn.length - 1];
+  parts.push("Kapanış sözünü son kart söylesin — <b>" + son.card.name + "</b>: “" + son.card.adv + "”");
   return parts.join(" ");
 }
 
@@ -1542,7 +1589,7 @@ $("shareBtn").addEventListener("click", function () {
     var zci = cardOf(state.life.zodiac.card);
     lines.push(state.life.zodiac.emo + " Burç kartı (" + state.life.zodiac.name + "): " + zci.name, "");
   } else if (state.drawn.length >= 3) {
-    lines.push("🌟 " + generalReading(state.drawn, state.mode), "");
+    lines.push("🌟 " + generalReading(state.drawn, state.mode).replace(/<[^>]+>/g, ""), "");
   }
   lines.push("🔮 " + masterTitle + " Mehmet Arar güvencesiyle", "");
   lines.push("Sen de bak: " + location.href.split("#")[0]);
