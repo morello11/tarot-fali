@@ -221,6 +221,15 @@
   </div>
 </div>
 
+<div class="overlay" id="dobOverlay">
+  <div class="box">
+    <h2>🎂 Doğum Tarihin</h2>
+    <p>Kadim numeroloji hesabıyla<br>yaşam kartlarını bulalım:</p>
+    <input type="date" id="dobInput">
+    <button class="btn" id="dobSave">Kartlarımı Hesapla ✨</button>
+  </div>
+</div>
+
 <div class="wrap">
   <header>
     <h1>✦ TAROT FALI ✦</h1>
@@ -248,6 +257,10 @@
     <button class="mode-btn" data-mode="career">
       <span class="t">💼 Kariyer Açılımı</span>
       <span class="d">Durum · Engel · Tavsiye</span>
+    </button>
+    <button class="mode-btn" data-mode="life">
+      <span class="t">🎂 Yaşam Kartların</span>
+      <span class="d">Doğum tarihine göre kişilik, ruh ve yıl kartın</span>
     </button>
     <button class="mode-btn" data-mode="yesno">
       <span class="t">🌗 Evet mi, Hayır mı?</span>
@@ -480,6 +493,8 @@ var MODES = {
               hint: "İşini ya da hedefini düşün… desteye dokun. 💼" },
   yesno:    { count: 1, positions: ["Kartın Cevabı"], leads: ["Kartın gerekçesi:"],
               hint: "Sorunu evet/hayır şeklinde içinden geçir… desteye dokun." },
+  life:     { count: 2, positions: [], leads: [],
+              hint: "Desteye dokun, doğum tarihinin sayıları çözülsün…" },
   question: { count: 1, positions: ["Cevap"], leads: ["Sorduğun sorunun aynası:"],
               hint: "Sorunu içinden geçir… hazır olunca desteye dokun." }
 };
@@ -559,6 +574,86 @@ function generalReading(drawn, mode) {
   return parts.join(" ");
 }
 
+/* ---------- yaşam kartları (Mary K. Greer yöntemi) ---------- */
+function getDob() {
+  try { return localStorage.getItem("tarot_dogum") || ""; } catch (e) { return ""; }
+}
+function digitsum(n) { var s = 0; while (n > 0) { s += n % 10; n = Math.floor(n / 10); } return s; }
+function cardOf(n) { return CARDS[n === 22 ? 0 : n]; }
+var ZODIAC = [
+  { name: "Oğlak", emo: "♑", card: 15, from: [12, 22], to: [1, 19] },
+  { name: "Kova", emo: "♒", card: 17, from: [1, 20], to: [2, 18] },
+  { name: "Balık", emo: "♓", card: 18, from: [2, 19], to: [3, 20] },
+  { name: "Koç", emo: "♈", card: 4, from: [3, 21], to: [4, 19] },
+  { name: "Boğa", emo: "♉", card: 5, from: [4, 20], to: [5, 20] },
+  { name: "İkizler", emo: "♊", card: 6, from: [5, 21], to: [6, 20] },
+  { name: "Yengeç", emo: "♋", card: 7, from: [6, 21], to: [7, 22] },
+  { name: "Aslan", emo: "♌", card: 8, from: [7, 23], to: [8, 22] },
+  { name: "Başak", emo: "♍", card: 9, from: [8, 23], to: [9, 22] },
+  { name: "Terazi", emo: "♎", card: 11, from: [9, 23], to: [10, 22] },
+  { name: "Akrep", emo: "♏", card: 13, from: [10, 23], to: [11, 21] },
+  { name: "Yay", emo: "♐", card: 14, from: [11, 22], to: [12, 21] }
+];
+function zodiacOf(mm, dd) {
+  for (var i = 0; i < ZODIAC.length; i++) {
+    var z = ZODIAC[i];
+    if ((mm === z.from[0] && dd >= z.from[1]) || (mm === z.to[0] && dd <= z.to[1])) return z;
+  }
+  return ZODIAC[0];
+}
+function reduceExpl(total) { /* toplamı 22 ve altına indir, adımları yaz */
+  var n = total, expl = "";
+  while (n > 22) {
+    var d = digitsum(n);
+    expl += " → " + String(n).split("").join("+") + " = " + d;
+    n = d;
+  }
+  return { n: n, expl: expl };
+}
+function prepareLife() {
+  var p = getDob().split("-"); // yyyy-mm-dd
+  var yyyy = p[0], mm = parseInt(p[1], 10), dd = parseInt(p[2], 10);
+  var cc = parseInt(yyyy.slice(0, 2), 10), yy = parseInt(yyyy.slice(2), 10);
+  var total = mm + dd + cc + yy;
+  var r = reduceExpl(total);
+  var expl = pad2(dd) + " + " + pad2(mm) + " + " + yyyy.slice(0, 2) + " + " + yyyy.slice(2) +
+             " = " + total + r.expl;
+  var chain = [r.n], n = r.n;
+  while (n > 9) {
+    n = digitsum(n);
+    expl += " → öz: " + n;
+    if (chain.indexOf(n) === -1) chain.push(n);
+  }
+  var cy = String(new Date().getFullYear());
+  var ytotal = mm + dd + parseInt(cy.slice(0, 2), 10) + parseInt(cy.slice(2), 10);
+  var yr = reduceExpl(ytotal);
+  var yexpl = pad2(dd) + " + " + pad2(mm) + " + " + cy.slice(0, 2) + " + " + cy.slice(2) +
+              " = " + ytotal + yr.expl;
+  var labels = chain.length === 1 ? ["Yaşam Kartın"]
+    : chain.length === 2 ? ["Kişilik Kartın", "Ruh Kartın"]
+    : ["Kişilik Kartın", "Köprü Kartın", "Ruh Kartın"];
+  var leads = chain.length === 1 ? ["Doğum sayılarının işaret ettiği kart:"]
+    : chain.length === 2 ? ["Dış dünyaya dönük yüzün:", "İç dünyandaki özün:"]
+    : ["Dış dünyaya dönük yüzün:", "İkisini bağlayan gizli köprü:", "İç dünyandaki özün:"];
+  labels.push("Bu Yılın Kartı");
+  leads.push("İçinde bulunduğun yılın enerjisi:");
+  MODES.life.positions = labels;
+  MODES.life.leads = leads;
+  MODES.life.count = labels.length;
+  state.life = {
+    drawn: chain.map(function (c) { return { card: cardOf(c), reversed: false }; })
+      .concat([{ card: cardOf(yr.n), reversed: false }]),
+    expl: expl, yexpl: yexpl, zodiac: zodiacOf(mm, dd)
+  };
+}
+$("dobSave").addEventListener("click", function () {
+  var v = $("dobInput").value;
+  if (!v) return;
+  try { localStorage.setItem("tarot_dogum", v); } catch (e) {}
+  $("dobOverlay").classList.remove("show");
+  startMode("life");
+});
+
 /* ---------- deste seçimi ---------- */
 function getDeck() {
   try { return localStorage.getItem("tarot_deste") || "klasik"; } catch (e) { return "klasik"; }
@@ -600,12 +695,17 @@ $("master").innerHTML = "🔮 " + masterTitle + "<br><b>Mehmet Arar</b> güvence
 function refreshGreet() {
   var name = getName();
   $("greet").innerHTML = name
-    ? "✨ Hoş geldin, <b>" + escapeHtml(name) + "</b> &nbsp;<a id='chgName'>değiştir</a>"
+    ? "✨ Hoş geldin, <b>" + escapeHtml(name) + "</b> &nbsp;<a id='chgName'>isim</a> · <a id='chgDob'>🎂 doğum tarihi</a>"
     : "";
   var a = document.getElementById("chgName");
   if (a) a.addEventListener("click", function () {
     $("nameInput").value = getName();
     $("nameOverlay").classList.add("show");
+  });
+  var b = document.getElementById("chgDob");
+  if (b) b.addEventListener("click", function () {
+    $("dobInput").value = getDob();
+    $("dobOverlay").classList.add("show");
   });
 }
 function escapeHtml(s) {
@@ -625,11 +725,18 @@ refreshGreet();
 
 /* ---------- ekran akışı ---------- */
 document.querySelectorAll(".mode-btn").forEach(function (btn) {
-  btn.addEventListener("click", function () { startMode(btn.dataset.mode); });
+  btn.addEventListener("click", function () {
+    if (btn.dataset.mode === "life" && !getDob()) {
+      $("dobOverlay").classList.add("show");
+      return;
+    }
+    startMode(btn.dataset.mode);
+  });
 });
 
 function startMode(mode) {
   state.mode = mode;
+  if (mode === "life") prepareLife();
   $("modes").style.display = "none";
   $("deckArea").style.display = "block";
   $("deckHint").textContent = MODES[mode].hint;
@@ -656,7 +763,7 @@ $("deck").addEventListener("click", function () {
 function reveal() {
   var conf = MODES[state.mode];
   var rng = state.mode === "daily" ? mulberry32(dailySeed()) : mulberry32((Math.random() * 1e9) | 0);
-  state.drawn = drawCards(conf.count, rng);
+  state.drawn = state.mode === "life" ? state.life.drawn : drawCards(conf.count, rng);
 
   $("deckArea").style.display = "none";
   var spread = $("spread");
@@ -721,7 +828,25 @@ function reveal() {
 
   /* üç kartlı açılımlara genel yorum, günün kartına şans köşesi */
   var extraDelay = 900 + state.drawn.length * 650;
-  if (state.drawn.length >= 3) {
+  if (state.mode === "life") {
+    var hb = document.createElement("div");
+    hb.className = "reading general";
+    hb.innerHTML = "<h3>🔢 Kadim Hesap</h3><p>Doğum tarihinden: <b>" + state.life.expl +
+      "</b>. Bu sayılar, tarot geleneğinde Büyük Arkana'daki yaşam kartlarına işaret eder " +
+      "(Mary K. Greer yöntemi). Yıl kartı için: <b>" + state.life.yexpl + "</b>.</p>";
+    readings.appendChild(hb);
+    setTimeout(function () { hb.classList.add("show"); }, extraDelay);
+    extraDelay += 400;
+    var zc = cardOf(state.life.zodiac.card);
+    var zb = document.createElement("div");
+    zb.className = "reading general";
+    zb.innerHTML = "<h3>" + state.life.zodiac.emo + " Burcunun Kartı</h3><p>Burcun <b>" +
+      state.life.zodiac.name + "</b> — kadim eşleşmede kartın <b>" + zc.name + "</b> " + zc.sym +
+      ". Bu kartın fısıltısı sana her zaman eşlik eder: " + zc.adv + "</p>";
+    readings.appendChild(zb);
+    setTimeout(function () { zb.classList.add("show"); }, extraDelay);
+    extraDelay += 400;
+  } else if (state.drawn.length >= 3) {
     var g = document.createElement("div");
     g.className = "reading general";
     g.innerHTML = "<h3>🌟 Genel Yorum</h3><p>" + generalReading(state.drawn, state.mode) + "</p>";
@@ -746,7 +871,8 @@ function reveal() {
 /* ---------- paylaş & tekrar ---------- */
 var MODE_TITLES = {
   daily: "Günün Kartı", three: "Üç Kart Açılımı", love: "Aşk Açılımı",
-  career: "Kariyer Açılımı", yesno: "Evet mi Hayır mı", question: "Soru Kartı"
+  career: "Kariyer Açılımı", yesno: "Evet mi Hayır mı", question: "Soru Kartı",
+  life: "Yaşam Kartları"
 };
 $("shareBtn").addEventListener("click", function () {
   var conf = MODES[state.mode];
@@ -758,7 +884,13 @@ $("shareBtn").addEventListener("click", function () {
     lines.push(d.reversed ? d.card.rev : d.card.up);
     lines.push("");
   });
-  if (state.drawn.length >= 3) lines.push("🌟 " + generalReading(state.drawn, state.mode), "");
+  if (state.mode === "life") {
+    lines.push("🔢 Hesap: " + state.life.expl, "");
+    var zci = cardOf(state.life.zodiac.card);
+    lines.push(state.life.zodiac.emo + " Burç kartı (" + state.life.zodiac.name + "): " + zci.name, "");
+  } else if (state.drawn.length >= 3) {
+    lines.push("🌟 " + generalReading(state.drawn, state.mode), "");
+  }
   lines.push("🔮 " + masterTitle + " Mehmet Arar güvencesiyle", "");
   lines.push("Sen de bak: " + location.href.split("#")[0]);
   var text = lines.join("\n");
