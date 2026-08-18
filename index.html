@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tarot Falı ✨</title>
 <meta name="description" content="Eğlence amaçlı tarot falı — tam deste, günün kartı, aşk ve kariyer açılımları">
 <meta name="theme-color" content="#120b2e">
@@ -60,6 +60,9 @@
   .mode-btn .d { display: block; font-size: .76rem; opacity: .75; font-style: italic; }
 
   .deck-area { display: none; }
+  .backrow { text-align: left; margin-bottom: 2px; }
+  .goback { color: var(--gold-soft); opacity: .7; font-size: .85rem;
+    text-decoration: underline; cursor: pointer; }
   .deck-hint { font-style: italic; opacity: .8; margin: 14px 0 22px; min-height: 1.4em; }
   .deck {
     position: relative; width: var(--card-w); aspect-ratio: 3 / 5;
@@ -76,6 +79,11 @@
     content: "✦"; position: absolute; inset: 0; display: grid; place-items: center;
     color: var(--gold); font-size: 1.6rem; text-shadow: 0 0 10px rgba(212,175,55,.8);
   }
+  .deck.stone .stackcard {
+    background: radial-gradient(circle at 35% 30%, #6b7180, #3d4250 75%);
+    border-color: #8b91a0; border-radius: 46% 46% 42% 42% / 50% 50% 44% 44%; }
+  .deck.stone .stackcard::after { content: "ᚱ"; color: #b8bec9;
+    text-shadow: 0 0 10px rgba(184,190,201,.6); }
   .deck.shuffling .stackcard:nth-child(1) { animation: shuf1 .5s ease-in-out 3; }
   .deck.shuffling .stackcard:nth-child(2) { animation: shuf2 .5s ease-in-out 3; }
   @keyframes shuf1 { 50% { transform: translateX(-46%) rotate(-9deg); } }
@@ -480,6 +488,7 @@
   </div>
 
   <div class="deck-area" id="deckArea">
+    <div class="backrow"><a class="goback">‹ Menüye dön</a></div>
     <p class="deck-hint" id="deckHint"></p>
     <div class="deck" id="deck">
       <div class="stackcard"></div>
@@ -489,11 +498,13 @@
   </div>
 
   <div class="mirror-area" id="mirrorArea">
+    <div class="backrow"><a class="goback">‹ Menüye dön</a></div>
     <p class="deck-hint" id="mirrorHint">Sorunu içinden geçir ve aynaya dokun…</p>
     <div class="mirror" id="mirror"><div class="sheen"></div><div class="mface">🪞</div></div>
   </div>
 
   <div class="wheel-area" id="wheelArea">
+    <div class="backrow"><a class="goback">‹ Menüye dön</a></div>
     <p class="deck-hint">Çarka dokun; kader bugünlük ne fısıldayacak?</p>
     <div class="wheel-wrap">
       <div class="wheel-pin">▼</div>
@@ -625,68 +636,68 @@ var MAJORS = [
 /* [rütbe, düz, ters, tavsiye, yn] */
 var SUITS = [
   { key: "kupa", name: "Kupa", sym: "🏆", label: "KUPALAR", theme: "duyguların ve ilişkilerin", cards: [
-    ["Ası", "Kalbinde yepyeni bir duygu filizleniyor: yeni bir sevgi, bir dostluk ya da eski bir bağın tazelenmesi. Kupanı uzat, dolacak.", "Duygularını bastırıyorsun; söylenmeyen her şey içeride birikiyor. Kalbindeki musluğu biraz gevşet.", "Hislerini bugün birine söyle.", "E"],
-    ["2'lisi", "Karşılıklı uyum ve güzel bir bağ — bir yakınlaşma, barışma ya da ortaklık güçleniyor. İki kupa aynı hizada.", "Küçük bir kırgınlık büyümeden konuşulmalı; sessizlik mesafeyi büyütür.", "İlk adımı sen at.", "E"],
-    ["3'lüsü", "Kutlama, dostluk ve kahkaha zamanı; güzel bir haber arkadaş ortamında paylaşılacak.", "Sosyal yorgunluk olabilir; her davete gitmek zorunda değilsin.", "Eski bir dostu ara.", "E"],
-    ["4'lüsü", "Önündeki fırsatı görmüyorsun; can sıkıntısı gözünü perdeliyor. Dördüncü kupa tam burnunun dibinde duruyor.", "Uyuşukluk dağılıyor, yeni bir heves geliyor; pencereyi aç.", "Sana uzatılan eli bir daha düşün.", "B"],
-    ["5'lisi", "Dökülene üzülüyorsun ama arkanda hâlâ dolu iki kupa duruyor. Kayıp gerçek, ama tablonun tamamı değil.", "Kayıpların yasını tuttun; toparlanma başlıyor. Dolu kupaları görebiliyorsun artık.", "Kalanlara bak, gidenlere değil.", "H"],
-    ["6'lısı", "Tatlı bir nostalji; geçmişten bir kişi, bir koku ya da bir anı gün yüzüne çıkıyor ve içini ısıtıyor.", "Geçmişe fazla takılmışsın; bugün de yaşanmayı bekliyor.", "Anılar ziyaret edilir, oturulmaz.", "B"],
-    ["7'lisi", "Seçenek çok, hepsi parlak görünüyor; ama bir kısmı köpükten. Hayal kurmak güzel, seçmek daha güzel.", "Sis dağılıyor, gerçekçi bir seçim yaklaşıyor.", "Birini seç, gerisini bırak.", "B"],
-    ["8'lisi", "Doyurmayanı geride bırakıp daha derin bir anlam aramaya çıkıyorsun. Bu terk ediş değil, kendine yürüyüş.", "Gitmekle kalmak arasında sıkıştın; kararsızlık iki taraftan da yoruyor.", "Kalbin neredeyse, ev orasıdır.", "H"],
-    ["9'lusu", "Dilek kartı! Küçük ama içten bir isteğin gerçekleşmek üzere; tadını sessizce çıkar.", "Tatmin dışarıdan değil içeriden gelir; şükür listesi yap.", "Bugün kendini şımart.", "E"],
-    ["10'lusu", "Aile, huzur ve gökkuşağı — duygusal doyumun en güzel hali. Ev bugün gerçekten yuva.", "Evdeki küçük bir uyumsuzluk ilgi bekliyor; büyümeden konuşun.", "Sevdiklerinle sofra kur.", "E"],
-    ["Prensi", "Sürpriz bir duygusal haber ya da yaratıcı bir ilham kapıda; balıktan mesaj var.", "Hayallere dalıp gerçeği kaçırma; kıyıya da bak.", "İçindeki çocuğa kulak ver.", "E"],
-    ["Şövalyesi", "Romantik bir teklif, zarif bir jest ya da içten bir özür yolda. Beyaz atlı bugün gerçekten geliyor olabilir.", "Tatlı sözlere kapılmadan niyete bak; ambalaj değil içerik önemli.", "Kalbinle git ama aklını da yanına al.", "E"],
-    ["Kraliçesi", "Sezgilerin ve şefkatin bugün çok güçlü; biri sana içini dökecek ve iyi geleceksin.", "Herkesin derdini yüklenme; duygusal sünger olma.", "Önce kendi kalbini doldur.", "E"],
-    ["Kralı", "Duygu fırtınasında bile sakin kalmayı biliyorsun; bu olgunluk bugün sana kapı açacak.", "Sakin yüzün altında biriktirdiklerin taşabilir; taşmadan konuş.", "Hislerini konuşmak zayıflık değildir.", "B"]
+    ["Ası", "Kalbinde yepyeni bir duygu filizleniyor: yeni bir sevgi, beklenmedik bir dostluk ya da eski bir bağın tazelenmesi olabilir bu. Belki de günlerdir ilk mesajı kimin atacağını düşündüğün biri var — bu kart, kapının senin tarafından da açılabileceğini fısıldıyor. Kupanı uzat; dolmaya hazır, yeter ki elini geri çekme.", "Duygularını bastırıyorsun; yoğunluğu bahane edip söylenmeyen her şeyi içeride biriktiriyorsun. Kalbindeki musluğu biraz gevşet — iki satır mesaj bile o basıncı düşürmeye yeter.", "Hislerini bugün birine söyle; yarına kalan söz soğur.", "E"],
+    ["2'lisi", "Karşılıklı uyum ve güzel bir bağ dönemindesin: bir yakınlaşma, beklediğin bir barışma ya da sağlam bir ortaklık güçleniyor. İki kupa aynı hizada — ne sen fazla veriyorsun ne o eksik bırakıyor. İster aşkta ister iş ortaklığında olsun, bu denge nadir bulunur; kıymetini bil.", "Küçük bir kırgınlık — geç dönülmüş bir mesaj, unutulmuş bir söz — büyümeden konuşulmalı. Sessizlik mesafeyi büyütür; iki kupa arasındaki boşluğu ancak kelimeler doldurur.", "İlk adımı sen at; gurur kimseyi ısıtmadı.", "E"],
+    ["3'lüsü", "Kutlama, dostluk ve kahkaha zamanı: güzel bir haber — belki bir nişan, bir terfi, belki sadece hasretin bitişi — arkadaş ortamında paylaşılacak. Aylardır ertelenen o buluşma tam bu hafta kendini ayarlayabilir. Kadehler senin için de kalkıyor; sofraya kurulmaktan çekinme.", "Sosyal yorgunluk kapıda; takvimin davetlerle dolu ama içinden ev, battaniye ve sessizlik geçiyor. Her davete gitmek zorunda değilsin — gerçek dostlar bir seferlik yokluğunu anlayışla karşılar.", "Eski bir dostu ara; sesi ilaç gibi gelecek.", "E"],
+    ["4'lüsü", "Önündeki fırsatı görmüyorsun; can sıkıntısı gözünü perdelemiş, gelen teklifleri elinin tersiyle itiyorsun. Oysa dördüncü kupa tam burnunun dibinde — belki üstünkörü geçtiğin bir iş teklifi, belki yarım okuyup bıraktığın bir mesaj. Kollarını çöz ve bir daha bak; sıkıcı sandığın şey, aradığın şey olabilir.", "Uyuşukluk dağılıyor, yerini taze bir heves alıyor; uzun bir durgunluğun ardından içinde yeniden kıpırtı var. Pencereyi aç — dışarıdaki hava sandığından daha temiz.", "Sana uzatılan eli bir daha düşün; her hediye parlak paketle gelmez.", "B"],
+    ["5'lisi", "Dökülene üzülüyorsun — biten bir ilişki, karşılıksız kalmış bir emek, belki boşa gitmiş bir para. Kayıp gerçek ve yasını tutmak hakkın; ama arkanda hâlâ dolu iki kupa duruyor: seni seven insanlar, ayakta kalan planlar. Tablonun tamamını görmeden karanlık hüküm verme.", "Kayıpların yasını tuttun ve toparlanma başlıyor; dolu kupaları artık görebiliyorsun. Omzundaki siyah pelerini çıkarma vakti — iyileşmek, unutmak değildir.", "Kalanlara bak, gidenlere değil.", "H"],
+    ["6'lısı", "Tatlı bir nostalji sarıyor bugünlerde: geçmişten bir kişi, çocukluğunun bir kokusu ya da eski bir fotoğraf gün yüzüne çıkıp içini ısıtıyor. Belki eski bir arkadaş yazacak, belki aile sofrasında eski günler anılacak. Bu ziyaret iyileştirici — geçmişin güzel yüzü bugüne güç taşır.", "Geçmişe fazla takılmışsın; eski mesajları okuyup eski fotoğraflarda geziniyorsun ama bugün de yaşanmayı bekliyor. Anıların içinde ev kurulmaz — o mahalleye uğra, ama taşınma.", "Anılar ziyaret edilir, oturulmaz.", "B"],
+    ["7'lisi", "Önünde seçenek çok ve hepsi parlak görünüyor: yeni bir iş, bir taşınma fikri, üç ayrı hayal aynı anda el sallıyor. Ama bir kısmı köpükten — vitrin güzel, raf boş. Hayal kurmak güzel, seçmek daha güzel; kupaların içine tek tek bak.", "Sis dağılıyor ve gerçekçi bir seçim yaklaşıyor; hangi hayalin taşınabilir, hangisinin süs olduğunu ayırt etmeye başladın. Ayakların yere değdikçe yol netleşecek.", "Birini seç, gerisini gönül rahatlığıyla bırak.", "B"],
+    ["8'lisi", "Doyurmayan bir düzeni — belki bir işi, belki bir ilişkiyi, belki bir şehri — geride bırakıp daha derin bir anlam aramaya çıkıyorsun. Masada sekiz dolu kupa var ama sen dokuzuncuyu aramadan rahat edemeyeceksin. Bu terk ediş değil, kendine yürüyüş; valizin hafif, vicdanın rahat olsun.", "Gitmekle kalmak arasında sıkışmışsın; bir ayağın kapıda, bir ayağın eşikte ve bu kararsızlık iki taraftan da yoruyor. Yarım kalmış vedalar hiçbir şeye benzemez — ya içeri gir ya yola çık.", "Kalbin neredeyse, ev orasıdır.", "H"],
+    ["9'lusu", "Dilek kartı çıktı! Küçük ama içten bir isteğin — beklediğin haber, göz koyduğun fırsat, belki sadece rahat bir nefes — gerçekleşmek üzere. Sofran kurulu, kupaların dizili; bu keyfi gürültüye boğmadan tadını sessizce çıkar.", "Tatmin dışarıdan değil içeriden gelir; sepetler dolusu şey alsan da içindeki boşluk başka bir dille konuşuyor. Bir şükür listesi yap — elindekiler, istediklerinden uzun çıkacak.", "Bugün kendini şımart; hak etmek için beklemek şart değil.", "E"],
+    ["10'lusu", "Aile, huzur ve gökkuşağı — duygusal doyumun en güzel hali bu. Ev bugün gerçekten yuva: sofrada kahkaha, odalarda sıcaklık var; belki kalabalık bir aile yemeği, belki sadece akşam herkesin bir arada olması içini dolduracak. Bu tablonun kıymetini fotoğrafını çekerek değil, içinde yaşayarak bil.", "Evdeki küçük bir uyumsuzluk — bir alınganlık, paylaşılmayan bir yük, belki fatura gerginliği — ilgi bekliyor. Büyümeden konuşun; yuvanın çatısı küçük tamirlerle sağlam kalır.", "Sevdiklerinle sofra kur; huzur en çok orada demlenir.", "E"],
+    ["Prensi", "Sürpriz bir duygusal haber ya da yaratıcı bir ilham kapıda: beklemediğin birinden gelen bir mesaj, içini kıpırdatan bir fikir, belki yıllardır ertelediğin bir hevese dönüş. Balıktan mesaj var — küçük görünse de içinde büyük bir davet taşıyor. Gözünü telefondan ve kalbinden ayırma.", "Hayallere dalıp gerçeği kaçırma; zihnin okyanusta yüzerken faturalar, işler ve verilmiş sözler kıyıda bekliyor. Hayal yakıttır, direksiyon değil — arada kıyıya da bak.", "İçindeki çocuğa kulak ver; o hâlâ en dürüst danışmanın.", "E"],
+    ["Şövalyesi", "Romantik bir teklif, zarif bir jest ya da içten bir özür yolda; beyaz atlı bugün gerçekten geliyor olabilir. Bu bir buluşma daveti, kapına bırakılmış bir incelik ya da uzun süredir beklediğin o yumuşak cümle olabilir. Kalbinin kapısını aralık tut — nazik misafir zorla girmez.", "Tatlı sözlere kapılmadan niyete bak; ambalaj değil içerik önemli. Güzel konuşan herkes güzel hissettirmez — vaatlerin takvimini sor, çiçeği uzatan eli gör.", "Kalbinle git ama aklını da yanına al.", "E"],
+    ["Kraliçesi", "Sezgilerin ve şefkatin bugün çok güçlü; insanları sözlerinden değil, sessizliklerinden okuyorsun. Biri — belki bir arkadaş, belki evden biri — sana içini dökecek ve senin dinleyişin ona ilaç gibi gelecek. Bu yumuşak güç senin tacın; kimse fark etmese de odanın ısısını sen belirliyorsun.", "Herkesin derdini yüklenme; duygusal sünger olursan sonunda damlayacak yerin kalmaz. Dinlemek başka, taşımak başka — kalbinin de bir mesai saati olsun.", "Önce kendi kalbini doldur; taşandan herkese yeter.", "E"],
+    ["Kralı", "Duygu fırtınasında bile sakin kalmayı biliyorsun; masada tansiyon yükselirken — ister aile meselesi ister zorlu bir iş görüşmesi olsun — sesini yükseltmeden yön veren sensin. Bu olgunluk bugün sana kapı açacak: insanlar fırtınada liman arar ve senin sükûnetin o liman. Yeter ki sakinliğin hissizlik sanılmasın.", "Sakin yüzünün altında biriktirdiklerin taşabilir; aylardır idare ediyorum dediğin ne varsa en olmadık anda, en olmadık kişiye dökülebilir. Taşmadan konuş — kontrollü bir açılma, kontrolsüz bir patlamadan bin kat iyidir.", "Hislerini konuşmak zayıflık değildir; en güçlü krallar bunu bilir.", "B"]
   ]},
   { key: "asa", name: "Asa", sym: "🔥", label: "ASALAR", theme: "enerjin, hevesin ve girişimlerin", cards: [
-    ["Ası", "Yeni bir fikir kıvılcımı — hemen harekete geçersen alev alır. Bu kıvılcım bir proje, bir hobi ya da cesur bir teklif olabilir.", "İlham var ama kibrit nemli; büyük planı bırak, küçük bir adım ateşi yakar.", "Bugün başla, mükemmelini sonra yaparsın.", "E"],
-    ["2'lisi", "Plan yapma ve ufka bakma zamanı; dünya sandığından geniş ve haritada senin de yerin var.", "Konfor alanı sıcak ama manzarası yok.", "Bir sonraki hedefini yaz.", "B"],
-    ["3'lüsü", "Attığın adımların ilk meyveleri ufukta göründü; gemilerin dönüyor.", "Gecikme var ama gemiler yolda; sabret.", "Beklerken yeni yelken dik.", "E"],
-    ["4'lüsü", "Kutlama ve istikrar; emeklerin güzel bir eşiğe ulaştı. Ev, ekip ya da ilişki — temel sağlam.", "Kutlamayı hak ettin ama erteliyorsun.", "Küçük başarıyı da kutla.", "E"],
-    ["5'lisi", "Fikir çatışması var; herkes asasını sallıyor. Rekabet seni bilesin diye, yıpratmasın diye.", "Tartışmanın tozu dumanı dağılıyor; ortak nokta görünüyor.", "Haklı çıkmak mı, huzur mu? Seç.", "H"],
-    ["6'lısı", "Zafer ve takdir! Başarın görünür oluyor; alkışı utanmadan kabul et, emeğinin sesi o.", "Takdir gecikiyor diye değerin düşmez.", "Kendi sırtını kendin sıvazla.", "E"],
-    ["7'lisi", "Yerini koruyorsun; baskı var ama yüksekte duran sensin, avantaj hâlâ sende.", "Her cepheyle aynı anda savaşma.", "En önemli kaleyi seç, onu savun.", "B"],
-    ["8'lisi", "İşler hızlanıyor! Haberler, mesajlar ve gelişmeler peş peşe gelecek; kemerini bağla.", "Acele işe şeytan karışır; biraz yavaşla.", "Telefonuna bak, güzel haber olabilir.", "E"],
-    ["9'lusu", "Yorgunsun ama son düzlüktesin; bunca yol pes etmek için yürünmedi.", "Savunmadan çık, herkes düşman değil.", "Mola ver ama havlu atma.", "B"],
-    ["10'lusu", "Yük ağır çünkü hepsini tek başına taşıyorsun; oysa kimse sana 'hepsini sen taşı' demedi.", "Yük hafifliyor; devretmeyi öğreniyorsun.", "Bir görevi bugün başkasına ver.", "H"],
-    ["Prensi", "Heyecanlı bir haber ya da yeni bir macera daveti geliyor; içindeki kaşif kıpırdanıyor.", "Hevesin çabuk sönüyorsa hedef yanlış olabilir.", "Merakının peşinden git.", "E"],
-    ["Şövalyesi", "Enerjin tavan! Cesur bir hamle için rüzgar arkanda; atı dörtnala sür.", "Balıklama atlamadan önce derinliği ölç.", "Cesaret güzel, plan daha güzel.", "E"],
-    ["Kraliçesi", "Karizman ve sıcaklığın bugün odayı aydınlatıyor; insanlar yanında olmak istiyor.", "Işığını kıskananlara enerji harcama.", "Kendin ol, yeter.", "E"],
-    ["Kralı", "Vizyon sahibisin ve insanlar seni takip etmeye hazır; liderlik bugün sana yakışıyor.", "Otoriteyi paylaşmak seni küçültmez.", "Büyük resmi anlat, ekip arkandan gelsin.", "E"]
+    ["Ası", "İçinde yeni bir kıvılcım çakıyor: bir proje fikri, yıllardır ertelediğin bir hobi ya da sunmaya çekindiğin cesur bir teklif. Bu ateş beklemeyi sevmez; bugün atacağın tek bir adım — bir e-posta, bir kayıt, bir telefon — kıvılcımı aleve çevirir. Evren sana boş bir sayfa uzatıyor, kalemi eline al.", "İlham orada ama kibrit nemli; kafanda dev bir plan kurdukça elin hiçbir şeye gitmiyor. Büyük resmi bir kenara koy — masanı topla, ilk cümleyi yaz; o küçücük adım ateşi yakmaya yeter.", "Bugün başla, mükemmelini sonra yaparsın.", "E"],
+    ["2'lisi", "Elindekini kurdun, şimdi pencereden ufka bakma vakti: yeni bir şehir, yeni bir iş kolu, belki o hep konuştuğun başvuru. Dünya sandığından geniş ve haritada senin de bir yerin var; plan yapmak hayal kurmak değil, yola çıkışın ilk adımıdır. Bugün çizdiğin rota, yarın bavulunun etiketi olabilir.", "Konfor alanın sıcak, koltuğun rahat ama manzarası yok; aynı pencereden bakarak yeni ufuk görülmüyor. Küçücük bir değişiklik bile — farklı bir yol, farklı bir sohbet — perdeyi aralar.", "Bir sonraki hedefini bugün yaz.", "B"],
+    ["3'lüsü", "Attığın adımların ilk meyveleri ufukta göründü: gönderdiğin başvuruya dönüş, açtığın işe ilk müşteri, ektiğin emeğe ilk teşekkür. Gemilerin dönüyor; kıyıdaki bekleyişin boşa değilmiş. Şimdi dürbünü indirme — gelen fırsatı karşılamaya hazır ol.", "Beklediğin haber gecikiyor ama gemiler batmadı, yolda; rüzgar biraz ters esiyor, hepsi bu. Sabrını limanda değil tezgahta harca — bekleyiş çalışarak kısalır.", "Beklerken yeni yelken dik.", "E"],
+    ["4'lüsü", "Emeklerin güzel bir eşiğe ulaştı: yeni ev, biten proje, kalabalık bir aile sofrası — sebep her neyse temel sağlam ve kutlamayı hak ediyor. Sevdiklerini topla, sofrayı kur; paylaşılan sevinç ikiye katlanır. Bu huzur şans eseri değil, senin ellerinle örüldü.", "Kutlamayı hak ettin ama hep erteliyorsun; bir sonraki hedef bitmeden bir öncekine sevinemiyorsun. Oysa yol uzun ve moladan kaçan yolcu yolda kalır.", "Küçük başarıyı da kutla.", "E"],
+    ["5'lisi", "Etrafında fikir çatışması var: toplantıda herkes kendi doğrusunu savunuyor, evde herkesin ayrı planı var, sesler birbirine karışıyor. Bu itiş kakış seni bilesin diye geldi, yıpratsın diye değil — rekabet, doğru bakınca antrenmandır. Sesini yükseltmek yerine argümanını keskinleştir.", "Tartışmanın tozu dumanı dağılıyor; dün kavga gibi görünenin altından ortak bir nokta çıkıyor. İlk uzlaşma cümlesini kuran kazanır — o kişi sen ol.", "Haklı çıkmak mı, huzur mu? Seç.", "H"],
+    ["6'lısı", "Zafer ve takdir kapıda: sunumun beğeniliyor, sınavın yüz güldürüyor, adın güzel anılıyor. Başarın artık görünür — alkışı utanmadan, küçültmeden kabul et; o ses emeğinin yankısı. Zirvedeyken bir sonraki hedefi seçmek de en kolayıdır.", "Takdir gecikiyor: maaş zammı, teşekkür maili ya da o basit aferin bir türlü gelmiyor. Ama alkış gecikince emeğin değeri düşmez — sahne sırası herkese gelir.", "Kendi sırtını kendin sıvazla.", "E"],
+    ["7'lisi", "Kazandığın yeri savunuyorsun: işte pozisyonuna göz dikenler, fikrine itiraz edenler, sınırlarını yoklayanlar var. Baskı gerçek ama yüksekte duran sensin; tepeyi tutan, aşağıdan gelene her zaman avantajlıdır. Geri adım atmadan, sertleşmeden — sadece yerinde dur, bu yeter.", "Her cepheyle aynı anda savaşıyorsun ve asıl gücün oraya buraya dağılıyor. Bazı tartışmalar kaybedilmeye değer — her kaleyi savunan, hiçbirini savunamaz.", "En önemli kaleyi seç, onu savun.", "B"],
+    ["8'lisi", "İşler birden hızlanıyor: beklediğin mesaj, arka arkaya gelen telefonlar, aynı haftaya sıkışan gelişmeler. Uzun süredir yerinde sayan ne varsa şimdi rüzgarı arkasına alıyor; kemerini bağla, akışa direnme. Hız senin dostun — yeter ki dümeni bırakma.", "Her şey çok hızlı ve sen daha da hızlanmaya çalışıyorsun; acele işe şeytan karışır, atlanan detay sonra pahalıya oturur. Mesajı göndermeden bir kez daha oku — bir nefeslik duraklama seni yavaşlatmaz, korur.", "Telefonuna bak, güzel haber olabilir.", "E"],
+    ["9'lusu", "Yorgunsun, belli: üst üste gelen işler, uykusuz geceler, bitmeyen sorumluluklar omzunda iz bırakmış. Ama son düzlüktesin; bunca yol pes etmek için yürünmedi. Bir yara daha alırım korkusuyla durma — bitiş çizgisi sandığından yakın.", "O kadar savunmadasın ki uzanan iyi niyetli eli bile tehdit sanıyorsun; oysa herkes düşman değil, kimi sadece yardım etmek istiyor. Zırhı biraz gevşet — yorgun omuzlar destekle dinlenir, nöbetle değil.", "Mola ver ama havlu atma.", "B"],
+    ["10'lusu", "Yükün ağır çünkü hepsini tek başına taşıyorsun: işin raporu, evin faturası, herkesin derdi — hepsi senin sırtında. Oysa kimse sana 'hepsini sen taşı' demedi; bu ağırlığın bir kısmını gönüllü yüklendin. Bırakmak vazgeçmek değildir; bazen en olgun hamle, elindekinin yarısını yere koymaktır.", "Yük hafifliyor: devretmeyi, hayır demeyi, yardımı kabul etmeyi öğreniyorsun. Sırtın doğruldukça yolun da kısaldığını göreceksin.", "Bir görevi bugün başkasına ver.", "H"],
+    ["Prensi", "Heyecanlı bir haber ya da yeni bir macera daveti yolda: sürpriz bir teklif, ilgini çeken bir kurs, belki ani bir seyahat planı. İçindeki kaşif kıpırdanıyor ve bu kıpırtı görmezden gelinmeyecek kadar canlı. Davet geldiğinde çok hesap yapma — bazı kapılar yalnızca bir kez çalınır.", "Hevesin çabuk alevlenip çabuk sönüyorsa sorun sende değil, hedefte olabilir; yanlış ateşe odun taşınmaz. Neyin gerçekten içini ısıttığını bul — gerisi kendiliğinden tutuşur.", "Merakının peşinden git.", "E"],
+    ["Şövalyesi", "Enerjin tavan yapmış: o iş görüşmesine gir, o mesajı at, o yolculuğa çık — rüzgar arkanda. Cesur hamleler için gökyüzü açık; atı dörtnala sürmenin tam zamanı. Bugün çekingen davranırsan, yarın bu rüzgarı arayacaksın.", "Coşkun güzel ama balıklama atlamadan önce derinliği ölç; her parlayan su, yüzmeye uygun değildir. Hızını kesme — sadece dizginleri bir tık geri çek.", "Cesaret güzel, plan daha güzel.", "E"],
+    ["Kraliçesi", "Karizman ve sıcaklığın bugün odayı aydınlatıyor: toplantıda söz sende, sofrada gülüşler seninle, insanlar yanında olmak istiyor. Bu çekim gücü makyaj değil, iç ateşinden geliyor — sahiciliğin en güçlü tılsımın. Işığını sakınma; birinin karanlık günü senin sıcaklığınla aydınlanabilir.", "Işığın bazılarını rahatsız ediyor; laf sokan, küçümseyen, gölge etmeye çalışanlar çıkacak. Onları aydınlatmaya uğraşma — enerji, hak edene harcanır.", "Kendin ol, yeter.", "E"],
+    ["Kralı", "Vizyon sahibisin ve insanlar peşinden gelmeye hazır: ekipte son söz senden bekleniyor, ailede kararlar sana danışılıyor. Liderlik bugün sana yakışıyor; büyük resmi görüyor, yolu gösterebiliyorsun. Sözünü sakınma — bir fikri gerçeğe çeviren, onu yüksek sesle sahiplenen kişidir.", "Her ipi elinde tutma isteği seni yoruyor; oysa otoriteyi paylaşmak seni küçültmez, büyütür. İyi kral emir yağdıran değil, iyi soru soran ve yol açandır.", "Büyük resmi anlat, ekip arkandan gelsin.", "E"]
   ]},
   { key: "kilic", name: "Kılıç", sym: "⚔️", label: "KILIÇLAR", theme: "zihnin, sözlerin ve kararların", cards: [
-    ["Ası", "Zihnin jilet gibi; net bir karar ya da parlak bir fikir doğuyor. Bugün imzalanan söz, uzun süre geçerli olur.", "Kafa karışıkken karar alma; önce sis dağılsın.", "Düşüncelerini kağıda dök.", "E"],
-    ["2'lisi", "İki seçenek arasında gözün bağlı; ama kalbin cevabı çoktan biliyor, sadece onayını bekliyor.", "Erteleme bitiyor, göz bağı çözülüyor.", "Yazı tura at; para havadayken hangisini istediğini anlarsın.", "B"],
-    ["3'lüsü", "Kalp kırıklığı ya da acı bir gerçek; ama bilmek, bilmemekten iyidir. Temiz kesik çabuk iyileşir.", "Yara kabuk bağlıyor; iyileşme sürecindesin.", "Acıyı konuş, içinde bekletme.", "H"],
-    ["4'lüsü", "Zihnin dinlenmeye ihtiyacı var; mola lüks değil, ilaç. Kılıçlar duvarda asılı kalsın bugün.", "Yeterince dinlendin; yavaşça sahaya dön.", "Bugün erken yat.", "B"],
-    ["5'lisi", "Kazandın belki, ama neye mal oldu? Sahada tek başına kalan galibiyet, galibiyet sayılmaz.", "Gerginlik sonrası onarım zamanı.", "Özür dilemek kaybetmek değildir.", "H"],
-    ["6'lısı", "Dalgalı sulardan sakin kıyıya geçiyorsun; geçiş başladı, kürek çekmeye devam.", "Geçmişin yüklerini tekneye alma; batırır.", "Arkana bakma, rota ileri.", "E"],
-    ["7'lisi", "Biri kurnazlık peşinde olabilir; stratejini herkese anlatma, planını sofraya koyma.", "Gizlenen açığa çıkıyor; dürüstlük kazanıyor.", "Kartlarını göğsüne yakın tut.", "H"],
-    ["8'lisi", "Kendini kısıtlanmış hissediyorsun ama ipler sandığından gevşek; hapishanenin kapısı kilitli değil.", "Zihnindeki hapisten çıkış başladı.", "\"Yapamam\" cümlesini bugünlük yasakla.", "H"],
-    ["9'lusu", "Gece kuruntuları büyütür; endişelerin çoğu sabah ışığında cebe sığacak kadar küçülür.", "Kabus bitiyor; rahat bir nefes yaklaşıyor.", "Endişeni yaz, yarın tekrar oku — gülümseyeceksin.", "H"],
-    ["10'lusu", "Bir şey kesin olarak bitti; ama dibe vuranın tek yönü kalır: yukarı. Şafak, en karanlık andan sonra söker.", "Toparlanma başladı; en kötüsü geride.", "Bitene ağıt yakma, doğana bak.", "H"],
-    ["Prensi", "Meraklı zihnin yeni bilgiler topluyor; ama duyduğun her rüzgârı haber sanma, dedikoduya dikkat.", "Her duyduğuna inanma, kaynağını sor.", "Bugün öğrendiğin bir şeyi doğrula.", "B"],
-    ["Şövalyesi", "Hızlı ve kararlı bir hamle gerekiyor; fikrini cesurca savun, ama kılıcı önce kınından söz çıksın.", "Acele hüküm kırıcı olabilir; kılıcının ucunu yumuşat.", "Önce dinle, sonra konuş.", "B"],
-    ["Kraliçesi", "Netliğin ve zekânla bugün kimse seni yanıltamaz; sisli havada pusula sensin.", "Keskin dil kalp kırabilir; ucunu törpüle.", "Doğruyu söyle ama tatlı söyle.", "B"],
-    ["Kralı", "Mantık ve adaletle karar veriyorsun; danışılan kişi sensin ve verdiğin akıl yerini bulacak.", "Soğuk mantık bazen sıcak bir kalbe ihtiyaç duyar.", "Kararına bir tutam merhamet ekle.", "B"]
+    ["Ası", "Zihnin jilet gibi keskin; sisin ortasından net bir karar ya da parlak bir fikir doğuyor. Bugün attığın imza, verdiğin söz, gönderdiğin o önemli e-posta uzun süre geçerli kalacak — kalem elindeyken kullan. Aylardır çözemediğin düğüm, tek bir doğru cümleyle çözülebilir.", "Kafan karışıkken imza atma, mesaj gönderme, kapı kapatma; sis içinde savrulan kılıç önce sahibini keser. Bir gece uyu — sabah aynı konu bambaşka görünecek.", "Düşüncelerini kağıda dök; mürekkep sisi dağıtır.", "E"],
+    ["2'lisi", "İki seçenek arasında gözün bağlı oturuyorsun: iki iş teklifi, iki insan, belki iki şehir. Oysa kalbin cevabı çoktan vermiş, sadece senin onayını bekliyor. Terazi tutmayı bırakıp elini göğsüne koyduğunda hangisi olduğunu zaten biliyorsun.", "Erteleme dönemi bitiyor; göz bağı çözülüyor ve masadaki gerçek tüm çıplaklığıyla görünecek. Karar senin yerine verilmeden sen ver — son söz hâlâ sende.", "Yazı tura at; para havadayken hangisini istediğini anlarsın.", "B"],
+    ["3'lüsü", "Kalbe saplanan bir söz, acı bir haber ya da beklemediğin bir itiraf — evet, canın yanıyor. Ama bilmek, bilmemekten iyidir; ekranda okuduğun o cümle en azından seni belirsizlikten kurtardı. Temiz kesik çabuk iyileşir; iltihaplanan, hep saklanan yaradır.", "En kötüsü geride kaldı; yara artık kanamıyor, kabuk bağlıyor. Kabuğu kaşıyıp durma — eski mesajları açıp açıp okumak iyileşmeyi geciktirir.", "Acıyı konuş, içinde bekletme.", "H"],
+    ["4'lüsü", "Zihnin aylardır vardiya değiştirmeden çalışıyor: işler, faturalar, kafanda dönüp duran aynı konuşmalar. Mola lüks değil, ilaç — kılıçlar bugün duvarda asılı kalsın. Telefonu sessize alıp kestirdiğin bir öğlen uykusu bile sana kaybettirmez, kazandırır.", "Yeterince dinlendin; mola uzarsa uyuşukluğa dönüşür. Yavaşça sahaya dön — önce küçük bir işi bitir, ritim arkasından gelir.", "Bugün erken yat.", "B"],
+    ["5'lisi", "Tartışmayı kazandın belki: son sözü sen söyledin, haklı da çıktın. Ama aile sofrasında yüzler asıksa, mesajlarına dönen yoksa, o zafer neye yaradı? Sahada tek başına kalan galibiyet, galibiyet sayılmaz.", "Fırtına dindi, şimdi onarım zamanı; kırılan köprüler taş taş yeniden örülür. İlk adımı atan küçülmez — büyür.", "Özür dilemek kaybetmek değildir.", "H"],
+    ["6'lısı", "Dalgalı sulardan sakin bir kıyıya geçiyorsun: belki bir taşınma, belki yeni bir iş, belki sadece zor bir dönemin bitişi. Geçiş başladı ve sular her kürek darbesinde biraz daha duruluyor. Kıyı göründü — şimdi bırakma.", "Geçmişin yüklerini tekneye doldurma; eski defterler, eski kırgınlıklar en sağlam tekneyi bile batırır. Yanına yalnızca dersleri al, gerisini kıyıda bırak.", "Arkana bakma, rota ileri.", "E"],
+    ["7'lisi", "Çevrende biri kurnazlık peşinde olabilir: fikrini alıp kendi sunumuna koyan, sözünü başkasına taşıyan biri. Stratejini herkese anlatma, planını sofraya serme. Sır tutmak yalan söylemek değildir — vakti gelmemiş sözü bekletmektir.", "Gizli kalan ne varsa gün yüzüne çıkıyor; çalınan fikir sahibini, fısıldanan söz kaynağını buluyor. Dürüst olan bu perdede kazanıyor — sen o taraftaysan rahat ol.", "Kartlarını göğsüne yakın tut.", "H"],
+    ["8'lisi", "Kendini köşeye sıkışmış hissediyorsun: bırakamadığın iş, çıkamadığın ev, bir türlü söyleyemediğin söz. Ama ipler sandığından gevşek ve hapishanenin kapısı kilitli bile değil — seni tutan duvarlar değil, olmaz diyen iç sesin. Bir adım at, bağların kendiliğinden düştüğünü göreceksin.", "Zihnindeki hapisten çıkış başladı; olmaz dediğin şeyler teker teker olur görünmeye başlıyor. Kapıyı araladın — şimdi dönüp hücreni özleme.", "'Yapamam' cümlesini bugünlük yasakla.", "H"],
+    ["9'lusu", "Gece yarısı tavana bakıp kuruntu büyütüyorsun: ya işler ters giderse, ya o mesaj gelmezse, ya fatura ödenmezse. Oysa endişelerinin çoğu sabah ışığında cebe sığacak kadar küçülecek. Kafandaki felaket senaryolarının pek azı sahneye çıkar — provasını yapıp durma.", "Kabus bitiyor; seni geceleri uyutmayan o konu çözülmeye, düğüm gevşemeye başladı. Yakında derin bir nefes alıp bunca uykusuzluğa değer miydi diye güleceksin.", "Endişeni yaz, yarın tekrar oku — gülümseyeceksin.", "H"],
+    ["10'lusu", "Bir şey kesin ve geri dönüşsüz biçimde bitti: bir iş, bir ilişki, bir dönem. Acıtıyor, ama dibe vuranın tek yönü kalır — yukarı. Şafak en karanlık andan sonra söker ve senin gökyüzün ağarmaya başladı bile.", "Toparlanma başladı; en kötüsü geride kaldı, yaranın yerinde yeni bir deri geliyor. Bittiğine üzüldüğün şeyin aslında seni serbest bıraktığını yakında göreceksin.", "Bitene ağıt yakma, doğana bak.", "H"],
+    ["Prensi", "Meraklı zihnin radar gibi çalışıyor: yeni bir kurs, taze bir haber, kulağına çalınan bir gelişme derken durmadan bilgi topluyorsun. Bu iştah çok güzel — ama duyduğun her rüzgârı haber sanma; grupta dönen ekran görüntüsü, koridorda fısıldanan söz çoğu zaman kaynağı belirsiz dedikodudur. Öğren, sor, araştır; ama süzgeçten geçirmeden kimseye taşıma.", "Her duyduğuna inanma; unutma, sana haber getiren senden de haber götürür. Paylaşmadan önce kaynağını sor — yanlış bilgi, taşıyanı da yaralar.", "Bugün öğrendiğin bir şeyi doğrula.", "B"],
+    ["Şövalyesi", "Hızlı ve kararlı bir hamle vakti: o toplantıda söz iste, o başvuruyu bugün gönder, fikrini masaya cesurca koy. Rüzgâr arkanda ve bu turda tereddüt eden kaybediyor. Yalnız şunu unutma — kılıçtan önce kınından söz çıksın; ikna, saldırıdan güçlüdür.", "Aceleyle verilen hüküm kırıcı olabilir; dörtnala giden atın gördüğü yol değil, tozdur. Dizginleri biraz çek, kılıcının ucunu yumuşat — hız, haklı olmaya yetmez.", "Önce dinle, sonra konuş.", "B"],
+    ["Kraliçesi", "Netliğin ve zekân bugün zirvede: kimse seni tatlı dille oyalayamaz, kimse sana masal anlatamaz. Sisli havada pusula sensin — bir pazarlık, bir karar ya da zor bir konuşma varsa yönetimi eline al. Yaşadıkların seni keskinleştirdi; bu keskinlik senin tacın.", "Keskin dilin bugün bir kalbi kırabilir; haklı olmak, kırıcı olmayı bağışlatmaz. Söyleyeceğini söyle ama ucunu törpüle — doğru söz, yumuşak söylenince daha derine işler.", "Doğruyu söyle ama tatlı söyle.", "B"],
+    ["Kralı", "Bugün mantığın ve adaletinle karar veriyorsun: duygular masada ama dizginler aklında. Ailede, işte ya da dost meclisinde danışılan kişi sensin — verdiğin akıl yerini bulacak, kurduğun cümle senet sayılacak. Tarafsızlığın en büyük gücün; onu kimseye kaptırma.", "Soğuk mantık bazen sıcak bir kalbe ihtiyaç duyar; en doğru karar bile bazen tablolarla değil, bir sarılmayla anlatılır. Haklı hükümlerini biraz şefkatle yumuşat — adalet sertlikten değil, dengeden doğar.", "Kararına bir tutam merhamet ekle.", "B"]
   ]},
   { key: "tilsim", name: "Tılsım", sym: "🪙", label: "TILSIMLAR", theme: "maddi konuların ve emeğin", cards: [
-    ["Ası", "Somut bir fırsat — para, iş ya da sağlıkla ilgili taze bir tohum avucunda. Bu tohum bakılırsa ağaç olur.", "Fırsat kapıda ama kapıyı senin açman gerek.", "Küçük de olsa bugün bir adım at.", "E"],
-    ["2'lisi", "Birden çok topu aynı anda çeviriyorsun ve gayet iyi gidiyor; dengede kalma becerin bugün göz dolduruyor.", "Denge bozuluyor; bir topu yere bırak.", "Öncelik listesi yap, ilk ikiye odaklan.", "B"],
-    ["3'lüsü", "Ekip çalışması ve ustalık; emeğin görülüyor, işbirliği verim getiriyor. Usta, kalfa ve çırak aynı duvarı örüyor.", "Tek başına kahramanlık verimi düşürür.", "Yardım istemek de ustalıktır.", "E"],
-    ["4'lüsü", "Birikimini koruyorsun; tutumluluk güzel, ama sımsıkı kapalı avuç yeni hiçbir şey alamaz.", "Cimrilikle tutumluluk arasındaki çizgiye dikkat.", "Parayı tut, ama nefes aldır.", "B"],
-    ["5'lisi", "Kendini dışarıda kalmış hissedebilirsin; oysa yardım kapısı hemen yanında, ışığı da yanıyor.", "Zor dönem kapanıyor; destek geliyor.", "İhtiyacını söylemekten utanma.", "H"],
-    ["6'lısı", "Alan el ile veren el dengede; cömertliğin katlanarak dönecek. Bugün verdiğin, yarın başka kapıdan girer.", "Verirken kendini borçlandırma.", "Bugün küçük bir iyilik yap.", "E"],
-    ["7'lisi", "Ektiğin tohumlar büyüyor; hasat sabır ister, fideyi dürtmekle domates erken kızarmaz.", "Emeğinin karşılığını sorgulama vakti; belki saksı değişmeli.", "Değerlendir: sulamaya devam mı, yeni tarla mı?", "B"],
-    ["8'lisi", "İşine odaklanıp ustalaşıyorsun; bu sessiz emek yakında imzana dönüşecek.", "Rutine sıkışma; işine küçük bir yenilik kat.", "Bugün zanaatına yarım saat yatırım yap.", "E"],
-    ["9'lusu", "Kendi emeğinle kurduğun konfor — bağımsızlığının tadını çıkar; bahçendeki üzümler senin dikimin.", "Konfor güzel ama paylaşınca güzelleşir.", "Kendine bir hediye al, hak ettin.", "E"],
-    ["10'lusu", "Uzun vadeli güvence, aile ve kalıcı bolluk; temeller sağlam, çatı da geliyor.", "Maddi bir aile meselesi açıkça konuşulmalı.", "Geleceğe küçük bir tuğla daha koy.", "E"],
-    ["Prensi", "Yeni bir öğrenme ya da kazanç fırsatı filizleniyor; ciddiye alırsan meslek bile olabilir.", "Hayal kurmak yetmez; takvime yaz.", "Öğrenmek istediğin şeye bugün başla.", "E"],
-    ["Şövalyesi", "Yavaş ama emin adımlarla ilerliyorsun; istikrar senin süper gücün, tavşanlar uyuyakalsın.", "Fazla temkin treni kaçırtabilir.", "Rutinini koru ama bir vites yükselt.", "E"],
-    ["Kraliçesi", "Hem işini hem sevdiklerini büyütüyorsun; pratik zekân bereket getiriyor.", "Herkese yetişirken kendini unutma.", "Bugün kendine de bir öğün ayır.", "E"],
-    ["Kralı", "Maddi konularda güvenilir ve başarılısın; dokunduğun iş serpiliyor, sözün senet sayılıyor.", "Statü hırsı sofranın tadını kaçırmasın.", "Zenginlik sofrada paylaşılınca artar.", "E"]
+    ["Ası", "Avucuna somut bir fırsat konuyor: yeni bir iş teklifi, beklenmedik bir kazanç kapısı ya da sağlığın için taze bir başlangıç. Bu bir tohum — bugün küçük görünebilir, ama düzenli bakarsan gölgesinde oturacağın ağaca dönüşür. O ilana bak, o maili at, o randevuyu al; toprak şu an ekilmeye hazır.", "Fırsat hâlâ kapının önünde bekliyor, ama zil kendi kendine çalmayacak — açması gereken el senin. Ertelediğin başvuru, açmadığın birikim hesabı, başlamadığın o düzen; tohum bekledikçe kurur, toprağa atıldığında filizlenir.", "Küçük de olsa bugün somut bir adım at.", "E"],
+    ["2'lisi", "İş, ev, faturalar, belki bir de yan uğraş — hepsini aynı anda çeviriyorsun ve dışarıdan bakan, bunu nasıl başardığını merak ediyor. Bu esneklik senin sermayen; öncelikleri günü gününe ayarlayarak gemiyi yüzdürüyorsun. Yalnız unutma: jonglörlük gösteri için güzeldir, ömürlük meslek olsun diye değil.", "Toplardan biri düşmek üzere: ödemesi geciken bir fatura, sürekli ertelenen bir söz ya da ihmal edilen uykun. Birini bilerek ve nazikçe yere bırakmak, hepsinin birden elinden kaymasından çok daha iyidir.", "Öncelik listesi yap, ilk ikiye odaklan.", "B"],
+    ["3'lüsü", "Emeğin nihayet görülüyor: toplantıda adın geçiyor, ustalığın fark ediliyor, katkına değer veriliyor. Bu kart işbirliğinin bereketini anlatır — usta, kalfa ve çırak aynı duvarı örünce taşlar daha sağlam oturur. Ortak bir proje, ev tadilatı ya da yeni bir iş kuruyorsan, herkesin taşı ayrı kıymetli.", "Her şeyi tek başına sırtlamak kahramanlık gibi görünse de duvar yamuk örülüyor; kimseye danışmadan yapılan iş, iki kez yapılmak zorunda kalıyor. Emeğin görünmüyor ya da ekipten koptuysan, sesini duyurmanın vakti gelmiş.", "Yardım istemek de ustalıktır.", "E"],
+    ["4'lüsü", "Kenara koyduğun birikim, vaktinde ödenen borçlar, sağlama alınmış bir düzen — güvence duygusu sana iyi geliyor ve bunda haklısın. Ama sımsıkı kapalı avuç yeni hiçbir şey alamaz; kasadaki para işletilince büyür, göğüste tutulan nefes büyütmez. Elindekini korurken hayatın akışına küçük bir aralık bırak.", "Tutumluluğun sessizce cimriliğe dönmüş olabilir — yalnız parada değil, sevgide ve zamanda da elin sıkılaşmış. Kaybetme korkusuyla tuttuğun her şey, tam da o sıkı tutuş yüzünden nefessiz kalıyor.", "Parayı tut, ama nefes aldır.", "B"],
+    ["5'lisi", "Bütçenin daralması, işini kaybetme korkusu ya da sağlığının seni yorması — kendini soğukta, camın öbür yanında hissediyor olabilirsin. Oysa yardım kapısı sandığından yakın ve ışığı yanıyor: bir dostun sofrası, bir kurumun desteği, bir telefonun ucundaki tanıdık ses. Yoksunluğun en aldatıcı yanı, insana yalnız olduğunu fısıldamasıdır; değilsin.", "Kışın en sert günü geride kalıyor: bir ödeme yolu bulunuyor, bir kapı aralanıyor, beklenmedik bir el uzanıyor. Toparlanmak zaman alabilir, ama yön artık yukarı.", "İhtiyacını söylemekten utanma.", "H"],
+    ["6'lısı", "Alan el ile veren el şu an dengede: borç veriyorsan yerini bulacak, destek istiyorsan mahcup olmayacaksın. Cömertliğin katlanarak dönüyor — bugün kapattığın küçük bir hesap, yarın hiç beklemediğin bir kapıdan ikram olup giriyor. Zam, destek ya da bir jest gündemdeyse, terazi senden yana.", "Verirken kendi cebini deliyorsun ya da aldığın yardımın ipleri sonradan çekiliyor. Karşılıksız görünen her elin altına bir bak — gerçek cömertlik hesap tutmaz ama sınır tanır.", "Bugün küçük bir iyilik yap.", "E"],
+    ["7'lisi", "Aylardır emek verdiğin şey — birikim hesabın, üstünde çalıştığın proje, sabırla beklediğin terfi — gözle görülür biçimde büyüyor ama henüz olgunlaşmadı. Fideyi dürtmekle domates erken kızarmaz; bu ara dönemin en verimli işi durup bakmaktır. Bugüne kadar ektiklerini şöyle bir tart: hangi dal meyve veriyor, hangisi sadece yer kaplıyor?", "Emeğinin karşılığını dürüstçe sorgulama vakti: aynı işte, aynı ilişkide, aynı yatırımda sulamaya devam mı etmeli, yoksa saksı mı değişmeli? Boşa akan suyu fark etmek kayıp değil, kazancın ilk adımıdır.", "Değerlendir: sulamaya devam mı, yeni tarla mı?", "B"],
+    ["8'lisi", "Başını kaldırmadan çalıştığın şu günler boşa gitmiyor: her tekrar, her düzeltme, her akşam açtığın o kurs videosu seni ustalaştırıyor. Kimse alkışlamıyor gibi görünse de bu sessiz emek yakında imzana dönüşecek — bir sertifika, bir referans, adınla anılan bir iş. Çekiç sesi süreklidir; ustalık öyle duyulur.", "Aynı işi gözü kapalı yapar olduysan ustalaşmıyor, otomatiğe bağlıyorsun demektir — rutin, emeğin pasıdır. İşine küçük bir yenilik kat: yeni bir yöntem, yeni bir araç, yeni bir soru; kıvılcım oradan çıkar.", "Bugün zanaatına yarım saat yatırım yap.", "E"],
+    ["9'lusu", "Oturduğun konfor kimsenin lütfu değil, kendi emeğinin eseri — bahçendeki üzümleri sen diktin, sen büyüttün. Kendi paranı kazanmanın, kendi evinde kendi düzenini kurmanın tadını çıkarma zamanı. Kimseye hesap vermeden aldığın o küçük keyifler, yılların alın terinin faizi.", "Bahçen güzel ama duvarları yükselmiş; bağımsızlığın yalnızlığa dönmesin. Sofranı arada bir başkasına açmak üzümün tadından bir şey eksiltmez — çoğaltır.", "Kendine bir hediye al, hak ettin.", "E"],
+    ["10'lusu", "Bu kart bir günün değil, bir ömrün bereketini anlatır: tapu, miras, emeklilik, aile sofrasında kurulan düzen. Temeller sağlam atılmış, çatı da geliyor — ev almak, evlilik, aile işi ya da uzun vadeli birikim gündemdeyse her taş yerine oturuyor. Bugün kurduğun düzenin gölgesinde yarın torunlar oturacak.", "Ailede konuşulmayan bir para meselesi var — miras, kira, ortak hesap ya da kim ne kadar katkı veriyor sorusu — ve sessizlik büyüdükçe mesele de büyüyor. Sofrada açıkça konuşulan hesap, küslükle görülen hesaptan her zaman ucuzdur.", "Geleceğe küçük bir tuğla daha koy.", "E"],
+    ["Prensi", "İçinde filizlenen o merak — bir kurs, bir sertifika, ek gelir getirecek bir beceri — göründüğünden çok daha değerli. Prens öğrenmeye hevesli gözlerle bakar; bu kart, hevesini ciddiye alırsan onun bir gün mesleğin bile olabileceğini söylüyor. Bugün küçük bir başlangıç yeter: kaydol, ilk dersi izle, ilk sayfayı aç.", "Kafanda kurduğun planlar güzel ama hepsi havada: başlanmamış kurs, açılmamış kitap, gönderilmemiş başvuru hayal olarak kalıyor. Hayal kurmak tohumdur, takvime yazmak toprak — ikisi buluşmadan hiçbir şey filizlenmez.", "Öğrenmek istediğin şeye bugün başla.", "E"],
+    ["Şövalyesi", "Herkes parlak çıkışlar peşindeyken sen her ay birikimini yapan, mesaisini dolduran, sözünü aksatmayan taraftasın — ve kazanan taraf orası. Yavaş ama emin adımların, hızlı başlayıp yolda kalanları teker teker geçiyor. Tavşanlar uyuyadursun; senin atın yolu ezbere biliyor.", "Temkin güzel huydur ama fazlası treni kaçırtır: aylardır incelediğin o fırsat, sen son bir kez daha düşünürken başkasının olabilir. Sağlamcılık perdesinin arkasında yerinde saymadığından emin ol.", "Rutinini koru ama bir vites yükselt.", "E"],
+    ["Kraliçesi", "Bir elinle bütçeyi denkleştirip öbürüyle sofrayı kuran, iş çıkışı hastaya koşup yine de saksıdaki çiçeği susuz bırakmayan o enerji sende. Pratik zekân dokunduğun her yere bereket taşıyor: evin düzeni, işin hesabı, sevdiklerinin karnı senin sayende tok. Bu kart, hem üreten hem besleyen elin kutlu olduğunu söylüyor.", "Herkesin tabağını doldururken kendi tabağın boş kalıyor; en son ne zaman sadece kendin için bir şey yaptığını hatırlamıyorsun bile. Kendini beslemeyen el, bir gün başkasını da besleyemez olur.", "Bugün kendine de bir öğün ayır.", "E"],
+    ["Kralı", "Maddi konularda artık senin sözüne bakılıyor: dokunduğun iş serpiliyor, imzan güven veriyor, sözün senet sayılıyor. Bu kart bir yatırımın olgunlaştığını, bir kariyerin zirveye yaklaştığını ya da masada artık büyükler tarafında oturduğunu müjdeliyor. Bolluğu kazanmak kadar yönetme bilgeliği de seninle.", "Rakamlar büyüdükçe sofradaki kahkaha azaldıysa, bir yerde hesap yanlış demektir. Statü hırsı ve hep daha fazlası derdi, elindekilerin tadını kaçırmasın — kral bile tacını yemekte çıkarır.", "Zenginlik sofrada paylaşılınca artar.", "E"]
   ]}
 ];
 
@@ -792,6 +803,7 @@ var LUCKY_COLORS = ["Altın sarısı", "Gece mavisi", "Zümrüt yeşili", "Bordo
 function luckyLine(rng) {
   var renk = LUCKY_COLORS[Math.floor(rng() * LUCKY_COLORS.length)];
   var sayi = 1 + Math.floor(rng() * 33);
+  state.lucky = { renk: renk, sayi: sayi };
   return "🎨 Şanslı rengin: <b>" + renk + "</b> &nbsp;·&nbsp; 🔢 Şanslı sayın: <b>" + sayi + "</b>";
 }
 
@@ -950,6 +962,7 @@ $("dobSave").addEventListener("click", function () {
   try { localStorage.setItem("tarot_dogum", v); } catch (e) {}
   $("dobOverlay").classList.remove("show");
   if (pendingMode === "chart") { pendingMode = null; openChartOverlay(); }
+  else if (pendingMode === "edit") { pendingMode = null; refreshGreet(); showToast("Doğum tarihi güncellendi 🎂"); }
   else { pendingMode = null; startMode("life"); }
 });
 
@@ -1017,7 +1030,7 @@ var MIRROR_COUNTERS = [
 ];
 function mirrorEf() {
   var name = getName();
-  return name ? "Saygıdeğer " + name : "Saygıdeğer Efendim";
+  return name ? "Saygıdeğer " + escapeHtml(name) : "Saygıdeğer Efendim";
 }
 $("mirror").addEventListener("click", function () {
   var m = $("mirror");
@@ -1026,6 +1039,7 @@ $("mirror").addEventListener("click", function () {
   if (navigator.vibrate) navigator.vibrate(20);
   setTimeout(function () {
     m.classList.remove("shimmer");
+    if (state.mode !== "mirror") return; /* mod değiştiyse bayat cevap basma */
     function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
     var roll = Math.random(), ans, panic = false;
     if (roll < 0.10) { ans = pick(MIRROR_PANICS); panic = true; }
@@ -1075,19 +1089,35 @@ function matchCompute() {
   return { score: score, card: CARDS[Math.floor(rng() * CARDS.length)] };
 }
 function matchText(score, a, b) {
+  var v = score % 2; /* aynı çift hep aynı varyantı görür */
   if (score === 100) return a + " ile " + b + "… Kendinle uyumun elbette %100; kartlar bu özgüveni ayakta alkışlıyor. 👏";
-  if (score >= 90) return "Kartlar nadiren bu kadar hemfikir olur: " + a + " ile " + b + " arasında yıldızların kıskandığı bir uyum var. Bu enerji boşa harcanmamalı.";
-  if (score >= 75) return a + " ile " + b + " güçlü bir ikili: farklılıklar sürtüşme değil, tamamlayıcılık üretiyor. Ufak tefek inatlaşmalar tuzu biberi.";
-  if (score >= 60) return a + " ile " + b + " dengede: bazen aynı dalga boyu, bazen ayrı frekans. Ortak kartınıza kulak verin; köprü orada duruyor.";
-  return a + " ile " + b + "… Kartlar 'emek ister' diyor. Ama unutmayın: en efsanevi ikililer, en zor başlayanlardır. Ortak kartınız yolu gösterecek.";
+  if (score >= 90) return v
+    ? "Kartlar nadiren bu kadar hemfikir olur: " + a + " ile " + b + " arasında yıldızların kıskandığı bir uyum var. Bu enerji boşa harcanmamalı — birlikte başlanmış işler bu frekansta büyür."
+    : a + " ile " + b + " için deste adeta tek ağızdan konuştu: iki ayrı ritim, aynı şarkıda buluşmuş. Böyle uyum ne sık gelir ne kolay bulunur; kadrini bilene.";
+  if (score >= 75) return v
+    ? a + " ile " + b + " güçlü bir ikili: farklılıklar sürtüşme değil, tamamlayıcılık üretiyor. Birinin gözden kaçırdığını öbürü yakalıyor — ufak tefek inatlaşmalar bu uyumun tuzu biberi."
+    : a + " ile " + b + " birbirinin eksiğini kapatan cinsten: biri gaz, biri fren — ve araba tam da bu yüzden yolda kalmıyor. Kıymet verilirse bu bağ uzun soluklu.";
+  if (score >= 60) return v
+    ? a + " ile " + b + " dengede: bazen aynı dalga boyu, bazen ayrı frekans. Ortak kartınıza kulak verin; köprü orada duruyor."
+    : a + " ile " + b + " arasında gelgitli ama gerçek bir bağ var: kimi gün sözsüz anlaşma, kimi gün çeviri gerektiren cümleler. Sabır gösterene bu uyum güzelleşir.";
+  return v
+    ? a + " ile " + b + "… Kartlar 'emek ister' diyor. Ama unutmayın: en efsanevi ikililer, en zor başlayanlardır. Ortak kartınız yolu gösterecek."
+    : a + " ile " + b + " için kartlar kolay demiyor — iki ayrı iklim bu. Ama iklimler buluştuğunda gökkuşağı çıkar; emek verilirse bu zor başlangıç iyi bir hikayeye dönüşebilir.";
 }
 
 /* ---------- kart kitaplığı ---------- */
 function renderBook() {
   var deck = getDeck();
   if (deck === "sade" || deck === "surpriz") deck = "klasik";
-  var html = '<div class="reading general show"><h3>📖 Kart Kitaplığı</h3><p>78 kartın tamamı. Bir karta dokunup aç; düz ve ters anlamlarını oku. Görseller seçili desteden gelir.</p></div>';
+  var deckAd = deck === "marsel" ? "Marsilya (1701)" : deck === "sola" ? "Sola Busca (1491)" : "Rider-Waite (1909)";
+  var html = '<div class="reading general show"><h3>📖 Kart Kitaplığı</h3><p>78 kartın tamamı. Bir karta dokunup aç; düz ve ters anlamlarını oku. Görseller şu desteden: <b>' + deckAd + "</b>.</p></div>";
+  var BOLUM = { major: "🌟 Büyük Arkana", kupa: "🏆 Kupalar", asa: "🔥 Asalar", kilic: "⚔️ Kılıçlar", tilsim: "🪙 Tılsımlar" };
+  var lastSuit = null;
   CARDS.forEach(function (c) {
+    if (c.suit !== lastSuit) {
+      lastSuit = c.suit;
+      html += '<div class="mode-cat" style="margin:16px 0 6px">' + BOLUM[c.suit] + "</div>";
+    }
     html += '<details class="reading show"><summary>' + c.sym + " <b>" + c.name + "</b></summary>" +
       '<img class="bookimg" loading="lazy" src="' + imgSrc(c, deck) + '" alt="" onerror="this.style.display=\'none\'">' +
       "<p><b>Düz:</b> " + c.up + "</p><p><b>Ters:</b> " + c.rev + "</p>" +
@@ -1150,18 +1180,18 @@ var SIGNS = ["Koç", "Boğa", "İkizler", "Yengeç", "Aslan", "Başak", "Terazi"
 var SIGN_EMO = ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓"];
 var SIGN_CARD = [4, 5, 6, 7, 8, 9, 11, 13, 14, 15, 17, 18];
 var SIGN_TRAITS = [
-  "atılgan, öncü ve sabırsız ama yürekli bir enerji taşır",
-  "sabırlı, keyfine düşkün ve güven arayan bir doğadadır",
-  "meraklı, konuşkan ve iki işi aynı anda yürütebilen bir zihindir",
-  "duygusal, koruyucu ve yuvasına bağlı bir yürektir",
-  "gösterişli, cömert ve sahne ışığını seven bir tarzdadır",
-  "titiz, çalışkan ve detayı asla kaçırmayan bir gözdür",
-  "dengeli, zarif ve herkesle geçinmeye çalışan bir tavırdır",
-  "yoğun, sezgisel ve sırlarına düşkün bir derinliktir",
-  "özgür, maceracı ve yılmaz derecede iyimser bir pusuladır",
-  "disiplinli, hedefe kilitli ve sabırla zirveye tırmanan bir yapıdadır",
-  "yenilikçi, bağımsız ve çağının ilerisinde bir bakıştır",
-  "hayalperest, şefkatli ve sınırları eriten bir sezgidir"
+  "atılgan, öncü ve sabırsız ama yürekli bir enerji taşır; kıvılcımı çakan hep odur, közü beklemek ona zor gelir",
+  "sabırlı, keyfine düşkün ve güven arayan bir doğadadır; kolay kolay vazgeçmez — hele konforundan asla",
+  "meraklı, konuşkan ve iki işi aynı anda yürütebilen bir zihindir; sıkıcılığa tahammülü yoktur, yeniliğe bayılır",
+  "duygusal, koruyucu ve yuvasına bağlı bir yürektir; sevdiklerini kabuğunun içine alır, kolay kolay bırakmaz",
+  "gösterişli, cömert ve sahne ışığını seven bir tarzdadır; takdirle büyür, görmezden gelinmeyi zor affeder",
+  "titiz, çalışkan ve detayı asla kaçırmayan bir gözdür; düzeni kurar, kusuru görür — en acımasız olduğu kişiyse kendisidir",
+  "dengeli, zarif ve herkesle geçinmeye çalışan bir tavırdır; karar vermek zor gelir, çünkü iki tarafı da gerçekten görür",
+  "yoğun, sezgisel ve sırlarına düşkün bir derinliktir; yarım sevmeyi bilmez — ya tamamen ya hiç",
+  "özgür, maceracı ve yılmaz derecede iyimser bir pusuladır; ufku hep bir sonraki tepenin ardındadır",
+  "disiplinli, hedefe kilitli ve sabırla zirveye tırmanan bir yapıdadır; geç kazanır ama kalıcı kazanır",
+  "yenilikçi, bağımsız ve çağının ilerisinde bir bakıştır; kalabalığın ortasında bile kendi frekansından yayın yapar",
+  "hayalperest, şefkatli ve sınırları eriten bir sezgidir; başkasının sızısını kendi teninde duyar"
 ];
 var CITIES = "Adana,37.0,35.3;Adıyaman,37.8,38.3;Afyonkarahisar,38.8,30.5;Ağrı,39.7,43.1;Aksaray,38.4,34.0;Amasya,40.7,35.8;Ankara,39.9,32.9;Antalya,36.9,30.7;Ardahan,41.1,42.7;Artvin,41.2,41.8;Aydın,37.8,27.8;Balıkesir,39.6,27.9;Bartın,41.6,32.3;Batman,37.9,41.1;Bayburt,40.3,40.2;Bilecik,40.1,30.0;Bingöl,38.9,40.5;Bitlis,38.4,42.1;Bolu,40.7,31.6;Burdur,37.7,30.3;Bursa,40.2,29.1;Çanakkale,40.2,26.4;Çankırı,40.6,33.6;Çorum,40.5,34.9;Denizli,37.8,29.1;Diyarbakır,37.9,40.2;Düzce,40.8,31.2;Edirne,41.7,26.6;Elazığ,38.7,39.2;Erzincan,39.7,39.5;Erzurum,39.9,41.3;Eskişehir,39.8,30.5;Gaziantep,37.1,37.4;Giresun,40.9,38.4;Gümüşhane,40.5,39.5;Hakkari,37.6,43.7;Hatay,36.2,36.2;Iğdır,40.0,44.0;Isparta,37.8,30.6;İstanbul,41.0,29.0;İzmir,38.4,27.1;Kahramanmaraş,37.6,36.9;Karabük,41.2,32.6;Karaman,37.2,33.2;Kars,40.6,43.1;Kastamonu,41.4,33.8;Kayseri,38.7,35.5;Kırıkkale,39.8,33.5;Kırklareli,41.7,27.2;Kırşehir,39.1,34.2;Kilis,36.7,37.1;Kocaeli,40.8,29.9;Konya,37.9,32.5;Kütahya,39.4,30.0;Malatya,38.4,38.3;Manisa,38.6,27.4;Mardin,37.3,40.7;Mersin,36.8,34.6;Muğla,37.2,28.4;Muş,38.7,41.5;Nevşehir,38.6,34.7;Niğde,38.0,34.7;Ordu,41.0,37.9;Osmaniye,37.1,36.2;Rize,41.0,40.5;Sakarya,40.8,30.4;Samsun,41.3,36.3;Siirt,37.9,41.9;Sinop,42.0,35.2;Sivas,39.7,37.0;Şanlıurfa,37.2,38.8;Şırnak,37.5,42.5;Tekirdağ,41.0,27.5;Tokat,40.3,36.6;Trabzon,41.0,39.7;Tunceli,39.1,39.5;Uşak,38.7,29.4;Van,38.5,43.4;Yalova,40.7,29.3;Yozgat,39.8,34.8;Zonguldak,41.5,31.8;Türkiye dışı / Diğer,41.0,29.0";
 (function fillCities() {
@@ -1266,11 +1296,19 @@ function prepareChart() {
   var localH = hasTime ? (+t.slice(0, 2) + (+t.slice(3)) / 60) : 12;
   var UT = localH - 3; /* Türkiye saati */
   var pos = astro(y, mo, dd, UT);
-  var rows = [];
+  var rows = [], seenSign = {};
   function row(emo, label, ctx, lonDeg) {
     var s = Math.floor(rev360(lonDeg) / 30);
+    var txt;
+    if (seenSign[s]) {
+      txt = ctx + " da " + SIGNS[s] + " burcunda — tıpkı " + seenSign[s] +
+        " gibi. Aynı burcun mührü iki alana birden vurulmuş: bu karakter sende iki kat konuşuyor.";
+    } else {
+      txt = ctx + " — " + SIGNS[s] + " burcu " + SIGN_TRAITS[s] + ".";
+      seenSign[s] = label;
+    }
     rows.push({ emo: emo, label: label, sign: SIGNS[s], semo: SIGN_EMO[s],
-      txt: ctx + " — " + SIGN_TRAITS[s] + ".", card: SIGN_CARD[s] });
+      txt: txt, card: SIGN_CARD[s] });
   }
   row("☀️", "Güneş", "özünün merkezi ve yaşam enerjin", pos.sun);
   row("🌙", "Ay", "duyguların ve iç dünyan", pos.moon);
@@ -1423,8 +1461,10 @@ var SHUFFLE_LINES = [
 /* ---------- isim ekranı ---------- */
 function refreshGreet() {
   var name = getName();
+  var gizli = "";
+  try { gizli = localStorage.getItem("tarot_gizli") ? " 🗝️" : ""; } catch (e) {}
   $("greet").innerHTML = name
-    ? "✨ Hoş geldin, <b>" + escapeHtml(name) + "</b> &nbsp;<a id='chgName'>isim</a> · <a id='chgDob'>🎂 doğum tarihi</a>"
+    ? "✨ Hoş geldin, <b>" + escapeHtml(name) + "</b>" + gizli + " &nbsp;<a id='chgName'>✏️ isim</a> · <a id='chgDob'>🎂 doğum tarihi</a>"
     : "";
   var a = document.getElementById("chgName");
   if (a) a.addEventListener("click", function () {
@@ -1433,6 +1473,7 @@ function refreshGreet() {
   });
   var b = document.getElementById("chgDob");
   if (b) b.addEventListener("click", function () {
+    pendingMode = "edit"; /* sadece düzenleme: kaydedince fal başlatma */
     $("dobInput").value = getDob();
     $("dobOverlay").classList.add("show");
   });
@@ -1485,6 +1526,7 @@ function startMode(mode) {
   $("shareBtn").style.display = "";
   $("shareImgBtn").style.display =
     (mode === "mirror" || mode === "book" || mode === "wheel") ? "none" : "";
+  $("deck").classList.toggle("stone", mode === "rune");
   $("bigAnswer").style.display = "none";
   $("spread").style.display = "none";
   $("spread").innerHTML = "";
@@ -1499,7 +1541,14 @@ $("deck").addEventListener("click", function () {
   var deck = $("deck");
   if (deck.classList.contains("shuffling")) return;
   deck.classList.add("shuffling");
-  $("deckHint").textContent = SHUFFLE_LINES[Math.floor(Math.random() * SHUFFLE_LINES.length)];
+  var RUNE_SHUFFLES = [
+    "Taşlar torbada şıngırdıyor… kuzeyin rüzgarı dinleniyor…",
+    "Taşlar karışıyor… Odin tek gözünü kırptı, devam…",
+    "Taşlar torbada dönüyor… buz çatlıyor, harfler uyanıyor…"
+  ];
+  $("deckHint").textContent = state.mode === "rune"
+    ? RUNE_SHUFFLES[Math.floor(Math.random() * RUNE_SHUFFLES.length)]
+    : SHUFFLE_LINES[Math.floor(Math.random() * SHUFFLE_LINES.length)];
   setTimeout(function () {
     deck.classList.remove("shuffling");
     reveal();
@@ -1522,6 +1571,7 @@ function reveal() {
   var falDeck = resolveDeck();
   state.falDeck = falDeck;
   var useArt = falDeck !== "sade";
+  var stag = state.drawn.length > 5 ? 380 : 650; /* Kelt Haçı'nda tempo hızlansın */
   state.drawn.forEach(function (d, i) {
     var slot = document.createElement("div");
     slot.className = "slot";
@@ -1546,7 +1596,7 @@ function reveal() {
     setTimeout(function () {
       slot.classList.add("revealed");
       if (navigator.vibrate) navigator.vibrate(25);
-    }, 350 + i * 650);
+    }, 350 + i * stag);
   });
 
   if (state.mode === "yesno") {
@@ -1575,7 +1625,7 @@ function reveal() {
   if (state.mode === "celtic") {
     var info = document.createElement("div");
     info.className = "reading general show";
-    info.innerHTML = "<h3>✦ Kelt Haçı Nedir?</h3><p>Tarotun en köklü büyük açılımı — yaklaşık 150 yıllık gelenek. " +
+    info.innerHTML = "<h3>✦ Kelt Haçı Nedir?</h3><p>Tarotun en köklü büyük açılımı — yüz yılı aşkın gelenek. " +
       "10 kart, meselenin bütün katmanlarını tek tek açar: görünen durum, karşı güç, bilinçaltındaki kök, geçmişin izi, " +
       "bilinçli hedef, yakın gelecek, senin duruşun, çevrenin etkisi, umutlarla korkular ve nihai sonuç. " +
       "Kısacası: tek soruya on pencereden bakmak. Aşağıda her pencere sırayla açılıyor.</p>";
@@ -1592,11 +1642,11 @@ function reveal() {
       "<p>" + (d.reversed ? d.card.rev : d.card.up) + "</p>" +
       '<div class="advice">✨ ' + d.card.adv + "</div>";
     readings.appendChild(r);
-    setTimeout(function () { r.classList.add("show"); }, 900 + i * 650);
+    setTimeout(function () { r.classList.add("show"); }, 900 + i * stag);
   });
 
   /* üç kartlı açılımlara genel yorum, günün kartına şans köşesi */
-  var extraDelay = 900 + state.drawn.length * 650;
+  var extraDelay = 900 + state.drawn.length * stag;
   if (state.mode === "life") {
     var hb = document.createElement("div");
     hb.className = "reading general";
@@ -1611,7 +1661,7 @@ function reveal() {
     zb.className = "reading general";
     zb.innerHTML = "<h3>" + state.life.zodiac.emo + " Burcunun Kartı</h3><p>Burcun <b>" +
       state.life.zodiac.name + "</b> — kadim eşleşmede kartın <b>" + zc.name + "</b> " + zc.sym +
-      ". Bu kartın fısıltısı sana her zaman eşlik eder: " + zc.adv + "</p>";
+      ". Bu kartın kadim teması ömür boyu sana eşlik eder: " + zc.th + ".</p>";
     readings.appendChild(zb);
     setTimeout(function () { zb.classList.add("show"); }, extraDelay);
     extraDelay += 400;
@@ -1632,7 +1682,7 @@ function reveal() {
       (state.chart.hasTime
         ? "doğum saatine ve " + state.chart.city + " konumuna göre"
         : "saat girilmediği için öğlen 12:00 varsayıldı; Ay burcu sınırdaysa değişebilir") +
-      "). Eğlence amaçlıdır, gökyüzü kusura bakmasın. 🌌</p>";
+      "). 2016 öncesi doğumlarda yaz saati farkı yükseleni ±1 saat oynatabilir. Eğlence amaçlıdır, gökyüzü kusura bakmasın. 🌌</p>";
     readings.appendChild(nb);
     setTimeout(function () { nb.classList.add("show"); }, extraDelay);
     extraDelay += 400;
@@ -1640,7 +1690,7 @@ function reveal() {
     var mb = document.createElement("div");
     mb.className = "reading general";
     mb.innerHTML = "<h3>💞 Uyum Yorumu</h3><p>" +
-      matchText(state.matchR.score, state.match.a, state.match.b) + "</p>" +
+      matchText(state.matchR.score, escapeHtml(state.match.a), escapeHtml(state.match.b)) + "</p>" +
       '<div class="advice">✨ Uyum, isimlerin kadim titreşiminden hesaplanır; aynı çift her zaman aynı sonucu alır. Eğlence amaçlıdır!</div>';
     readings.appendChild(mb);
     setTimeout(function () { mb.classList.add("show"); }, extraDelay);
@@ -1669,7 +1719,7 @@ function reveal() {
 
   setTimeout(function () {
     $("actions").style.display = "flex";
-  }, extraDelay);
+  }, Math.min(extraDelay, 2600)); /* butonlar uzun animasyonu beklemesin */
 }
 
 /* ---------- paylaş & tekrar ---------- */
@@ -1685,6 +1735,9 @@ $("shareBtn").addEventListener("click", function () {
   var name = getName();
   var lines = ["🔮 Tarot Falı — " + MODE_TITLES[state.mode] + (name ? " · " + name : ""), ""];
   if (state.mode === "yesno") lines.push("Cevap: " + ynAnswer(state.drawn[0]), "");
+  if (state.mode === "daily" && state.lucky) {
+    lines.push("🍀 Şanslı renk: " + state.lucky.renk + " · Şanslı sayı: " + state.lucky.sayi, "");
+  }
   if (["mirror", "chart", "rune", "wheel"].indexOf(state.mode) === -1 && state.drawn) state.drawn.forEach(function (d, i) {
     lines.push(conf.positions[i] + ": " + d.card.sym + " " + d.card.name + (d.reversed ? " (ters)" : ""));
     lines.push(d.reversed ? d.card.rev : d.card.up);
@@ -1705,8 +1758,9 @@ $("shareBtn").addEventListener("click", function () {
   } else if (state.mode === "chart") {
     state.chart.rows.forEach(function (r) {
       lines.push(r.emo + " " + r.label + ": " + r.sign + " " + r.semo);
+      lines.push(r.txt.charAt(0).toUpperCase() + r.txt.slice(1));
+      lines.push("");
     });
-    lines.push("");
   } else if (state.mode === "life") {
     lines.push("🔢 Hesap: " + state.life.expl, "");
     var zci = cardOf(state.life.zodiac.card);
@@ -1720,9 +1774,16 @@ $("shareBtn").addEventListener("click", function () {
   if (navigator.share) {
     navigator.share({ text: text }).catch(function () {});
   } else if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(showToast);
+    navigator.clipboard.writeText(text).then(function () { showToast(); });
   } else {
-    showToast();
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) {}
+    ta.remove();
+    showToast(ok ? "Kopyalandı ✨" : "Kopyalanamadı — ekran görüntüsü işini görür 😉");
   }
 });
 
@@ -1741,7 +1802,16 @@ $("againBtn").addEventListener("click", function () {
   $("readIntro").style.display = "none";
   $("readings").style.display = "none";
   $("actions").style.display = "none";
-  $("modes").style.display = "flex";
+  $("modes").style.display = "grid";
+});
+document.querySelectorAll(".goback").forEach(function (a) {
+  a.addEventListener("click", function () { $("againBtn").click(); });
+});
+/* tüm kaplamalar: arka plana dokununca kapansın (kapana kısılma yok) */
+document.querySelectorAll(".overlay").forEach(function (o) {
+  o.addEventListener("click", function (e) {
+    if (e.target === o) o.classList.remove("show");
+  });
 });
 
 /* ---------- gökyüzü şenlikleri: kayan yıldızlar ve sürpriz misafirler ---------- */
@@ -1877,6 +1947,9 @@ var wheelRot = 0, wheelBusy = false;
 $("wheel").addEventListener("click", function () {
   if (wheelBusy) return;
   wheelBusy = true;
+  $("readings").innerHTML = "";
+  $("readings").style.display = "none";
+  $("actions").style.display = "none";
   var seg = Math.floor(Math.random() * 8);
   var target = 360 * (5 + Math.floor(Math.random() * 3)) + (360 - (seg * 45 + 22.5));
   wheelRot = wheelRot - (wheelRot % 360) + target;
@@ -1884,6 +1957,7 @@ $("wheel").addEventListener("click", function () {
   if (navigator.vibrate) navigator.vibrate(20);
   setTimeout(function () {
     wheelBusy = false;
+    if (state.mode !== "wheel") return; /* mod değiştiyse bayat sonuç basma */
     var s = WHEEL_SEGS[seg];
     state.wheelR = { n: s.n, e: s.e, m: s.m[Math.floor(Math.random() * s.m.length)] };
     var readings = $("readings");
@@ -2059,7 +2133,7 @@ $("shareImgBtn").addEventListener("click", function () {
     ctx.fillText("Mehmet Arar güvencesiyle", W / 2, H - 92);
     ctx.fillStyle = "rgba(245,236,215,.75)";
     ctx.font = "24px Georgia, serif";
-    ctx.fillText("morello11.github.io/tarot-fali", W / 2, H - 42);
+    ctx.fillText((location.host + location.pathname).replace(/\/$/, ""), W / 2, H - 42);
     cv.toBlob(function (blob) {
       var file = null;
       try { file = new File([blob], "tarot-fali.png", { type: "image/png" }); } catch (e) {}
