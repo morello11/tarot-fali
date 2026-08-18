@@ -143,6 +143,28 @@
     color: var(--gold-soft); border: 1px dashed rgba(212,175,55,.4);
     border-radius: 12px; padding: 8px 12px; }
 
+  /* sihirli ayna */
+  .mirror-area { display: none; }
+  .mirror { width: 190px; height: 258px; margin: 10px auto; position: relative;
+    border-radius: 50% / 44%; border: 6px solid var(--gold); cursor: pointer;
+    background: linear-gradient(135deg, #cfd8e8, #7d8cab 40%, #3a4666 72%, #232c49);
+    box-shadow: 0 10px 30px rgba(0,0,0,.5), inset 0 0 40px rgba(255,255,255,.25);
+    overflow: hidden; }
+  .mirror .sheen { position: absolute; top: -40%; left: -70%; width: 55%; height: 180%;
+    background: linear-gradient(75deg, transparent, rgba(255,255,255,.55), transparent);
+    transform: rotate(12deg); }
+  .mirror.shimmer .sheen { animation: sweep 1.1s ease-in-out; }
+  @keyframes sweep { from { left: -70%; } to { left: 130%; } }
+  .mirror .mface { position: absolute; inset: 0; display: grid; place-items: center;
+    font-size: 3rem; filter: drop-shadow(0 2px 6px rgba(0,0,0,.4)); }
+
+  .overlay select { width: 100%; font-family: inherit; font-size: 1rem;
+    padding: 12px; border-radius: 12px; border: 1px solid rgba(212,175,55,.55);
+    background: rgba(255,255,255,.07); color: var(--cream); margin-bottom: 16px; }
+  .overlay select option { color: #222; }
+  .overlay .mini { font-size: .78rem; opacity: .65; font-style: italic;
+    margin: -8px 0 12px; }
+
   /* gökyüzü şenlikleri */
   .moon { position: fixed; top: 16px; right: 18px; font-size: 42px; z-index: 0;
     filter: drop-shadow(0 0 18px rgba(232,207,122,.7));
@@ -157,13 +179,12 @@
   @keyframes drift1 { to { transform: translate(8vw, 6vh) scale(1.15); } }
   @keyframes drift2 { to { transform: translate(-6vw, -5vh) scale(1.1); } }
   .shooter { position: fixed; z-index: 0; pointer-events: none; }
-  .shooter.star { width: 110px; height: 2px; border-radius: 2px;
-    background: linear-gradient(90deg, transparent, #fff);
-    animation: shoot 1.4s linear forwards; }
-  @keyframes shoot {
-    from { transform: translate(0, 0) rotate(18deg); opacity: 1; }
-    to { transform: translate(-60vw, 22vh) rotate(18deg); opacity: 0; }
-  }
+  .shooter.star { height: 2px; border-radius: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.95));
+    box-shadow: 0 0 8px rgba(255,255,255,.6); }
+  .shooter.star::after { content: ""; position: absolute; right: -2px; top: -2px;
+    width: 6px; height: 6px; border-radius: 50%; background: #fff;
+    box-shadow: 0 0 12px 3px rgba(255,255,255,.9); }
   .shooter.emoji { font-size: 30px; animation: flyby 9s linear forwards;
     filter: drop-shadow(0 0 8px rgba(255,255,255,.4)); }
   @keyframes flyby {
@@ -268,6 +289,17 @@
   </div>
 </div>
 
+<div class="overlay" id="chartOverlay">
+  <div class="box">
+    <h2>🌌 Gök Haritan İçin</h2>
+    <p>Doğum saati ve yeri, Ay ile yükselen<br>burcunu hassaslaştırır:</p>
+    <input type="time" id="chartTime">
+    <div class="mini">Saati bilmiyorsan boş bırak (yükselen hesaplanamaz)</div>
+    <select id="chartCity"></select>
+    <button class="btn" id="chartSave">Haritamı Çiz ✨</button>
+  </div>
+</div>
+
 <div class="wrap">
   <header>
     <h1>✦ TAROT FALI ✦</h1>
@@ -302,6 +334,14 @@
       <span class="t">🎂 Yaşam Kartların</span>
       <span class="d">Doğum tarihine göre kişilik, ruh ve yıl kartın</span>
     </button>
+    <button class="mode-btn" data-mode="chart">
+      <span class="t">🌌 Doğum Haritası</span>
+      <span class="d">Güneş, Ay, yükselen ve gezegen burçların</span>
+    </button>
+    <button class="mode-btn" data-mode="mirror">
+      <span class="t">🪞 Sihirli Ayna</span>
+      <span class="d">Soruyu içinden geçir; aynamız biraz küstahtır</span>
+    </button>
     <button class="mode-btn" data-mode="yesno">
       <span class="t">🌗 Evet mi, Hayır mı?</span>
       <span class="d">Sorunu sor, kart kararını versin</span>
@@ -319,6 +359,11 @@
       <div class="stackcard"></div>
       <div class="stackcard"></div>
     </div>
+  </div>
+
+  <div class="mirror-area" id="mirrorArea">
+    <p class="deck-hint">Sorunu içinden geçir ve aynaya dokun…</p>
+    <div class="mirror" id="mirror"><div class="sheen"></div><div class="mface">🪞</div></div>
   </div>
 
   <div class="big-answer" id="bigAnswer"><div class="ans" id="bigAnswerText"></div></div>
@@ -535,6 +580,9 @@ var MODES = {
               hint: "Sorunu evet/hayır şeklinde içinden geçir… desteye dokun." },
   life:     { count: 2, positions: [], leads: [],
               hint: "Desteye dokun, doğum tarihinin sayıları çözülsün…" },
+  chart:    { count: 3, positions: [], leads: [],
+              hint: "Desteye dokun, gök haritan çizilsin…" },
+  mirror:   { count: 0, positions: [], leads: [], hint: "" },
   question: { count: 1, positions: ["Cevap"], leads: ["Sorduğun sorunun aynası:"],
               hint: "Sorunu içinden geçir… hazır olunca desteye dokun." }
 };
@@ -691,8 +739,200 @@ $("dobSave").addEventListener("click", function () {
   if (!v) return;
   try { localStorage.setItem("tarot_dogum", v); } catch (e) {}
   $("dobOverlay").classList.remove("show");
-  startMode("life");
+  if (pendingMode === "chart") { pendingMode = null; openChartOverlay(); }
+  else { pendingMode = null; startMode("life"); }
 });
+
+/* ---------- sihirli ayna ---------- */
+var MIRROR_ANSWERS = [
+  "Sorunun cevabı: Evet. Rica ederim, alkışları kabul ediyorum. 👏",
+  "Hayır. Üzüldün mü? Ben sadece yansıtırım; karar evrenin, kusur camın değil.",
+  "Bu soruya cevap vermem için önce 'dünyanın en bilge aynası' demen gerekiyordu. Neyse, bugünlük geçiyorum: Evet.",
+  "Cevap net: Hayır. Ama bana kızma — ben kırılırsam yedi yıl uğursuzluk, haberin olsun. 🪞",
+  "Belki. Kesin cevap istiyorsan önce buğumu sil, sonra tekrar gel.",
+  "Evet. Ama bunu sana söylediğimi kimseye söyleme, meslek sırrı.",
+  "Sorunu duydum ve açıkçası beğendim. Cevap: Evet, hem de düşündüğünden erken.",
+  "Hayır demek isterdim, çok dramatik olurdu. Ama gerçek şu: Evet.",
+  "Bu soruyu bugün üçüncü soruşun. Cevap değişmedi: Belki.",
+  "Cevap zaten içinde saklı. Ama madem ısrar ediyorsun: Evet gibi Evet.",
+  "Sorunun çarpıcılığından camım titredi. Toparlanır toparlanmaz söylüyorum: Hayır.",
+  "Evren şu an meşgul, yerine ben bakıyorum: Belki. Gece tarifesinde tekrar sor, kehanet daha ucuz.",
+  "Sana yalan söyleyemem, lanetim böyle: Hayır. Ama bugün ışığın çok güzel, o da bir şey.",
+  "Evet. Ve Hayır. Aynalar iki yüzlüdür, kusura bakma. Sen netleşince ben de netleşirim.",
+  "Cevabı biliyorum ama söylersem sürpriz kaçacak. Küçük ipucu: sonu güzel.",
+  "Hayır. Ama panik yok: kapanan her kapının camını ben üretiyorum, yenisi yolda.",
+  "Soru güzel, soran güzel, cevap da güzel: Evet.",
+  "Bunu bana değil, kalbine soracaktın. O 'evet' diyor; buradan duyuyorum, ses yapma.",
+  "Belki. Ama bu 'belki'nin içinde yüzde yetmiş 'evet' var; azimle yüzde doksana çıkar.",
+  "Cevap: Hayır. İtiraz için evrenin müşteri hizmetlerine 🪞 numaralı gişeden başvurabilirsin.",
+  "Bir saniye, kendime bakıyordum… Ne muhteşemim. Neyse, senin soru: Evet.",
+  "Cevap vermeden önce hatırlatayım: ben sadece bir aynayım ama senden iyi fikirlerim var. Bu seferki: Belki."
+];
+$("mirror").addEventListener("click", function () {
+  var m = $("mirror");
+  if (m.classList.contains("shimmer")) return;
+  m.classList.add("shimmer");
+  if (navigator.vibrate) navigator.vibrate(20);
+  setTimeout(function () {
+    m.classList.remove("shimmer");
+    var ans = MIRROR_ANSWERS[Math.floor(Math.random() * MIRROR_ANSWERS.length)];
+    var name = getName();
+    if (name && Math.random() < 0.4) ans = name + "… " + ans;
+    state.mirrorAnswer = ans;
+    var readings = $("readings");
+    readings.innerHTML = "";
+    readings.style.display = "block";
+    var r = document.createElement("div");
+    r.className = "reading general show";
+    r.innerHTML = "<h3>🪞 Aynanın Cevabı</h3><p>" + ans + "</p>";
+    readings.appendChild(r);
+    $("actions").style.display = "flex";
+  }, 1150);
+});
+
+/* ---------- mini doğum haritası: yaklaşık astronomik hesap ---------- */
+var SIGNS = ["Koç", "Boğa", "İkizler", "Yengeç", "Aslan", "Başak", "Terazi", "Akrep", "Yay", "Oğlak", "Kova", "Balık"];
+var SIGN_EMO = ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓"];
+var SIGN_CARD = [4, 5, 6, 7, 8, 9, 11, 13, 14, 15, 17, 18];
+var SIGN_TRAITS = [
+  "atılgan, öncü ve sabırsız ama yürekli bir enerji taşır",
+  "sabırlı, keyfine düşkün ve güven arayan bir doğadadır",
+  "meraklı, konuşkan ve iki işi aynı anda yürütebilen bir zihindir",
+  "duygusal, koruyucu ve yuvasına bağlı bir yürektir",
+  "gösterişli, cömert ve sahne ışığını seven bir tarzdadır",
+  "titiz, çalışkan ve detayı asla kaçırmayan bir gözdür",
+  "dengeli, zarif ve herkesle geçinmeye çalışan bir tavırdır",
+  "yoğun, sezgisel ve sırlarına düşkün bir derinliktir",
+  "özgür, maceracı ve yılmaz derecede iyimser bir pusuladır",
+  "disiplinli, hedefe kilitli ve sabırla zirveye tırmanan bir yapıdadır",
+  "yenilikçi, bağımsız ve çağının ilerisinde bir bakıştır",
+  "hayalperest, şefkatli ve sınırları eriten bir sezgidir"
+];
+var CITIES = "Adana,37.0,35.3;Adıyaman,37.8,38.3;Afyonkarahisar,38.8,30.5;Ağrı,39.7,43.1;Aksaray,38.4,34.0;Amasya,40.7,35.8;Ankara,39.9,32.9;Antalya,36.9,30.7;Ardahan,41.1,42.7;Artvin,41.2,41.8;Aydın,37.8,27.8;Balıkesir,39.6,27.9;Bartın,41.6,32.3;Batman,37.9,41.1;Bayburt,40.3,40.2;Bilecik,40.1,30.0;Bingöl,38.9,40.5;Bitlis,38.4,42.1;Bolu,40.7,31.6;Burdur,37.7,30.3;Bursa,40.2,29.1;Çanakkale,40.2,26.4;Çankırı,40.6,33.6;Çorum,40.5,34.9;Denizli,37.8,29.1;Diyarbakır,37.9,40.2;Düzce,40.8,31.2;Edirne,41.7,26.6;Elazığ,38.7,39.2;Erzincan,39.7,39.5;Erzurum,39.9,41.3;Eskişehir,39.8,30.5;Gaziantep,37.1,37.4;Giresun,40.9,38.4;Gümüşhane,40.5,39.5;Hakkari,37.6,43.7;Hatay,36.2,36.2;Iğdır,40.0,44.0;Isparta,37.8,30.6;İstanbul,41.0,29.0;İzmir,38.4,27.1;Kahramanmaraş,37.6,36.9;Karabük,41.2,32.6;Karaman,37.2,33.2;Kars,40.6,43.1;Kastamonu,41.4,33.8;Kayseri,38.7,35.5;Kırıkkale,39.8,33.5;Kırklareli,41.7,27.2;Kırşehir,39.1,34.2;Kilis,36.7,37.1;Kocaeli,40.8,29.9;Konya,37.9,32.5;Kütahya,39.4,30.0;Malatya,38.4,38.3;Manisa,38.6,27.4;Mardin,37.3,40.7;Mersin,36.8,34.6;Muğla,37.2,28.4;Muş,38.7,41.5;Nevşehir,38.6,34.7;Niğde,38.0,34.7;Ordu,41.0,37.9;Osmaniye,37.1,36.2;Rize,41.0,40.5;Sakarya,40.8,30.4;Samsun,41.3,36.3;Siirt,37.9,41.9;Sinop,42.0,35.2;Sivas,39.7,37.0;Şanlıurfa,37.2,38.8;Şırnak,37.5,42.5;Tekirdağ,41.0,27.5;Tokat,40.3,36.6;Trabzon,41.0,39.7;Tunceli,39.1,39.5;Uşak,38.7,29.4;Van,38.5,43.4;Yalova,40.7,29.3;Yozgat,39.8,34.8;Zonguldak,41.5,31.8;Türkiye dışı / Diğer,41.0,29.0";
+(function fillCities() {
+  var sel = $("chartCity");
+  CITIES.split(";").forEach(function (c) {
+    var o = document.createElement("option");
+    o.value = c;
+    o.textContent = c.split(",")[0];
+    if (c.indexOf("İstanbul") === 0) o.selected = true;
+    sel.appendChild(o);
+  });
+})();
+
+var D2R = Math.PI / 180;
+function rev360(x) { x -= Math.floor(x / 360) * 360; return x; }
+function kepler(M, e) {
+  var E = M + (e * 180 / Math.PI) * Math.sin(M * D2R) * (1 + e * Math.cos(M * D2R));
+  for (var k = 0; k < 3; k++) {
+    E = E - (E - (e * 180 / Math.PI) * Math.sin(E * D2R) - M) / (1 - e * Math.cos(E * D2R));
+  }
+  var xv = Math.cos(E * D2R) - e;
+  var yv = Math.sqrt(1 - e * e) * Math.sin(E * D2R);
+  return { v: Math.atan2(yv, xv) / D2R, r: Math.sqrt(xv * xv + yv * yv) };
+}
+function schlyterD(y, mo, dd, UT) {
+  return 367 * y - Math.floor(7 * (y + Math.floor((mo + 9) / 12)) / 4) +
+    Math.floor(275 * mo / 9) + dd - 730530 + UT / 24;
+}
+function astro(y, mo, dd, UT) {
+  var d = schlyterD(y, mo, dd, UT);
+  var ws = rev360(282.9404 + 4.70935e-5 * d), es = 0.016709 - 1.151e-9 * d;
+  var Ms = rev360(356.0470 + 0.9856002585 * d);
+  var ks = kepler(Ms, es);
+  var lonsun = rev360(ks.v + ws);
+  var xs = ks.r * Math.cos(lonsun * D2R), ys = ks.r * Math.sin(lonsun * D2R);
+  // Ay (ana sapma terimleriyle)
+  var Nm = rev360(125.1228 - 0.0529538083 * d), im = 5.1454;
+  var wm = rev360(318.0634 + 0.1643573223 * d);
+  var em = 0.054900, Mm = rev360(115.3654 + 13.0649929509 * d);
+  var km = kepler(Mm, em);
+  var vwm = (km.v + wm) * D2R;
+  var xh = 60.2666 * km.r * (Math.cos(Nm * D2R) * Math.cos(vwm) - Math.sin(Nm * D2R) * Math.sin(vwm) * Math.cos(im * D2R));
+  var yh = 60.2666 * km.r * (Math.sin(Nm * D2R) * Math.cos(vwm) + Math.cos(Nm * D2R) * Math.sin(vwm) * Math.cos(im * D2R));
+  var lonm = rev360(Math.atan2(yh, xh) / D2R);
+  var Lm = rev360(Nm + wm + Mm), Dm = rev360(Lm - lonsun);
+  lonm = rev360(lonm
+    - 1.274 * Math.sin((Mm - 2 * Dm) * D2R) + 0.658 * Math.sin(2 * Dm * D2R)
+    - 0.186 * Math.sin(Ms * D2R) - 0.059 * Math.sin((2 * Mm - 2 * Dm) * D2R)
+    - 0.057 * Math.sin((Mm - 2 * Dm + Ms) * D2R) + 0.053 * Math.sin((Mm + 2 * Dm) * D2R)
+    + 0.046 * Math.sin((2 * Dm - Ms) * D2R) + 0.041 * Math.sin((Mm - Ms) * D2R)
+    - 0.035 * Math.sin(Dm * D2R) - 0.031 * Math.sin((Mm + Ms) * D2R));
+  function planet(N, i, w, a, e, M) {
+    var k = kepler(rev360(M), e);
+    var vw = (k.v + w) * D2R, r = a * k.r;
+    var xp = r * (Math.cos(N * D2R) * Math.cos(vw) - Math.sin(N * D2R) * Math.sin(vw) * Math.cos(i * D2R));
+    var yp = r * (Math.sin(N * D2R) * Math.cos(vw) + Math.cos(N * D2R) * Math.sin(vw) * Math.cos(i * D2R));
+    return rev360(Math.atan2(yp + ys, xp + xs) / D2R);
+  }
+  return {
+    sun: lonsun, moon: lonm,
+    mer: planet(rev360(48.3313 + 3.24587e-5 * d), 7.0047, rev360(29.1241 + 1.01444e-5 * d), 0.387098, 0.205635, 168.6562 + 4.0923344368 * d),
+    ven: planet(rev360(76.6799 + 2.46590e-5 * d), 3.3946, rev360(54.8910 + 1.38374e-5 * d), 0.723330, 0.006773, 48.0052 + 1.6021302244 * d),
+    mar: planet(rev360(49.5574 + 2.11081e-5 * d), 1.8497, rev360(286.5016 + 2.92961e-5 * d), 1.523688, 0.093405, 18.6021 + 0.5240207766 * d),
+    jup: planet(rev360(100.4542 + 2.76854e-5 * d), 1.3030, rev360(273.8777 + 1.64505e-5 * d), 5.20256, 0.048498, 19.8950 + 0.0830853001 * d),
+    sat: planet(rev360(113.6634 + 2.38980e-5 * d), 2.5886, rev360(339.3939 + 2.97661e-5 * d), 9.55475, 0.055546, 316.9670 + 0.0334442282 * d)
+  };
+}
+function ascendantDeg(y, mo, dd, UT, lat, lon) {
+  var d = schlyterD(y, mo, dd, UT);
+  var gmst = rev360(280.46061837 + 360.98564736629 * (d - 1.5));
+  var th = rev360(gmst + lon) * D2R;
+  var eps = 23.4393 * D2R, phi = lat * D2R;
+  return rev360(Math.atan2(Math.cos(th), -(Math.sin(th) * Math.cos(eps) + Math.tan(phi) * Math.sin(eps))) / D2R);
+}
+function openChartOverlay() {
+  try {
+    $("chartTime").value = localStorage.getItem("tarot_saat") || "";
+    var sc = localStorage.getItem("tarot_sehir");
+    if (sc) $("chartCity").value = sc;
+  } catch (e) {}
+  $("chartOverlay").classList.add("show");
+}
+$("chartSave").addEventListener("click", function () {
+  try {
+    localStorage.setItem("tarot_saat", $("chartTime").value || "");
+    localStorage.setItem("tarot_sehir", $("chartCity").value);
+  } catch (e) {}
+  $("chartOverlay").classList.remove("show");
+  startMode("chart");
+});
+function prepareChart() {
+  var p = getDob().split("-");
+  var y = +p[0], mo = +p[1], dd = +p[2];
+  var t = "", cityStr = "İstanbul,41.0,29.0";
+  try {
+    t = localStorage.getItem("tarot_saat") || "";
+    cityStr = localStorage.getItem("tarot_sehir") || cityStr;
+  } catch (e) {}
+  var cp = cityStr.split(",");
+  var cityName = cp[0], lat = +cp[1], lon = +cp[2];
+  var hasTime = /^\d{2}:\d{2}$/.test(t);
+  var localH = hasTime ? (+t.slice(0, 2) + (+t.slice(3)) / 60) : 12;
+  var UT = localH - 3; /* Türkiye saati */
+  var pos = astro(y, mo, dd, UT);
+  var rows = [];
+  function row(emo, label, ctx, lonDeg) {
+    var s = Math.floor(rev360(lonDeg) / 30);
+    rows.push({ emo: emo, label: label, sign: SIGNS[s], semo: SIGN_EMO[s],
+      txt: ctx + " — " + SIGN_TRAITS[s] + ".", card: SIGN_CARD[s] });
+  }
+  row("☀️", "Güneş", "özünün merkezi ve yaşam enerjin", pos.sun);
+  row("🌙", "Ay", "duyguların ve iç dünyan", pos.moon);
+  if (hasTime) row("⬆️", "Yükselen", "dışarıya ilk yansıyan yüzün", ascendantDeg(y, mo, dd, UT, lat, lon));
+  var spreadCount = rows.length;
+  row("💬", "Merkür", "düşünme ve iletişim tarzın", pos.mer);
+  row("💖", "Venüs", "sevme ve beğenme biçimin", pos.ven);
+  row("🔥", "Mars", "mücadele ve enerji tarzın", pos.mar);
+  row("🍀", "Jüpiter", "şansın ve büyüme alanın", pos.jup);
+  row("⏳", "Satürn", "hayat dersin ve disiplinin", pos.sat);
+  MODES.chart.positions = rows.slice(0, spreadCount).map(function (r) { return r.emo + " " + r.label; });
+  MODES.chart.count = spreadCount;
+  state.chart = {
+    rows: rows, spreadCount: spreadCount, hasTime: hasTime, city: cityName,
+    drawn: rows.slice(0, spreadCount).map(function (r) { return { card: CARDS[r.card], reversed: false }; })
+  };
+}
 
 /* ---------- deste seçimi ---------- */
 var DECK_INFO = {
@@ -829,22 +1069,28 @@ if (!getName()) $("nameOverlay").classList.add("show");
 refreshGreet();
 
 /* ---------- ekran akışı ---------- */
+var pendingMode = null;
 document.querySelectorAll(".mode-btn").forEach(function (btn) {
   btn.addEventListener("click", function () {
-    if (btn.dataset.mode === "life" && !getDob()) {
+    var mode = btn.dataset.mode;
+    if ((mode === "life" || mode === "chart") && !getDob()) {
+      pendingMode = mode;
       $("dobOverlay").classList.add("show");
       return;
     }
-    startMode(btn.dataset.mode);
+    if (mode === "chart") { openChartOverlay(); return; }
+    startMode(mode);
   });
 });
 
 function startMode(mode) {
   state.mode = mode;
   if (mode === "life") prepareLife();
+  if (mode === "chart") prepareChart();
   $("modes").style.display = "none";
-  $("deckArea").style.display = "block";
-  $("deckHint").textContent = MODES[mode].hint;
+  $("mirrorArea").style.display = mode === "mirror" ? "block" : "none";
+  $("deckArea").style.display = mode === "mirror" ? "none" : "block";
+  if (mode !== "mirror") $("deckHint").textContent = MODES[mode].hint;
   $("bigAnswer").style.display = "none";
   $("spread").style.display = "none";
   $("spread").innerHTML = "";
@@ -868,7 +1114,9 @@ $("deck").addEventListener("click", function () {
 function reveal() {
   var conf = MODES[state.mode];
   var rng = state.mode === "daily" ? mulberry32(dailySeed()) : mulberry32((Math.random() * 1e9) | 0);
-  state.drawn = state.mode === "life" ? state.life.drawn : drawCards(conf.count, rng);
+  state.drawn = state.mode === "life" ? state.life.drawn
+    : state.mode === "chart" ? state.chart.drawn
+    : drawCards(conf.count, rng);
 
   $("deckArea").style.display = "none";
   var spread = $("spread");
@@ -920,6 +1168,7 @@ function reveal() {
   var readings = $("readings");
   readings.style.display = "block";
   state.drawn.forEach(function (d, i) {
+    if (state.mode === "chart") return; /* haritada özel bloklar kullanılır */
     var r = document.createElement("div");
     r.className = "reading";
     r.innerHTML =
@@ -952,6 +1201,27 @@ function reveal() {
     readings.appendChild(zb);
     setTimeout(function () { zb.classList.add("show"); }, extraDelay);
     extraDelay += 400;
+  } else if (state.mode === "chart") {
+    state.chart.rows.forEach(function (r, i) {
+      var b = document.createElement("div");
+      b.className = "reading";
+      b.innerHTML = "<h3>" + r.emo + " " + r.label + ": " + r.sign + " " + r.semo + "</h3>" +
+        "<p>" + r.txt.charAt(0).toUpperCase() + r.txt.slice(1) + "</p>" +
+        '<div class="advice">🃏 Tarot karşılığı: ' + CARDS[r.card].name + " " + CARDS[r.card].sym + "</div>";
+      readings.appendChild(b);
+      setTimeout(function () { b.classList.add("show"); }, extraDelay + i * 250);
+    });
+    extraDelay += state.chart.rows.length * 250 + 300;
+    var nb = document.createElement("div");
+    nb.className = "reading general";
+    nb.innerHTML = "<h3>🔭 Not</h3><p>Bu harita telefonunda, yaklaşık astronomik formüllerle hesaplanır (" +
+      (state.chart.hasTime
+        ? "doğum saatine ve " + state.chart.city + " konumuna göre"
+        : "saat girilmediği için öğlen 12:00 varsayıldı; Ay burcu sınırdaysa değişebilir") +
+      "). Eğlence amaçlıdır, gökyüzü kusura bakmasın. 🌌</p>";
+    readings.appendChild(nb);
+    setTimeout(function () { nb.classList.add("show"); }, extraDelay);
+    extraDelay += 400;
   } else if (state.drawn.length >= 3) {
     var g = document.createElement("div");
     g.className = "reading general";
@@ -978,19 +1248,26 @@ function reveal() {
 var MODE_TITLES = {
   daily: "Günün Kartı", three: "Üç Kart Açılımı", love: "Aşk Açılımı",
   career: "Kariyer Açılımı", yesno: "Evet mi Hayır mı", question: "Soru Kartı",
-  life: "Yaşam Kartları"
+  life: "Yaşam Kartları", chart: "Doğum Haritası", mirror: "Sihirli Ayna"
 };
 $("shareBtn").addEventListener("click", function () {
   var conf = MODES[state.mode];
   var name = getName();
   var lines = ["🔮 Tarot Falı — " + MODE_TITLES[state.mode] + (name ? " · " + name : ""), ""];
   if (state.mode === "yesno") lines.push("Cevap: " + ynAnswer(state.drawn[0]), "");
-  state.drawn.forEach(function (d, i) {
+  if (state.mode !== "mirror" && state.mode !== "chart") state.drawn.forEach(function (d, i) {
     lines.push(conf.positions[i] + ": " + d.card.sym + " " + d.card.name + (d.reversed ? " (ters)" : ""));
     lines.push(d.reversed ? d.card.rev : d.card.up);
     lines.push("");
   });
-  if (state.mode === "life") {
+  if (state.mode === "mirror") {
+    lines.push("🪞 Ayna dedi ki: " + (state.mirrorAnswer || ""), "");
+  } else if (state.mode === "chart") {
+    state.chart.rows.forEach(function (r) {
+      lines.push(r.emo + " " + r.label + ": " + r.sign + " " + r.semo);
+    });
+    lines.push("");
+  } else if (state.mode === "life") {
     lines.push("🔢 Hesap: " + state.life.expl, "");
     var zci = cardOf(state.life.zodiac.card);
     lines.push(state.life.zodiac.emo + " Burç kartı (" + state.life.zodiac.name + "): " + zci.name, "");
@@ -1016,6 +1293,7 @@ function showToast() {
 }
 
 $("againBtn").addEventListener("click", function () {
+  $("mirrorArea").style.display = "none";
   $("bigAnswer").style.display = "none";
   $("spread").style.display = "none";
   $("readIntro").style.display = "none";
@@ -1029,18 +1307,33 @@ $("againBtn").addEventListener("click", function () {
   var GUESTS = ["🧙‍♀️", "🛸", "☄️", "🦉", "🎈"];
   function spawn() {
     var el = document.createElement("div");
-    if (Math.random() < 0.15) {
+    if (Math.random() < 0.15 || !el.animate) {
       el.className = "shooter emoji";
       el.textContent = GUESTS[Math.floor(Math.random() * GUESTS.length)];
       el.style.left = "100vw";
       el.style.top = (8 + Math.random() * 40) + "vh";
+      el.style.animationDuration = (7 + Math.random() * 5).toFixed(1) + "s";
+      document.body.appendChild(el);
+      el.addEventListener("animationend", function () { el.remove(); });
     } else {
+      /* rotası kendi açısıyla hizalı, parlak başlı kayan yıldız */
       el.className = "shooter star";
-      el.style.left = (45 + Math.random() * 55) + "vw";
-      el.style.top = (Math.random() * 35) + "vh";
+      var len = 60 + Math.random() * 90;
+      el.style.width = len + "px";
+      el.style.left = (30 + Math.random() * 65) + "vw";
+      el.style.top = (Math.random() * 38) + "vh";
+      var dx = -(0.35 + Math.random() * 0.35) * window.innerWidth;
+      var dy = (0.10 + Math.random() * 0.18) * window.innerHeight;
+      var ang = Math.atan2(dy, dx) * 180 / Math.PI;
+      document.body.appendChild(el);
+      var anim = el.animate([
+        { transform: "rotate(" + ang + "deg)", opacity: 0 },
+        { transform: "rotate(" + ang + "deg)", opacity: 1, offset: 0.12 },
+        { transform: "translate(" + (dx * 0.85) + "px," + (dy * 0.85) + "px) rotate(" + ang + "deg)", opacity: 0.9, offset: 0.85 },
+        { transform: "translate(" + dx + "px," + dy + "px) rotate(" + ang + "deg)", opacity: 0 }
+      ], { duration: 900 + Math.random() * 700, easing: "cubic-bezier(.2,.4,.6,1)" });
+      anim.onfinish = function () { el.remove(); };
     }
-    document.body.appendChild(el);
-    el.addEventListener("animationend", function () { el.remove(); });
     setTimeout(spawn, 3500 + Math.random() * 8000);
   }
   setTimeout(spawn, 2500);
