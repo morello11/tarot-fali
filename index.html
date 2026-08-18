@@ -205,7 +205,7 @@
   }
   .deckpick button { font-family: inherit; font-size: .85rem; color: var(--cream);
     background: transparent; border: 1px solid rgba(212,175,55,.45); border-radius: 999px;
-    padding: 6px 14px; margin: 0 4px; cursor: pointer; opacity: .65; }
+    padding: 6px 14px; margin: 3px 3px; cursor: pointer; opacity: .65; }
   .deckpick button.on { background: rgba(212,175,55,.2); color: var(--gold-soft);
     opacity: 1; border-color: var(--gold); }
 
@@ -320,7 +320,7 @@
 
   <div class="modes" id="modes">
     <div class="deckpick" id="deckpick">🎴 Deste:
-      <button data-deck="klasik">🖼️ Resimli (1909)</button><button data-deck="sade">✨ Sembol</button><button data-deck="surpriz">🎲 Sürpriz</button>
+      <button data-deck="klasik">🖼️ Rider-Waite (1909)</button><button data-deck="marsel">🏰 Marsilya (1701)</button><button data-deck="sola">🗿 Sola Busca (1491)</button><button data-deck="sade">✨ Sembol</button><button data-deck="surpriz">🎲 Sürpriz</button>
     </div>
     <div class="deckdesc" id="deckdesc"></div>
     <button class="mode-btn" data-mode="daily">
@@ -342,6 +342,10 @@
     <button class="mode-btn" data-mode="life">
       <span class="t">🎂 Yaşam Kartların</span>
       <span class="d">Doğum tarihine göre kişilik, ruh ve yıl kartın</span>
+    </button>
+    <button class="mode-btn" data-mode="celtic">
+      <span class="t">✦ Kelt Haçı</span>
+      <span class="d">10 kartlık büyük açılım — derin ve ciddi okuma</span>
     </button>
     <button class="mode-btn" data-mode="chart">
       <span class="t">🌌 Doğum Haritası</span>
@@ -579,6 +583,20 @@ var MODES = {
   three:    { count: 3, positions: ["Geçmiş", "Şimdi", "Gelecek"],
               leads: ["Seni bugüne taşıyan iz:", "Şu an içinde bulunduğun enerji:", "Önündeki yolun işareti:"],
               hint: "Desteye dokun, üç kartın açılsın…" },
+  celtic:   { count: 10,
+              positions: ["Mevcut Durum", "Engel", "Temel (Bilinçaltı)", "Geçmiş", "Hedef (Bilinç)",
+                          "Yakın Gelecek", "Sen", "Çevre", "Umutlar ve Korkular", "Sonuç"],
+              leads: ["Şu an meselenin kalbinde duran enerji:",
+                      "Yolunu kesen ya da seni sınayan karşı güç:",
+                      "Meselenin görünmeyen kökü, bilinçaltındaki zemin:",
+                      "Geride kalan ama hâlâ izi süren:",
+                      "Bilinçli olarak hedeflediğin ya da farkında olduğun:",
+                      "Önümüzdeki günlerde beliren işaret:",
+                      "Bu meseledeki kendi duruşun:",
+                      "Çevrendeki insanların ve koşulların etkisi:",
+                      "İçindeki umutların ve korkuların aynası:",
+                      "Tüm yolların vardığı yer, meselenin varış noktası:"],
+              hint: "Sorunu netleştir, derin bir nefes al… Kadim açılım için desteye dokun. ✦" },
   love:     { count: 3, positions: ["Sen", "O", "İlişkinin Gidişatı"],
               leads: ["Senin kalbinin hâli:", "Onun tarafında görünen:", "Bu bağın gittiği yön:"],
               hint: "Kalbindeki kişiyi düşün… hazır olunca desteye dokun. 💘" },
@@ -998,10 +1016,14 @@ function prepareChart() {
 /* ---------- deste seçimi ---------- */
 var DECK_INFO = {
   klasik: "1909 Rider-Waite — dünyanın en ünlü tarot çizimleri",
+  marsel: "1701 Marsilya — tarotun Fransız atası, klasiklerin klasiği",
+  sola: "1491 Sola Busca — bilinen en eski tam deste, Rönesans gravürleri",
   sade: "Sembollerle modern ve hızlı görünüm",
   surpriz: "Her falda desteyi kartlar seçer 🎲"
 };
-var ART_DECKS = ["klasik"]; /* yeni resimli desteler geldikçe genişler */
+var ART_DECKS = ["klasik", "marsel", "sola"];
+/* Sola Busca kucuk kartlarinin 22-77 arasindaki seri baslangiclari */
+var SOLA_BLOCKS = { kupa: 22, tilsim: 36, asa: 50, kilic: 64 };
 function getDeck() {
   try { return localStorage.getItem("tarot_deste") || "klasik"; } catch (e) { return "klasik"; }
 }
@@ -1018,6 +1040,19 @@ function refreshDeckUI() {
 }
 function imgSrc(card, deck) {
   /* her resimli deste için kart → dosya eşlemesi */
+  if (deck === "marsel") {
+    if (card.suit === "major") {
+      var i = parseInt(card.img.slice(1, 3), 10);
+      var mi = i === 8 ? 11 : i === 11 ? 8 : i; /* Marsilya'da Adalet 8, Güç 11 */
+      return "img2/mars_t" + pad2(mi) + ".jpg";
+    }
+    return "img2/mars_" + card.img;
+  }
+  if (deck === "sola") {
+    if (card.suit === "major") return "img2/sola_" + card.img.slice(1, 3) + ".jpg";
+    var rank = parseInt(card.img.slice(-6, -4), 10);
+    return "img2/sola_" + pad2(SOLA_BLOCKS[card.suit] + rank - 1) + ".jpg";
+  }
   return "img/" + card.img;
 }
 document.querySelectorAll("#deckpick button").forEach(function (b) {
@@ -1313,7 +1348,8 @@ function reveal() {
 var MODE_TITLES = {
   daily: "Günün Kartı", three: "Üç Kart Açılımı", love: "Aşk Açılımı",
   career: "Kariyer Açılımı", yesno: "Evet mi Hayır mı", question: "Soru Kartı",
-  life: "Yaşam Kartları", chart: "Doğum Haritası", mirror: "Sihirli Ayna"
+  life: "Yaşam Kartları", chart: "Doğum Haritası", mirror: "Sihirli Ayna",
+  celtic: "Kelt Haçı"
 };
 $("shareBtn").addEventListener("click", function () {
   var conf = MODES[state.mode];
