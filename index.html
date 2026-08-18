@@ -139,8 +139,40 @@
 
   .deckpick { font-size: .85rem; margin-bottom: 4px; }
   .deckdesc { font-size: .78rem; font-style: italic; opacity: .7; margin-bottom: 6px; min-height: 1.2em; }
-  .duyuru { margin-top: 10px; font-size: .8rem; font-style: italic; opacity: .8;
-    color: var(--gold-soft); }
+  .duyuru { margin: 2px 0 12px; font-size: .82rem; font-style: italic; opacity: .92;
+    color: var(--gold-soft); border: 1px dashed rgba(212,175,55,.4);
+    border-radius: 12px; padding: 8px 12px; }
+
+  /* gökyüzü şenlikleri */
+  .moon { position: fixed; top: 16px; right: 18px; font-size: 42px; z-index: 0;
+    filter: drop-shadow(0 0 18px rgba(232,207,122,.7));
+    animation: moonbob 9s ease-in-out infinite; pointer-events: none; }
+  @keyframes moonbob { 50% { transform: translateY(6px) rotate(-6deg); } }
+  .nebula { position: fixed; border-radius: 50%; filter: blur(60px); opacity: .16;
+    pointer-events: none; z-index: 0; }
+  .nebula.n1 { width: 60vw; height: 60vw; background: #7b4fd8; top: -15vw; left: -20vw;
+    animation: drift1 26s ease-in-out infinite alternate; }
+  .nebula.n2 { width: 50vw; height: 50vw; background: #2aa8a0; bottom: -18vw; right: -15vw;
+    animation: drift2 32s ease-in-out infinite alternate; }
+  @keyframes drift1 { to { transform: translate(8vw, 6vh) scale(1.15); } }
+  @keyframes drift2 { to { transform: translate(-6vw, -5vh) scale(1.1); } }
+  .shooter { position: fixed; z-index: 0; pointer-events: none; }
+  .shooter.star { width: 110px; height: 2px; border-radius: 2px;
+    background: linear-gradient(90deg, transparent, #fff);
+    animation: shoot 1.4s linear forwards; }
+  @keyframes shoot {
+    from { transform: translate(0, 0) rotate(18deg); opacity: 1; }
+    to { transform: translate(-60vw, 22vh) rotate(18deg); opacity: 0; }
+  }
+  .shooter.emoji { font-size: 30px; animation: flyby 9s linear forwards;
+    filter: drop-shadow(0 0 8px rgba(255,255,255,.4)); }
+  @keyframes flyby {
+    0% { transform: translate(0, 0); }
+    25% { transform: translate(-32vw, -2.5vh) rotate(-4deg); }
+    50% { transform: translate(-64vw, 2vh) rotate(3deg); }
+    75% { transform: translate(-95vw, -2vh) rotate(-3deg); }
+    100% { transform: translate(-128vw, 0); }
+  }
   .deckpick button { font-family: inherit; font-size: .85rem; color: var(--cream);
     background: transparent; border: 1px solid rgba(212,175,55,.45); border-radius: 999px;
     padding: 6px 14px; margin: 0 4px; cursor: pointer; opacity: .65; }
@@ -214,6 +246,9 @@
 </head>
 <body>
 <div class="stars" id="stars"></div>
+<div class="nebula n1"></div>
+<div class="nebula n2"></div>
+<div class="moon">🌙</div>
 
 <div class="overlay" id="nameOverlay">
   <div class="box">
@@ -239,6 +274,7 @@
     <div class="sub">Kartlar ne fısıldıyor?</div>
     <div class="greet" id="greet"></div>
     <div class="divider"></div>
+    <div class="duyuru" id="duyuru"></div>
   </header>
 
   <div class="modes" id="modes">
@@ -300,7 +336,6 @@
     Bu uygulama tamamen eğlence amaçlıdır. 🌟<br>
     Kararlarınızı kartlara değil, kendinize güvenerek verin.<br>
     78 kartlık tam deste ile hazırlanmıştır.
-    <div class="duyuru" id="duyuru"></div>
   </footer>
 </div>
 <div class="toast" id="toast">Kopyalandı ✨</div>
@@ -988,6 +1023,28 @@ $("againBtn").addEventListener("click", function () {
   $("actions").style.display = "none";
   $("modes").style.display = "flex";
 });
+
+/* ---------- gökyüzü şenlikleri: kayan yıldızlar ve sürpriz misafirler ---------- */
+(function skyShow() {
+  var GUESTS = ["🧙‍♀️", "🛸", "☄️", "🦉", "🎈"];
+  function spawn() {
+    var el = document.createElement("div");
+    if (Math.random() < 0.15) {
+      el.className = "shooter emoji";
+      el.textContent = GUESTS[Math.floor(Math.random() * GUESTS.length)];
+      el.style.left = "100vw";
+      el.style.top = (8 + Math.random() * 40) + "vh";
+    } else {
+      el.className = "shooter star";
+      el.style.left = (45 + Math.random() * 55) + "vw";
+      el.style.top = (Math.random() * 35) + "vh";
+    }
+    document.body.appendChild(el);
+    el.addEventListener("animationend", function () { el.remove(); });
+    setTimeout(spawn, 3500 + Math.random() * 8000);
+  }
+  setTimeout(spawn, 2500);
+})();
 
 /* ---------- yıldızlar ---------- */
 (function makeStars() {

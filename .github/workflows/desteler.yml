@@ -5,49 +5,50 @@ permissions:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: Sola Busca ve Jean Dodal destelerini indir (kamu mali)
         run: |
           mkdir -p img2
           : > img2/report.txt
-          : > /tmp/list.txt
-          add() { echo "$1 $2" >> /tmp/list.txt; }
-          # Sola Busca (1491): 00-77 tam deste (orijinaller zaten kucuk)
+          fetch() { # $1 = commons dosya adi, $2 = hedef — orijinal dosya, kibar tempoda
+            curl -sL --retry 4 --retry-delay 5 --retry-all-errors --max-time 90 \
+              -A "tarot-fali-app/1.0 (github.com/morello11/tarot-fali; egitim amacli)" \
+              -o "img2/$2" \
+              "https://commons.wikimedia.org/wiki/Special:FilePath/$1"
+            if [ "$(stat -c%s "img2/$2" 2>/dev/null || echo 0)" -lt 5000 ]; then
+              rm -f "img2/$2"
+              echo "YOK $2 ($1)" >> img2/report.txt
+              return 1
+            fi
+            sleep 0.4
+          }
           for i in $(seq 0 77); do
             n=$(printf '%02d' "$i")
-            add "Sola_Busca_tarot_card_$n.jpg" "sola_$n.jpg"
+            fetch "Sola_Busca_tarot_card_$n.jpg" "sola_$n.jpg" || true
           done
-          # Jean Dodal (1701) buyuk kartlar
-          add "Jean_Dodal_Tarot_trump_Fool.jpg" "dodal_t00.jpg"
+          fetch "Jean_Dodal_Tarot_trump_Fool.jpg" "dodal_t00.jpg" || true
           for i in $(seq 1 21); do
             n=$(printf '%02d' "$i")
-            add "Jean_Dodal_Tarot_trump_$n.jpg" "dodal_t$n.jpg"
+            fetch "Jean_Dodal_Tarot_trump_$n.jpg" "dodal_t$n.jpg" || true
           done
-          # Jean Dodal kucuk kartlar (muhtemel isim kaliplari)
           for suit in cups coins swords batons; do
             for r in $(seq 1 14); do
               nn=$(printf '%02d' "$r")
-              add "Jean_Dodal_Tarot_${suit}_${nn}.jpg" "dodal_${suit}_${nn}.jpg"
+              fetch "Jean_Dodal_Tarot_${suit}_${nn}.jpg" "dodal_${suit}_${nn}.jpg" || true
             done
           done
-          fetchone() {
-            src="$1"; out="$2"
-            curl -sL --max-time 25 -o "img2/$out" \
-              "https://commons.wikimedia.org/wiki/Special:FilePath/$src?width=400" || true
-            if [ "$(stat -c%s "img2/$out" 2>/dev/null || echo 0)" -lt 5000 ]; then
-              curl -sL --max-time 40 -o "img2/$out" \
-                "https://commons.wikimedia.org/wiki/Special:FilePath/$src" || true
+          # buyuk taramalari kucult (sayfa hizli yuklensin)
+          sudo apt-get -y install imagemagick >/dev/null 2>&1 || true
+          for f in img2/*.jpg; do
+            [ -f "$f" ] || continue
+            w=$(identify -format '%w' "$f" 2>/dev/null || echo 0)
+            if [ "$w" -gt 450 ]; then
+              mogrify -resize 400x -quality 82 "$f" || true
             fi
-            if [ "$(stat -c%s "img2/$out" 2>/dev/null || echo 0)" -lt 5000 ]; then
-              rm -f "img2/$out"
-              echo "YOK $out ($src)" >> img2/report.txt
-            fi
-          }
-          export -f fetchone
-          xargs -P 8 -n 2 bash -c 'fetchone "$0" "$1"' < /tmp/list.txt
-          echo "--- indirilen: $(ls img2 | grep -c jpg) dosya ---" >> img2/report.txt
+          done
+          echo "--- indirilen: $(ls img2 | grep -c jpg || true) dosya ---" >> img2/report.txt
           ls img2 >> img2/report.txt
       - name: Depoya kaydet
         run: |
