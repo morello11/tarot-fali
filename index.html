@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Tarot Falı ✨</title>
 <meta name="description" content="Eğlence amaçlı tarot falı — tam deste, günün kartı, aşk ve kariyer açılımları">
+<meta name="theme-color" content="#120b2e">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   :root {
@@ -166,6 +170,10 @@
     80% { transform: translate(3px, 1px) rotate(.8deg); }
   }
   .reading p i { opacity: .75; }
+  .reading summary { cursor: pointer; color: var(--gold-soft); font-size: 1.02rem; }
+  details.reading p { margin-top: 8px; }
+  .bookimg { width: 140px; border-radius: 10px; margin: 10px auto; display: block;
+    border: 2px solid rgba(212,175,55,.5); }
 
   .overlay select { width: 100%; font-family: inherit; font-size: 1rem;
     padding: 12px; border-radius: 12px; border: 1px solid rgba(212,175,55,.55);
@@ -175,7 +183,7 @@
     margin: -8px 0 12px; }
 
   /* gökyüzü şenlikleri */
-  .moon { position: fixed; top: 16px; right: 18px; font-size: 42px; z-index: 0;
+  .moon { position: fixed; top: 16px; right: 18px; font-size: 42px; z-index: 2;
     filter: drop-shadow(0 0 18px rgba(232,207,122,.7));
     animation: moonbob 9s ease-in-out infinite; pointer-events: none; }
   @keyframes moonbob { 50% { transform: translateY(6px) rotate(-6deg); } }
@@ -298,6 +306,24 @@
   </div>
 </div>
 
+<div class="overlay" id="matchOverlay">
+  <div class="box">
+    <h2>💞 Uyum Falı</h2>
+    <p>İki ismi yazın; kadim titreşim<br>hesabı uyumu söylesin:</p>
+    <input type="text" id="matchA" maxlength="20" placeholder="Birinci isim" autocomplete="off">
+    <input type="text" id="matchB" maxlength="20" placeholder="İkinci isim" autocomplete="off">
+    <button class="btn" id="matchSave">Uyumu Ölç ✨</button>
+  </div>
+</div>
+
+<div class="overlay" id="secretOverlay">
+  <div class="box">
+    <h2>🗝️ Gizli Oda</h2>
+    <p id="secretText" style="font-style: normal; text-align: left; line-height: 1.6;"></p>
+    <button class="btn" id="secretClose">Mührü Al ✨</button>
+  </div>
+</div>
+
 <div class="overlay" id="chartOverlay">
   <div class="box">
     <h2>🌌 Gök Haritan İçin</h2>
@@ -351,9 +377,17 @@
       <span class="t">🌌 Doğum Haritası</span>
       <span class="d">Güneş, Ay, yükselen ve gezegen burçların</span>
     </button>
+    <button class="mode-btn" data-mode="match">
+      <span class="t">💞 Uyum Falı</span>
+      <span class="d">İki ismin uyum yüzdesi ve ortak kartı</span>
+    </button>
     <button class="mode-btn" data-mode="mirror">
       <span class="t">🪞 Sihirli Ayna</span>
       <span class="d">Soruyu içinden geçir; aynamız biraz küstahtır</span>
+    </button>
+    <button class="mode-btn" data-mode="book">
+      <span class="t">📖 Kart Kitaplığı</span>
+      <span class="d">78 kartı görselleri ve anlamlarıyla incele</span>
     </button>
     <button class="mode-btn" data-mode="yesno">
       <span class="t">🌗 Evet mi, Hayır mı?</span>
@@ -610,6 +644,9 @@ var MODES = {
   chart:    { count: 3, positions: [], leads: [],
               hint: "Desteye dokun, gök haritan çizilsin…" },
   mirror:   { count: 0, positions: [], leads: [], hint: "" },
+  match:    { count: 1, positions: ["Ortak Kartınız"], leads: ["İki kalbin kesişimindeki kart:"],
+              hint: "İki ismi aklından geçir… desteye dokun. 💞" },
+  book:     { count: 0, positions: [], leads: [], hint: "" },
   question: { count: 1, positions: ["Cevap"], leads: ["Sorduğun sorunun aynası:"],
               hint: "Sorunu içinden geçir… hazır olunca desteye dokun." }
 };
@@ -869,6 +906,99 @@ $("mirror").addEventListener("click", function () {
   }, 1150);
 });
 
+/* ---------- uyum falı ---------- */
+function openMatchOverlay() {
+  $("matchA").value = getName() || "";
+  $("matchB").value = "";
+  $("matchOverlay").classList.add("show");
+}
+$("matchSave").addEventListener("click", function () {
+  var a = $("matchA").value.trim(), b = $("matchB").value.trim();
+  if (!a || !b) return;
+  state.match = { a: a, b: b };
+  $("matchOverlay").classList.remove("show");
+  startMode("match");
+});
+function matchCompute() {
+  var a = state.match.a.toLocaleLowerCase("tr"), b = state.match.b.toLocaleLowerCase("tr");
+  var pair = [a, b].sort().join("💞");
+  var h = 0;
+  for (var i = 0; i < pair.length; i++) h = (h * 31 + pair.charCodeAt(i)) | 0;
+  var rng = mulberry32(h);
+  var score = a === b ? 100 : 40 + Math.floor(rng() * 60);
+  return { score: score, card: CARDS[Math.floor(rng() * CARDS.length)] };
+}
+function matchText(score, a, b) {
+  if (score === 100) return a + " ile " + b + "… Kendinle uyumun elbette %100; kartlar bu özgüveni ayakta alkışlıyor. 👏";
+  if (score >= 90) return "Kartlar nadiren bu kadar hemfikir olur: " + a + " ile " + b + " arasında yıldızların kıskandığı bir uyum var. Bu enerji boşa harcanmamalı.";
+  if (score >= 75) return a + " ile " + b + " güçlü bir ikili: farklılıklar sürtüşme değil, tamamlayıcılık üretiyor. Ufak tefek inatlaşmalar tuzu biberi.";
+  if (score >= 60) return a + " ile " + b + " dengede: bazen aynı dalga boyu, bazen ayrı frekans. Ortak kartınıza kulak verin; köprü orada duruyor.";
+  return a + " ile " + b + "… Kartlar 'emek ister' diyor. Ama unutmayın: en efsanevi ikililer, en zor başlayanlardır. Ortak kartınız yolu gösterecek.";
+}
+
+/* ---------- kart kitaplığı ---------- */
+function renderBook() {
+  var deck = getDeck();
+  if (deck === "sade" || deck === "surpriz") deck = "klasik";
+  var html = '<div class="reading general show"><h3>📖 Kart Kitaplığı</h3><p>78 kartın tamamı. Bir karta dokunup aç; düz ve ters anlamlarını oku. Görseller seçili desteden gelir.</p></div>';
+  CARDS.forEach(function (c) {
+    html += '<details class="reading show"><summary>' + c.sym + " <b>" + c.name + "</b></summary>" +
+      '<img class="bookimg" loading="lazy" src="' + imgSrc(c, deck) + '" alt="" onerror="this.style.display=\'none\'">' +
+      "<p><b>Düz:</b> " + c.up + "</p><p><b>Ters:</b> " + c.rev + "</p>" +
+      '<div class="advice">✨ ' + c.adv + "</div></details>";
+  });
+  var readings = $("readings");
+  readings.innerHTML = html;
+  readings.style.display = "block";
+  $("shareBtn").style.display = "none";
+  $("actions").style.display = "flex";
+}
+
+/* ---------- günlük seri ---------- */
+function updateStreak() {
+  var today = todayKey();
+  var y = new Date(Date.now() - 86400000);
+  var yest = y.getFullYear() + "-" + (y.getMonth() + 1) + "-" + y.getDate();
+  var s = { last: "", count: 0 };
+  try { s = JSON.parse(localStorage.getItem("tarot_seri")) || s; } catch (e) {}
+  if (s.last !== today) {
+    s.count = (s.last === yest) ? s.count + 1 : 1;
+    s.last = today;
+    try { localStorage.setItem("tarot_seri", JSON.stringify(s)); } catch (e) {}
+  }
+  return s.count;
+}
+
+/* ---------- gizli oda: aya yedi kez dokun ---------- */
+(function secretRoom() {
+  var moon = document.querySelector(".moon");
+  if (!moon) return;
+  moon.style.pointerEvents = "auto";
+  moon.style.cursor = "pointer";
+  var taps = 0, timer = null;
+  moon.addEventListener("click", function () {
+    taps++;
+    clearTimeout(timer);
+    timer = setTimeout(function () { taps = 0; }, 4000);
+    if (navigator.vibrate) navigator.vibrate(15);
+    if (taps >= 7) {
+      taps = 0;
+      $("secretText").innerHTML = "Ay'ı tam yedi kez rahatsız ettin — ve o sana kızmak yerine bir sır verdi:<br><br>" +
+        "<b>Kayıp 79. Kart: Ayın Karanlık Yüzü</b> 🌑<br><br>" +
+        "Anlamı: Herkes parlak tarafa bakarken sen görünmeyeni merak edenlerdensin; büyük sırlar hep orada saklanır. " +
+        "Bu kart hiçbir destede basılmadı — yalnızca Ay'a yedi kez dokunacak kadar meraklı olanlara açılır.<br><br>" +
+        "<i>Gizli Oda'nın mührü artık sende. Selamlamanın yanındaki 🗝️ bunun nişanı. Kimseye söyleme; herkes kendi bulsun.</i>";
+      $("secretOverlay").classList.add("show");
+      try { localStorage.setItem("tarot_gizli", "1"); } catch (e) {}
+      if (navigator.vibrate) navigator.vibrate([50, 80, 50, 80, 120]);
+    }
+  });
+  $("secretClose").addEventListener("click", function () {
+    $("secretOverlay").classList.remove("show");
+    refreshGreet();
+  });
+})();
+
 /* ---------- mini doğum haritası: yaklaşık astronomik hesap ---------- */
 var SIGNS = ["Koç", "Boğa", "İkizler", "Yengeç", "Aslan", "Başak", "Terazi", "Akrep", "Yay", "Oğlak", "Kova", "Balık"];
 var SIGN_EMO = ["♈", "♉", "♊", "♋", "♌", "♍", "♎", "♏", "♐", "♑", "♒", "♓"];
@@ -1116,7 +1246,19 @@ var DUYURULAR = [
   "📢 Uğurlu sayısını unutan misafirlerimize danışma masamız 7 numaralı gişede hizmet vermektedir.",
   "📢 Üçüncü gözümüz numara değişikliği nedeniyle bugün gözlüklüdür; yorumlar bir tık bulanık gelebilir."
 ];
-$("duyuru").textContent = DUYURULAR[Math.floor(Math.random() * DUYURULAR.length)];
+var DUYURULAR_GECE = [
+  "📢 Gece vardiyası duyurusu: bu saatte fal bakanlar, kaderleriyle baş başa kalmayı kabul etmiş sayılır.",
+  "📢 Saat gece yarısını geçti; kehanetler uykulu gelebilir, esneyen kartlarımızı mazur görün.",
+  "📢 Gece falı çekenlere: yorumlar sabah daha mantıklı gelecektir, panik yok.",
+  "📢 Bu saatte destemizin yarısı uyuyor; kartınız ters gelirse nazikçe dürtün, düzelir.",
+  "📢 Gece üçte kahveyle fal bakmak, kaderi iki kez sınamaktır. Yine de buyurun.",
+  "📢 Uyuyamayanlara özel: Ay şu an mesaide, dilekler bu gece çift sayılıyor. 🌙"
+];
+(function () {
+  var saat = new Date().getHours();
+  var havuz = (saat >= 23 || saat < 5) ? DUYURULAR_GECE : DUYURULAR;
+  $("duyuru").textContent = havuz[Math.floor(Math.random() * havuz.length)];
+})();
 
 /* ---------- karıştırma esprileri ---------- */
 var SHUFFLE_LINES = [
@@ -1175,6 +1317,7 @@ document.querySelectorAll(".mode-btn").forEach(function (btn) {
       return;
     }
     if (mode === "chart") { openChartOverlay(); return; }
+    if (mode === "match") { openMatchOverlay(); return; }
     startMode(mode);
   });
 });
@@ -1185,12 +1328,13 @@ function startMode(mode) {
   if (mode === "chart") prepareChart();
   $("modes").style.display = "none";
   $("mirrorArea").style.display = mode === "mirror" ? "block" : "none";
-  $("deckArea").style.display = mode === "mirror" ? "none" : "block";
+  $("deckArea").style.display = (mode === "mirror" || mode === "book") ? "none" : "block";
   if (mode === "mirror") {
     $("mirrorHint").innerHTML =
       MIRROR_GREETS[Math.floor(Math.random() * MIRROR_GREETS.length)].replace(/\{ef\}/g, mirrorEf());
   }
-  if (mode !== "mirror") $("deckHint").textContent = MODES[mode].hint;
+  if (mode !== "mirror" && mode !== "book") $("deckHint").textContent = MODES[mode].hint;
+  $("shareBtn").style.display = "";
   $("bigAnswer").style.display = "none";
   $("spread").style.display = "none";
   $("spread").innerHTML = "";
@@ -1198,6 +1342,7 @@ function startMode(mode) {
   $("readings").style.display = "none";
   $("readings").innerHTML = "";
   $("actions").style.display = "none";
+  if (mode === "book") renderBook();
 }
 
 $("deck").addEventListener("click", function () {
@@ -1216,6 +1361,7 @@ function reveal() {
   var rng = state.mode === "daily" ? mulberry32(dailySeed()) : mulberry32((Math.random() * 1e9) | 0);
   state.drawn = state.mode === "life" ? state.life.drawn
     : state.mode === "chart" ? state.chart.drawn
+    : state.mode === "match" ? (state.matchR = matchCompute(), [{ card: state.matchR.card, reversed: false }])
     : drawCards(conf.count, rng);
 
   $("deckArea").style.display = "none";
@@ -1254,6 +1400,13 @@ function reveal() {
   if (state.mode === "yesno") {
     setTimeout(function () {
       $("bigAnswerText").textContent = ynAnswer(state.drawn[0]);
+      $("bigAnswer").style.display = "block";
+      if (navigator.vibrate) navigator.vibrate([30, 60, 30]);
+    }, 1250);
+  }
+  if (state.mode === "match") {
+    setTimeout(function () {
+      $("bigAnswerText").textContent = "💞 %" + state.matchR.score;
       $("bigAnswer").style.display = "block";
       if (navigator.vibrate) navigator.vibrate([30, 60, 30]);
     }, 1250);
@@ -1322,6 +1475,15 @@ function reveal() {
     readings.appendChild(nb);
     setTimeout(function () { nb.classList.add("show"); }, extraDelay);
     extraDelay += 400;
+  } else if (state.mode === "match") {
+    var mb = document.createElement("div");
+    mb.className = "reading general";
+    mb.innerHTML = "<h3>💞 Uyum Yorumu</h3><p>" +
+      matchText(state.matchR.score, state.match.a, state.match.b) + "</p>" +
+      '<div class="advice">✨ Uyum, isimlerin kadim titreşiminden hesaplanır; aynı çift her zaman aynı sonucu alır. Eğlence amaçlıdır!</div>';
+    readings.appendChild(mb);
+    setTimeout(function () { mb.classList.add("show"); }, extraDelay);
+    extraDelay += 400;
   } else if (state.drawn.length >= 3) {
     var g = document.createElement("div");
     g.className = "reading general";
@@ -1331,9 +1493,14 @@ function reveal() {
     extraDelay += 400;
   }
   if (state.mode === "daily") {
+    var streak = updateStreak();
+    var seriHtml = streak > 1
+      ? "<p class='lucky'>🔥 Seri: <b>" + streak + " gündür</b> günün kartına bakıyorsun" +
+        (streak >= 7 ? " — Kadim Sadakat Nişanı senindir! 🏅" : streak >= 3 ? " — kartlar seni tanımaya başladı 👀" : "") + "</p>"
+      : "";
     var l = document.createElement("div");
     l.className = "reading general";
-    l.innerHTML = "<h3>🍀 Günün Şansı</h3><p class='lucky'>" + luckyLine(rng) + "</p>";
+    l.innerHTML = "<h3>🍀 Günün Şansı</h3><p class='lucky'>" + luckyLine(rng) + "</p>" + seriHtml;
     readings.appendChild(l);
     setTimeout(function () { l.classList.add("show"); }, extraDelay);
     extraDelay += 400;
@@ -1349,7 +1516,7 @@ var MODE_TITLES = {
   daily: "Günün Kartı", three: "Üç Kart Açılımı", love: "Aşk Açılımı",
   career: "Kariyer Açılımı", yesno: "Evet mi Hayır mı", question: "Soru Kartı",
   life: "Yaşam Kartları", chart: "Doğum Haritası", mirror: "Sihirli Ayna",
-  celtic: "Kelt Haçı"
+  celtic: "Kelt Haçı", match: "Uyum Falı", book: "Kart Kitaplığı"
 };
 $("shareBtn").addEventListener("click", function () {
   var conf = MODES[state.mode];
@@ -1361,7 +1528,9 @@ $("shareBtn").addEventListener("click", function () {
     lines.push(d.reversed ? d.card.rev : d.card.up);
     lines.push("");
   });
-  if (state.mode === "mirror") {
+  if (state.mode === "match") {
+    lines.push("💞 " + state.match.a + " & " + state.match.b + " uyumu: %" + state.matchR.score, "");
+  } else if (state.mode === "mirror") {
     lines.push("🪞 Ayna dedi ki: " + (state.mirrorAnswer || ""), "");
   } else if (state.mode === "chart") {
     state.chart.rows.forEach(function (r) {
@@ -1439,6 +1608,14 @@ $("againBtn").addEventListener("click", function () {
   }
   setTimeout(spawn, 2500);
 })();
+
+/* ---------- çevrimdışı destek (PWA) ---------- */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(function () {});
+}
+$("matchB").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") $("matchSave").click();
+});
 
 /* ---------- yıldızlar ---------- */
 (function makeStars() {
