@@ -3,34 +3,46 @@ on: workflow_dispatch
 permissions:
   contents: write
 jobs:
-  listele:
+  kopyala:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - name: Acik kaynak deste arsivini listele
+      - name: Marsilya ve Sola Busca destelerini arsivden al
         run: |
+          set -e
           git clone --depth 1 https://github.com/mixvlad/TarotCards /tmp/kartlar
+          rm -rf img2
           mkdir -p img2
-          {
-            echo "== dizinler =="
-            find /tmp/kartlar -maxdepth 3 -type d | sort
-            echo ""
-            echo "== boyutlar =="
-            du -sh /tmp/kartlar/* 2>/dev/null
-            echo ""
-            echo "== dosyalar (gorsel) =="
-            find /tmp/kartlar -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \) | sort
-            echo ""
-            echo "== lisans/readme dosyalari =="
-            find /tmp/kartlar -maxdepth 2 -type f \( -iname 'README*' -o -iname 'LICENSE*' -o -iname '*.md' \) | sort
-          } > img2/kaynak-listesi.txt
-          wc -l img2/kaynak-listesi.txt
-      - name: Listeyi depoya kaydet
+          M=/tmp/kartlar/tarot/marseille/720px
+          S=/tmp/kartlar/tarot/sola-busca/720px
+          cv() { convert "$1" -resize 400x -quality 82 "$2"; }
+          # Marsilya buyuk kartlar: 00-21 (dosyada Fransizca ad var, numarayla esle)
+          for f in "$M"/[0-9][0-9]_*.png; do
+            n=$(basename "$f" | cut -c1-2)
+            cv "$f" "img2/mars_t$n.jpg"
+          done
+          # Marsilya kucuk kartlar: Cups/Wands/Swords/Pents -> kupa/asa/kilic/tilsim
+          for r in $(seq -w 1 14); do
+            cv "$M/Cups$r.png"   "img2/mars_kupa$r.jpg"
+            cv "$M/Wands$r.png"  "img2/mars_asa$r.jpg"
+            cv "$M/Swords$r.png" "img2/mars_kilic$r.jpg"
+            cv "$M/Pents$r.png"  "img2/mars_tilsim$r.jpg"
+          done
+          # Sola Busca: 00-77 sirali
+          for f in "$S"/[0-9][0-9].jpg; do
+            n=$(basename "$f" .jpg)
+            cv "$f" "img2/sola_$n.jpg"
+          done
+          # kaynak ve lisans bilgisi
+          cp /tmp/kartlar/SOURCES.md img2/KAYNAKLAR.md 2>/dev/null || true
+          echo "toplam: $(ls img2 | grep -c jpg) gorsel"
+          [ "$(ls img2 | grep -c jpg)" -eq 156 ]
+      - name: Depoya kaydet
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git pull --rebase origin main
-          git add img2/kaynak-listesi.txt
-          git commit -m "Deste arsivi dosya listesi"
+          git add -A img2
+          git commit -m "Marsilya ve Sola Busca desteleri (kamu mali, TarotCards arsivinden)"
           git push
