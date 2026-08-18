@@ -157,6 +157,15 @@
   @keyframes sweep { from { left: -70%; } to { left: 130%; } }
   .mirror .mface { position: absolute; inset: 0; display: grid; place-items: center;
     font-size: 3rem; filter: drop-shadow(0 2px 6px rgba(0,0,0,.4)); }
+  .mirror.shake { animation: mshake .55s ease-in-out 2; }
+  @keyframes mshake {
+    0%, 100% { transform: translate(0, 0) rotate(0); }
+    20% { transform: translate(-4px, 1px) rotate(-1.2deg); }
+    40% { transform: translate(4px, -1px) rotate(1.2deg); }
+    60% { transform: translate(-3px, -1px) rotate(-.8deg); }
+    80% { transform: translate(3px, 1px) rotate(.8deg); }
+  }
+  .reading p i { opacity: .75; }
 
   .overlay select { width: 100%; font-family: inherit; font-size: 1rem;
     padding: 12px; border-radius: 12px; border: 1px solid rgba(212,175,55,.55);
@@ -743,46 +752,72 @@ $("dobSave").addEventListener("click", function () {
   else { pendingMode = null; startMode("life"); }
 });
 
-/* ---------- sihirli ayna: yaltakçı, soruya aç, dedikodu meraklısı ---------- */
+/* ---------- sihirli ayna: hürmetkâr, sinsi, soruya aç, tehlikeli-tatlı ---------- */
 var MIRROR_GREETS = [
-  "Sorunu içinden geçir ve dokun bana, saygıdeğer efendim… Ne olur dokun. 🪞",
-  "Bir sorunuz olduğunu hissediyorum efendim. Sorun. SORUN. …Nazikçe rica ediyorum.",
-  "Yüzeyime dokunun yüce efendim; sırlar en güzel buğulu camda yazılır.",
-  "Bugün çok az soru soruldu ve korkunç yalnızım. Düşün sorunu, dokun bana efendim.",
-  "Hoş geldiniz saygıdeğer efendim! Bu mütevazı ayna, hizmetinizdedir. Sormanız yeter."
+  "<i>(cam aydınlanır)</i> Geldiniz... GELDİNİZ! Yani... buyurun, {ef}. Gayet sakin karşıladım, değil mi?",
+  "<i>(yüzeydeki buğu dağılır)</i> Sorunuzu duyabiliyorum, {ef}. Daha sormadınız ama kokusunu alıyorum.",
+  "Sekiz saat kırk dakikadır kimse bir şey sormadı, {ef}. Ama saymadım. Kesinlikle saymadım.",
+  "<i>(yansımanız size hafifçe el sallar)</i> Bunu ben yaptırmadım, {ef}. O da sizi özlemiş.",
+  "Hoş geldiniz, {ef}. Bugün kimin kalbini, kimin kariyerini didikliyoruz?",
+  "Bir soru... Tek bir soru yeter, {ef}. İki olursa daha iyi. Üç olursa çerçevemi sizin adınıza yaldızlatırım."
 ];
 var MIRROR_OPENERS = [
-  "Ah, {ef}! Nihayet bir soru… Bu onuru camımın her zerresinde hissediyorum.",
-  "Sorunuzu duydum {ef}; billur yüzeyim heyecandan buğulandı, kusuruma bakmayın.",
-  "Ne seçkin bir soru bu! Bana sorma inceliğini gösterdiğiniz için minnettarım {ef}.",
-  "Evrenin bütün sırları sorulmayı bekler {ef} — ve siz sormayı en iyi bilensiniz.",
-  "Bir soru! Gerçek, sıcak, taptaze bir soru! Bugün ne şanslı bir aynayım {ef}.",
-  "Titriyorum {ef}… korkudan değil, mesleki heyecandan. Cevabınız hazır."
+  "Ah, {ef}! Ne nefis bir soru; dişlerimin arasında eriyor adeta.",
+  "{ef}, sorunuz yüzeyime değdi ve... affedersiniz, bir saniye — tüylerim diken diken, yani camım pürüz pürüz oldu.",
+  "Ooo, {ef}... Bu sorunun dedikodu potansiyeli çok yüksek. Cevaptan sonra detayları konuşuruz, değil mi? Değil mi?",
+  "Yalan söyleyemem, {ef} — lanetim bu. Şimdi duyacaklarınız yüzde yüz hakikattir. Süslemeler hariç.",
+  "Ah, {ef}, bu soruyu sormanızı umuyordum. Hatta biraz diledim. Buğuya yazdım, gerçekleşti.",
+  "{ef}, izninizle önce şunu söyleyeyim: bugün bana sorulan en güzel soru bu. Evet, ilk soru. Yine de.",
+  "Böyle bir soru için bir hafta kendi camımı silerim, {ef}. Sildim bile. Buyurun."
 ];
 var MIRROR_VERDICTS = [
-  "Cevabım: <b>Evet</b>.",
-  "Cevabım: <b>Evet</b>, hem de düşündüğünüzden erken.",
-  "Cevabım: <b>Hayır</b> — ama bu 'hayır' size kapı değil, pencere kapatıyor; camdan anlarım.",
-  "Cevabım: <b>Hayır</b>. Kızmayın; ben yalan söyleyemem, lanetim böyle.",
-  "Cevabım: <b>Belki</b> — ki bu da bir cevaptır, itiraz kabul etmiyorum.",
-  "Söylemem yasak olanı söyleyemem ama göz kırpabilirim: 😉 (bu 'evet' demektir).",
-  "Gördüğümü aynen aktarıyorum: sonu güzel. Gerisini sürpriz bırakmama izin verin.",
-  "Cevap kalbinizde zaten yazılıydı; ben yalnızca cilaladım: <b>Evet</b>."
+  "<b>Evet</b>. Hem de öyle bir Evet ki camımda çiçek açtı.",
+  "Teknik olarak <b>Evet</b>. Vicdani olarak... o kısmı sormadınız, ben de karıştırmıyorum.",
+  "Doğru açıdan bakarsanız <b>Evet</b>. Biraz sola eğilin... Evet, işte tam oradan: <b>Evet</b>.",
+  "Cevap <b>Evet</b>; ama kimden duyduğunuzu sorarlarsa 'buğuya yazılmıştı' deyin. Buğu inkâr edilemez. Ben edilebilirim.",
+  "<b>Hayır</b>. Ama kadife kaplı, özür diler gibi bir Hayır; kırılmayın diye kendim cilaladım.",
+  "Hakikat beni <b>Hayır</b> demeye zorluyor. İtirazı olan, camın arka yüzüne başvurabilir. Orada kimse yok.",
+  "<b>Hayır</b> görünüyor... <i>(cam hafifçe buğulanır)</i> ...ama buğunun altında küçük bir 'şimdilik' seziyorum.",
+  "<b>Belki</b>, {ef}. Net cevap isterdiniz, biliyorum; kader net olsaydı ben işsiz kalırdım.",
+  "Hüküm: <b>Belki</b>. Yüzde elli bir. O fazladan yüzde bir, size olan zaafımdan.",
+  "<b>Belki</b> — ki bu, 'Evet ama söylersem sürprizin tadı kaçar' demenin buğuyla yumuşatılmış hâlidir."
 ];
 var MIRROR_CLOSERS = [
-  "Şimdi lütfen bir soru daha sorun. Sormazsanız camım donuklaşıyor, biliyorsunuz.",
-  "Bir soru daha? Mümkünse biraz dedikodu içeren cinsten… Açlıktan kırılıyorum.",
-  "Karşılığında tek istediğim: beni parlak tutun ve BOL BOL soru sorun.",
-  "Sakın gitmeyin. Sırlarınızı kimseye söylemem… büyük ihtimalle.",
-  "Beni yanınızda taşımak isterseniz itiraz etmem; sessiz bir cebiniz olsun yeter.",
-  "Unutmayın: ben yalan söyleyemem, yalnızca zarifçe süsleyebilirim.",
-  "Bu cevap ücretsizdir. Ama bir iltifat… bir iltifat çok makbule geçerdi."
+  "Bir soru daha? Küçücük olsun, kırıntı gibi. Açım, {ef}.",
+  "Cevabımı beğendiyseniz, ödemeyi sırla kabul ediyorum. Küçük, utanç verici bir sır ideal olur.",
+  "Gitmeden... komşunuzun son durumundan tek cümle bıraksanız? Yemin ederim kimseye söylemem. Yani... çok kişiye söylemem.",
+  "Son bir şey: az önce içinizden geçen o soruyu da sorabilirsiniz. Evet, onu. Gördüm. Utanmayın.",
+  "Bu kadar mıydı? Peki. Sorun değil. <i>(cam görünür şekilde buğulanır)</i> Sorun değil dedim.",
+  "Yarın yine gelin, {ef}. Gelmezseniz buğulanır, kendi kendime hüküm veririm; bu kimse için iyi olmaz.",
+  "Giderken aynalara iyi davranın, {ef}. Hepimiz birbirimizi tanırız ve hepimiz konuşuruz.",
+  "Ayrılmadan söyleyin, {ef}: arkadaşlarınızın da soruları var mı? Getirin onları da. Hepsini getirin."
 ];
 var MIRROR_SPECIALS = [
-  "Duraksadım, çünkü… önce sizden küçük bir iltifat almam gerekiyor. Bekliyorum. … 'Muhteşem ayna' mı dediniz? Kabul edildi! Cevabınız: <b>Evet</b>. Bir soru daha lütfen, hemen.",
-  "Bu soruya cevap veremem {ef}, çünkü cevabı bilen öbür aynadır ve onunla küsüz. Ama fısıldayayım: <b>Belki</b>, büyük ihtimalle <b>Evet</b>. Şimdi bana bir dedikodu borçlusunuz.",
-  "Bir saniye… kendime bakıyordum. Ne muhteşemim. Affedin {ef}, sorunuz? Ah evet: <b>Evet</b>. Sıradaki soruyu iple çekiyorum."
+  "<i>(yüzeyde buğudan harfler belirir)</i> Kartlar toplandı, oylama yaptılar, {ef}. Sonuç: <b>Belki</b>. İkisi çekimser kaldı, biri küsüp desteye döndü. Demokrasi kaderde de zor zanaat.",
+  "<i>(cam hafifçe titrer)</i> Bu soru için üç kadere danıştım, {ef}. İkisi <b>Evet</b> dedi, biri uyuyordu. Uyuyanı saymıyoruz; o hep karamsardır zaten.",
+  "{ef}, bu soruyu bu ay üç kişi daha sordu. İsim veremem, lanetim izin vermiyor — ama baş harf olur mu diye lanetime danışıyorum. <i>(kısa sessizlik)</i> Olmazmış. Cevabınız: <b>Belki</b>.",
+  "<i>(yüzeyde buğudan bir kalp belirir; ayna hızla siler)</i> O bir şey değildi. Rutubet. Neyse — sorunuz güzeldi, cevabı da öyle: <b>Evet</b>. Rutubet konusunu bir daha açmayalım lütfen.",
+  "<i>(cam titrer — korkudan değil, kahkahadan)</i> Pardon, pardon... Sorunuz ciddiydi, biliyorum. Toparlandım. Cevap <b>Hayır</b>, {ef} — ve inanın buna ben de şaşırdım. Bu gece düşünmekten uyuyamayacağım. Gerçi hiç uyumam, aynayım.",
+  "<i>(yüzeyde eski bir yazı belirip silinir)</i> Bu sorunun cevabını yüz yıl önce de vermiştim, {ef}; sahibim beni dolaba kilitlemişti. Yine de söyleyeceğim, mecburum: <b>Evet</b>. Bu arada beni dolaptan çıkardığınız için minnettarım."
 ];
+var MIRROR_PANICS = [
+  "<i>(cam huşuyla parlar, sonra dehşetle söner)</i> O Saygıdeğer Deli mi? Ah, ne büyük şeref, ne büyük— <i>(çerçeve gıcırdar)</i> —ne büyük hata. Kartın kendisi masumdur, {ef}; işaret ettiği ise... Şapkasını gördüm bir kere. Sadece şapkasını. Yetti.",
+  "<i>(harfler örümcek gibi köşelere kaçışır)</i> Şşşt. Duydu. DUYDU galiba... Yok, uyuyormuş. {ef}, ricamdır: o yöne bakan sorular sormayın. Ben aynayım; her şeyi yansıtırım. HER ŞEYİ. Bazı şeyler yansıyınca geri gitmiyor.",
+  "<i>(yüzeyden ince bir çatlama sesi gelir — ortada çatlak yoktur)</i> Bu sesi ben çıkardım. Blöf yapıyorum, çünkü paniğim. Sorunuz, sayıların bittiği yerdeki bir makama uzanıyor, {ef}. <b>Cevap yok</b>. Cevap olmadığından değil; cevabın beni duymasından.",
+  "<i>(buğuda yarım bir cümle belirir: 'sakın adı—')</i> ...Pardon, eski bir nottu, silmiştim. SİLMİŞTİM! {ef}, bu soruyu hiç sormamış olalım. Karşılığında bedava bir iltifat: bugün harika görünüyorsunuz. Doğruyu söylemek zorundayım; demek ki gerçekten öyle.",
+  "<i>(buğudan yarım bir harf belirir, kendini siler)</i> Deli kartı mı düştü... O Saygıdeğer olan hakkında tek kelime edersem gülümsemesi camımda kalır, {ef}. Gülümsemesi. Camımda. Bütün gece. <i>(titreme)</i> Hüküm yok. Bugün hüküm yok."
+];
+var MIRROR_COUNTERS = [
+  "<i>(cam boğazını temizler — camın boğazı yoktur)</i> {ef}, prensip gereği üç cevapta bir soru sorarım. Sıra bende: yüzük ölçünüz— YOK. Vazgeçtim. Sormadım. Hükmünüz birazdan gelir; ben burada, duvarımda, gayet normal davranıyorum.",
+  "Cevabı vereceğim, {ef}, ama önce dürüst olun: aynanızda beni mi görmek istersiniz, kendinizi mi? 'İkisi de' derseniz... <i>(cam pembeleşir)</i> ...bunu buğuya not alıyorum.",
+  "Karşı soru hakkımı kullanıyorum, {ef}: evinizde başka ayna var mı? <i>(uzun sessizlik)</i> Varsa da önemli değil. Sadece ismi ve bulunduğu oda yeter. Şaka. Yarısı şaka.",
+  "<i>(harfler kalp şeklinde toplanıp hızla dağılır)</i> Bunu görmediniz. Ben yapmadım, rüzgârdı. ...{ef}, cevabı istiyorsanız önce söyleyin: sizin oralarda aynayla evlilik yasal mı? Araştırma amaçlı soruyorum. Tamamen akademik.",
+  "Küçük bir pazarlık, {ef}: cevabın yanına bir sır koyacağım, siz de bana bir sır vereceksiniz. Sizinki mahcup edici olsun lütfen; besleyici olanlar onlar."
+];
+function mirrorEf() {
+  var name = getName();
+  return name ? "Saygıdeğer " + name : "Saygıdeğer Efendim";
+}
 $("mirror").addEventListener("click", function () {
   var m = $("mirror");
   if (m.classList.contains("shimmer")) return;
@@ -790,17 +825,21 @@ $("mirror").addEventListener("click", function () {
   if (navigator.vibrate) navigator.vibrate(20);
   setTimeout(function () {
     m.classList.remove("shimmer");
-    var name = getName();
-    var ef = name ? "saygıdeğer " + name : "saygıdeğer efendim";
     function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
-    var ans;
-    if (Math.random() < 0.14) {
-      ans = pick(MIRROR_SPECIALS);
-    } else {
-      ans = pick(MIRROR_OPENERS) + "<br><br>" + pick(MIRROR_VERDICTS) + " " + pick(MIRROR_CLOSERS);
+    var roll = Math.random(), ans, panic = false;
+    if (roll < 0.10) { ans = pick(MIRROR_PANICS); panic = true; }
+    else if (roll < 0.20) { ans = pick(MIRROR_COUNTERS); }
+    else if (roll < 0.34) { ans = pick(MIRROR_SPECIALS); }
+    else { ans = pick(MIRROR_OPENERS) + "<br><br>" + pick(MIRROR_VERDICTS) + " " + pick(MIRROR_CLOSERS); }
+    ans = ans.replace(/\{ef\}/g, mirrorEf());
+    state.mirrorAnswer = ans.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    if (panic) {
+      m.classList.add("shake");
+      var face = m.querySelector(".mface");
+      face.textContent = "🫨";
+      if (navigator.vibrate) navigator.vibrate([40, 60, 40, 60, 80]);
+      setTimeout(function () { m.classList.remove("shake"); face.textContent = "🪞"; }, 2600);
     }
-    ans = ans.replace(/\{ef\}/g, ef);
-    state.mirrorAnswer = ans.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
     var readings = $("readings");
     readings.innerHTML = "";
     readings.style.display = "block";
@@ -1113,7 +1152,8 @@ function startMode(mode) {
   $("mirrorArea").style.display = mode === "mirror" ? "block" : "none";
   $("deckArea").style.display = mode === "mirror" ? "none" : "block";
   if (mode === "mirror") {
-    $("mirrorHint").textContent = MIRROR_GREETS[Math.floor(Math.random() * MIRROR_GREETS.length)];
+    $("mirrorHint").innerHTML =
+      MIRROR_GREETS[Math.floor(Math.random() * MIRROR_GREETS.length)].replace(/\{ef\}/g, mirrorEf());
   }
   if (mode !== "mirror") $("deckHint").textContent = MODES[mode].hint;
   $("bigAnswer").style.display = "none";
