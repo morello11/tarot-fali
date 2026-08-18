@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Tarot Falı ✨</title>
-<meta name="description" content="Eğlence amaçlı tarot falı — günün kartı ve üç kart açılımı">
+<meta name="description" content="Eğlence amaçlı tarot falı — tam deste, günün kartı, aşk ve kariyer açılımları">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   :root {
@@ -20,7 +20,6 @@
     min-height: 100vh;
     overflow-x: hidden;
   }
-  /* yıldızlı gökyüzü */
   .stars { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
   .stars span {
     position: absolute; background: #fff; border-radius: 50%;
@@ -35,23 +34,23 @@
     text-shadow: 0 0 18px rgba(212,175,55,.45);
   }
   header .sub { font-style: italic; opacity: .75; margin-top: 6px; font-size: .95rem; }
-  .divider { margin: 18px auto; width: 180px; height: 1px;
+  .greet { margin-top: 10px; font-size: .95rem; color: var(--gold-soft); }
+  .greet a { color: var(--cream); opacity: .55; font-size: .8rem; text-decoration: underline; cursor: pointer; }
+  .divider { margin: 16px auto; width: 180px; height: 1px;
     background: linear-gradient(90deg, transparent, var(--gold), transparent); }
 
-  /* mod seçimi */
-  .modes { display: flex; flex-direction: column; gap: 14px; margin: 8px 0 4px; }
+  .modes { display: flex; flex-direction: column; gap: 12px; margin: 8px 0 4px; }
   .mode-btn {
     font-family: inherit; font-size: 1.1rem; color: var(--cream);
     background: linear-gradient(180deg, rgba(212,175,55,.16), rgba(212,175,55,.05));
     border: 1px solid rgba(212,175,55,.55); border-radius: 14px;
-    padding: 18px 20px; cursor: pointer; text-align: left;
+    padding: 15px 20px; cursor: pointer; text-align: left;
     transition: transform .15s, box-shadow .15s;
   }
   .mode-btn:active { transform: scale(.97); }
-  .mode-btn .t { display: block; font-size: 1.15rem; color: var(--gold-soft); margin-bottom: 4px; }
-  .mode-btn .d { display: block; font-size: .88rem; opacity: .75; font-style: italic; }
+  .mode-btn .t { display: block; font-size: 1.12rem; color: var(--gold-soft); margin-bottom: 3px; }
+  .mode-btn .d { display: block; font-size: .85rem; opacity: .75; font-style: italic; }
 
-  /* deste ekranı */
   .deck-area { display: none; }
   .deck-hint { font-style: italic; opacity: .8; margin: 14px 0 22px; min-height: 1.4em; }
   .deck {
@@ -74,10 +73,17 @@
   @keyframes shuf1 { 50% { transform: translateX(-46%) rotate(-9deg); } }
   @keyframes shuf2 { 50% { transform: translateX(46%) rotate(9deg); } }
 
-  /* açılan kartlar */
+  .big-answer { display: none; margin: 4px 0 14px; }
+  .big-answer .ans {
+    font-size: 2.4rem; letter-spacing: .18em; color: var(--gold-soft);
+    text-shadow: 0 0 24px rgba(212,175,55,.6);
+    animation: pop .6s cubic-bezier(.2,1.6,.4,1);
+  }
+  @keyframes pop { 0% { transform: scale(.3); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
   .spread { display: none; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 8px; }
   .slot { width: var(--card-w); }
-  .slot .pos-label { font-size: .8rem; letter-spacing: .1em; text-transform: uppercase;
+  .slot .pos-label { font-size: .78rem; letter-spacing: .1em; text-transform: uppercase;
     color: var(--gold-soft); opacity: 0; margin-bottom: 8px; transition: opacity .5s; }
   .slot.revealed .pos-label { opacity: .9; }
   .flip { perspective: 900px; width: 100%; aspect-ratio: 3 / 5; }
@@ -100,15 +106,25 @@
     color: #2b1c4e; display: flex; flex-direction: column; align-items: center;
     justify-content: space-between; padding: 10px 6px; overflow: hidden;
   }
-  .face.front .num { font-size: .75rem; letter-spacing: .18em; color: #7a5c12; }
-  .face.front .sym { font-size: 2.6rem; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,.25)); }
-  .face.front .nm { font-size: .82rem; font-weight: bold; letter-spacing: .04em;
+  .face.front::before, .face.front::after {
+    content: "✦ ✦"; position: absolute; left: 0; right: 0; text-align: center;
+    font-size: .5rem; color: rgba(122,92,18,.55); letter-spacing: 2.4em; text-indent: 2.4em;
+  }
+  .face.front::before { top: 2px; }
+  .face.front::after { bottom: 2px; }
+  .face.front .num { font-size: .68rem; letter-spacing: .16em; color: #7a5c12; margin-top: 6px; }
+  .face.front .sym { font-size: 2.5rem; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,.25)); }
+  .face.front .nm { font-size: .8rem; font-weight: bold; letter-spacing: .03em;
     text-align: center; padding: 0 2px; }
-  .face.front .rev-tag { font-size: .66rem; color: #a03030; font-style: italic; min-height: 1em; }
+  .face.front .rev-tag { font-size: .64rem; color: #a03030; font-style: italic; min-height: 1em; margin-bottom: 5px; }
   .slot .front.is-rev .sym { transform: rotate(180deg); }
+  .front.suit-kupa .num { color: #2e6da8; }
+  .front.suit-asa .num { color: #c25e1e; }
+  .front.suit-kilic .num { color: #55677a; }
+  .front.suit-tilsim .num { color: #3e7d3e; }
 
-  /* yorumlar */
-  .readings { display: none; text-align: left; margin-top: 26px; }
+  .read-intro { display: none; margin-top: 24px; font-style: italic; color: var(--gold-soft); }
+  .readings { display: none; text-align: left; margin-top: 14px; }
   .reading {
     background: rgba(255,255,255,.05); border: 1px solid rgba(212,175,55,.35);
     border-radius: 14px; padding: 16px 18px; margin-bottom: 14px;
@@ -118,9 +134,14 @@
   .reading h3 { color: var(--gold-soft); font-size: 1.05rem; margin-bottom: 2px; }
   .reading .pos { font-size: .78rem; letter-spacing: .12em; text-transform: uppercase;
     opacity: .65; margin-bottom: 8px; }
+  .reading .lead { font-style: italic; font-size: .88rem; color: var(--gold-soft);
+    opacity: .9; margin-bottom: 6px; }
   .reading p { font-size: .95rem; line-height: 1.55; }
   .reading .advice { margin-top: 10px; font-style: italic; color: var(--gold-soft);
     font-size: .9rem; border-top: 1px dashed rgba(212,175,55,.35); padding-top: 10px; }
+  .reading.general { border-color: rgba(212,175,55,.7);
+    background: linear-gradient(180deg, rgba(212,175,55,.12), rgba(255,255,255,.04)); }
+  .lucky { margin-top: 4px; font-size: .9rem; color: var(--gold-soft); }
 
   .actions { display: none; gap: 12px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
   .btn {
@@ -132,7 +153,6 @@
   .btn.ghost { background: transparent; color: var(--gold-soft);
     border: 1px solid rgba(212,175,55,.55); }
 
-  .home-link { display: none; margin-top: 10px; }
   footer { margin-top: 40px; font-size: .78rem; opacity: .55; font-style: italic; line-height: 1.5; }
   .toast {
     position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(80px);
@@ -140,29 +160,75 @@
     font-size: .9rem; transition: transform .35s; z-index: 5;
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* isim ekranı */
+  .overlay {
+    position: fixed; inset: 0; z-index: 10; display: none;
+    background: rgba(10,6,26,.88); backdrop-filter: blur(4px);
+    align-items: center; justify-content: center; padding: 24px;
+  }
+  .overlay.show { display: flex; }
+  .overlay .box {
+    background: linear-gradient(180deg, var(--bg3), var(--bg2));
+    border: 1px solid rgba(212,175,55,.55); border-radius: 18px;
+    padding: 28px 22px; max-width: 340px; width: 100%; text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,.6);
+  }
+  .overlay .box h2 { color: var(--gold-soft); font-size: 1.3rem; margin-bottom: 8px; }
+  .overlay .box p { font-size: .9rem; opacity: .8; font-style: italic; margin-bottom: 16px; }
+  .overlay input {
+    width: 100%; font-family: inherit; font-size: 1.05rem; text-align: center;
+    padding: 12px; border-radius: 12px; border: 1px solid rgba(212,175,55,.55);
+    background: rgba(255,255,255,.07); color: var(--cream); outline: none;
+    margin-bottom: 16px;
+  }
+  .overlay input::placeholder { color: rgba(245,236,215,.4); }
 </style>
 </head>
 <body>
 <div class="stars" id="stars"></div>
+
+<div class="overlay" id="nameOverlay">
+  <div class="box">
+    <h2>✦ Hoş Geldin Yolcu ✦</h2>
+    <p>Kartlar sana ismiyle seslensin…<br>Adını fısılda:</p>
+    <input type="text" id="nameInput" maxlength="20" placeholder="Adın" autocomplete="off">
+    <button class="btn" id="nameSave">Falıma Başla ✨</button>
+  </div>
+</div>
+
 <div class="wrap">
   <header>
     <h1>✦ TAROT FALI ✦</h1>
     <div class="sub">Kartlar ne fısıldıyor?</div>
+    <div class="greet" id="greet"></div>
     <div class="divider"></div>
   </header>
 
   <div class="modes" id="modes">
     <button class="mode-btn" data-mode="daily">
       <span class="t">🌙 Günün Kartı</span>
-      <span class="d">Bugüne özel tek kart — günde bir kez çekilir</span>
+      <span class="d">Sana özel bugünün kartı, şanslı rengin ve sayın</span>
     </button>
     <button class="mode-btn" data-mode="three">
       <span class="t">🔮 Üç Kart Açılımı</span>
-      <span class="d">Geçmiş · Şimdi · Gelecek</span>
+      <span class="d">Geçmiş · Şimdi · Gelecek + genel yorum</span>
+    </button>
+    <button class="mode-btn" data-mode="love">
+      <span class="t">💘 Aşk Açılımı</span>
+      <span class="d">Sen · O · İlişkinin gidişatı</span>
+    </button>
+    <button class="mode-btn" data-mode="career">
+      <span class="t">💼 Kariyer Açılımı</span>
+      <span class="d">Durum · Engel · Tavsiye</span>
+    </button>
+    <button class="mode-btn" data-mode="yesno">
+      <span class="t">🌗 Evet mi, Hayır mı?</span>
+      <span class="d">Sorunu sor, kart kararını versin</span>
     </button>
     <button class="mode-btn" data-mode="question">
       <span class="t">💫 Soru Kartı</span>
-      <span class="d">Aklından bir soru geçir, tek kart cevaplasın</span>
+      <span class="d">Aklından bir soru geçir, tek kart yorumlasın</span>
     </button>
   </div>
 
@@ -175,7 +241,9 @@
     </div>
   </div>
 
+  <div class="big-answer" id="bigAnswer"><div class="ans" id="bigAnswerText"></div></div>
   <div class="spread" id="spread"></div>
+  <div class="read-intro" id="readIntro"></div>
   <div class="readings" id="readings"></div>
 
   <div class="actions" id="actions">
@@ -185,118 +253,215 @@
 
   <footer>
     Bu uygulama tamamen eğlence amaçlıdır. 🌟<br>
-    Kararlarınızı kartlara değil, kendinize güvenerek verin.
+    Kararlarınızı kartlara değil, kendinize güvenerek verin.<br>
+    78 kartlık tam deste ile hazırlanmıştır.
   </footer>
 </div>
 <div class="toast" id="toast">Kopyalandı ✨</div>
 
 <script>
-/* ---------- Kart destesi: 22 Büyük Arkana ---------- */
-var CARDS = [
-  { n: "0", name: "Deli", sym: "🃏",
-    up: "Yeni bir başlangıcın eşiğindesin. İçindeki merak ve cesaret seni bilinmedik ama heyecan verici bir yola çağırıyor. Plansızlık bu kez şans getirebilir.",
-    rev: "Aceleyle atılan bir adım düşündüğünden pahalıya patlayabilir. Özgürlük arzun güzel, ama önce ayağını nereye bastığına bak.",
+/* ---------- 22 Büyük Arkana ---------- */
+/* yn: Evet/Hayır eğilimi (E/H/B) · th: genel yorumda kullanılan tema */
+var MAJORS = [
+  { n: "0", name: "Deli", sym: "🃏", yn: "E", th: "cesur bir yeni başlangıç",
+    up: "Yeni bir başlangıcın eşiğindesin. İçindeki merak ve cesaret seni bilinmedik ama heyecan verici bir yola çağırıyor; plansızlık bu kez şans getirebilir. Uzun süredir 'acaba' dediğin o şey her neyse, evren şu an ona en açık dönemin olduğunu söylüyor — yanına biraz saflık, biraz da kahkaha almayı unutma.",
+    rev: "Aceleyle atılan bir adım düşündüğünden pahalıya patlayabilir. Özgürlük arzun güzel, ama ayağını nereye bastığına bakmadan uçurum kenarında dans ediyorsun. Bu kart 'vazgeç' demiyor; 'önce küçük bir prova yap, sonra sahneye çık' diyor.",
     adv: "Cesur ol, ama cebinde bir harita bulunsun." },
-  { n: "I", name: "Büyücü", sym: "🎩",
-    up: "İhtiyacın olan her yetenek zaten elinde. Sözlerinin ve becerilerinin gücü bugün her zamankinden etkili — istediğini gerçeğe dönüştürme zamanı.",
-    rev: "Birileri göz boyuyor olabilir; belki de sen kendine sihir yaptığını sanıyorsun. Gerçek güç gösterişte değil, hazırlıkta.",
+  { n: "I", name: "Büyücü", sym: "🎩", yn: "E", th: "elindeki gücü kullanma vakti",
+    up: "İhtiyacın olan her yetenek zaten elinde: sözlerin ikna ediyor, becerilerin karşılık buluyor. Bu kart özellikle bir sunum, görüşme ya da teklif arifesindeysen çok güçlü — masaya koyduğun şeyin değerini önce sen bil, karşındaki de bilecek.",
+    rev: "Birileri göz boyuyor olabilir; belki de sen kendine sihir yaptığını sanıyorsun. Parlak sözlerin arkasındaki hazırlığı sorgula — hem başkalarınınkini hem kendininkini. Gerçek güç gösterişte değil, provasını yüz kere yapmış olmakta.",
     adv: "Elindekileri say; eksik olan malzeme değil, niyet." },
-  { n: "II", name: "Azize", sym: "🌙",
-    up: "İç sesin bugünlerde çok net konuşuyor, yeter ki dinle. Henüz açığa çıkmamış bir bilgi, sabırla bekleyene kendini gösterecek.",
-    rev: "Sezgilerini susturup herkesin aklıyla hareket ediyorsun. Cevap dışarıda değil, sessiz kaldığın anlarda.",
+  { n: "II", name: "Azize", sym: "🌙", yn: "B", th: "iç sesini dinleme ihtiyacı",
+    up: "İç sesin bugünlerde çok net konuşuyor, yeter ki dinle. Henüz açığa çıkmamış bir bilgi — bir haber, bir itiraf, belki bir sır — sabırla bekleyene kendini gösterecek. Karar anında mantık tablosu yapma; içindeki o ilk his genelde tablodan önce doğruyu söylemişti, hatırla.",
+    rev: "Sezgilerini susturup herkesin aklıyla hareket ediyorsun; oysa en son ne zaman içinden geleni yaptıysan iyi gelmişti. Cevap dışarıdaki seslerde değil, sessiz kaldığın anlarda saklı.",
     adv: "Bugün az konuş, çok dinle — özellikle kendini." },
-  { n: "III", name: "İmparatoriçe", sym: "🌾",
-    up: "Bolluk ve üretkenlik dönemindesin. Emek verdiğin şeyler filizleniyor; ilişkilerinde de şefkatin karşılık buluyor.",
-    rev: "Kendine bakmayı en sona bırakmışsın. Herkesi besleyen el, kendi tabağını da doldurmalı.",
+  { n: "III", name: "İmparatoriçe", sym: "🌾", yn: "E", th: "bolluk ve büyüme",
+    up: "Bolluk ve üretkenlik dönemindesin: emek verdiğin şeyler filizleniyor, ilişkilerinde şefkatin karşılık buluyor. Bu kart yaratıcı projeler, ev, aile ve bedenle ilgili her konuda 'toprak verimli, ek' diyor. Başlattığın şey büyüyecek — yeter ki düzenli sula.",
+    rev: "Kendine bakmayı en sona bırakmışsın; herkesi besleyen el, kendi tabağını da doldurmalı. Yaratıcılığın tıkandıysa sebebi yeteneksizlik değil, yorgunluk. Önce dinlen, ilham arkasından gelir.",
     adv: "Bugün kendine küçük bir iyilik yap, hak ettin." },
-  { n: "IV", name: "İmparator", sym: "👑",
-    up: "Düzen ve kararlılık kazandırıyor. Sağlam kurduğun yapı, fırtınada bile ayakta kalacak. Otoriten bugün saygı görüyor.",
-    rev: "Kontrol etme isteği seni yoruyor, çevreni de. Her şeyi tek başına taşımak güç değil, inatçılık olabilir.",
+  { n: "IV", name: "İmparator", sym: "👑", yn: "E", th: "düzen ve sağlam temel",
+    up: "Düzen ve kararlılık kazandırıyor: sağlam kurduğun yapı fırtınada bile ayakta kalacak. Bu kart iş ve sorumluluk konularında elini güçlendiriyor — sınırlarını net çiz, sözünü net söyle; otoriten bugün saygı görüyor.",
+    rev: "Kontrol etme isteği seni de çevreni de yoruyor. Her şeyi tek başına taşımak güç değil, inatçılık olabilir; kural koymakla duvar örmek arasındaki fark bugün önemli.",
     adv: "Dizginleri biraz gevşet; dünya sensiz de dönmeyi bilir." },
-  { n: "V", name: "Aziz", sym: "🕯️",
-    up: "Deneyimli birinin tavsiyesi bugün altın değerinde. Gelenekler ve kurallar şu an senin lehine işliyor.",
-    rev: "Ezberlenmiş yollar artık dar geliyor. Kendi doğrunu bulma vaktin gelmiş olabilir — saygıyla ama kararlılıkla.",
+  { n: "V", name: "Aziz", sym: "🕯️", yn: "B", th: "bilgeliğe danışma",
+    up: "Deneyimli birinin tavsiyesi bugün altın değerinde — bir büyüğün, bir ustanın ya da o konuyu yaşamış bir dostun. Gelenekler ve kurallar şu an senin lehine işliyor; denenmiş yol, bu seferlik en hızlı yol.",
+    rev: "Ezberlenmiş yollar artık dar geliyor; 'hep böyle yapılır' cümlesi seni ikna etmiyorsa sebebi büyümüş olman. Kendi doğrunu bulma vaktin gelmiş — saygıyla ama kararlılıkla ayrıl kalıptan.",
     adv: "Akıl danış, ama son sözü kendin söyle." },
-  { n: "VI", name: "Aşıklar", sym: "💞",
-    up: "Kalbinle aklın aynı yöne bakıyor — bu nadir bir uyum. İlişkilerde derinleşme, seçimlerde netlik zamanı.",
-    rev: "İki arada bir derede kalmışsın. Karar vermemek de bir karardır ve genelde en pahalısıdır.",
+  { n: "VI", name: "Aşıklar", sym: "💞", yn: "E", th: "kalpten gelen bir seçim",
+    up: "Kalbinle aklın aynı yöne bakıyor — bu nadir bir uyum. İlişkilerde derinleşme, seçimlerde netlik zamanı; bir bağ güçleniyor ya da önemli bir tercihte içindeki ses netleşiyor. Bu uyum penceresi açıkken karar almak, aylarca düşünmekten kıymetli.",
+    rev: "İki arada bir derede kalmışsın; ne tam vazgeçiyorsun ne tam sahipleniyorsun. Karar vermemek de bir karardır ve genelde en pahalısıdır — askıda kalan her şey faiz işletir.",
     adv: "Neyi gerçekten istediğini yazarsan, cevap kendini gösterir." },
-  { n: "VII", name: "Savaş Arabası", sym: "🏇",
-    up: "İraden bugün çelik gibi. Zıt güçleri aynı hedefe koşturmayı başarıyorsun — zafer, disiplinle gelen cinsten.",
-    rev: "Direksiyona sen değil, telaşın geçmiş. Hız kesmeden yön düzeltilmez.",
+  { n: "VII", name: "Savaş Arabası", sym: "🏇", yn: "E", th: "iradeyle kazanılan zafer",
+    up: "İraden bugün çelik gibi: zıt güçleri — işi ve evi, mantığı ve hevesi — aynı hedefe koşturmayı başarıyorsun. Bu kart özellikle yolculuk, taşınma ve 'hamle yapma' konularında yeşil ışık; zafer disiplinle gelen cinsten.",
+    rev: "Direksiyona sen değil, telaşın geçmiş. Gaza basmakla yön bulmak farklı şeyler; hız kesmeden rota düzeltilmez. Bugün bir mola, yarın iki saat kazandırır.",
     adv: "Önce rotayı netleştir, sonra gaza bas." },
-  { n: "VIII", name: "Güç", sym: "🦁",
-    up: "Gerçek güç bağırmaz; sabırla ve yumuşaklıkla dizginler. İçindeki aslan bugün senin dostun.",
-    rev: "Öfke ya da özgüven eksikliği ipleri eline almanı engelliyor. Unutma: korkuyu yenmek değil, evcilleştirmek gerekir.",
+  { n: "VIII", name: "Güç", sym: "🦁", yn: "E", th: "sabırlı ve yumuşak güç",
+    up: "Gerçek güç bağırmaz; sabırla ve yumuşaklıkla dizginler. Zor bir insanı ya da zor bir durumu kaba kuvvetle değil, sakinliğinle yöneteceksin — ve bu herkesi şaşırtacak. İçindeki aslan bugün senin dostun.",
+    rev: "Öfke ya da özgüven eksikliği ipleri eline almanı engelliyor; ikisi de aynı kapıya çıkar, kontrol kaybına. Korkuyu yenmek değil, evcilleştirmek gerekir — o da azar azar, her gün.",
     adv: "Nazik olmak zayıflık değildir; en zor kapılar öyle açılır." },
-  { n: "IX", name: "Ermiş", sym: "🏮",
-    up: "Biraz yalnızlık şu an ilaç gibi gelecek. Kendi fenerinin ışığında, kalabalıkta bulamadığın cevabı bulacaksın.",
-    rev: "İnzivan kaçışa dönüşmüş olabilir. Kapıyı aralık bırak; bilgelik paylaşınca çoğalır.",
+  { n: "IX", name: "Ermiş", sym: "🏮", yn: "B", th: "içe dönüş ve olgunlaşma",
+    up: "Biraz yalnızlık şu an ilaç gibi gelecek. Kalabalıkta bulamadığın cevabı kendi fenerinin ışığında bulacaksın; bu bir kaçış değil, şarj molası. Döndüğünde daha net, daha sakin, daha kararlı olacaksın.",
+    rev: "İnzivan kaçışa dönüşmüş olabilir; düşünmekle kaçınmak arasındaki çizgiyi geçtin mi, kontrol et. Kapıyı aralık bırak — bilgelik paylaşınca çoğalır, saklanınca küflenir.",
     adv: "Telefonu bir saat sessize al, kendinle çay iç." },
-  { n: "X", name: "Kader Çarkı", sym: "🎡",
-    up: "Çark dönüyor ve bu kez senin lehine. Beklenmedik bir gelişme, tıkanan işleri açabilir. Şansın kapısını tıklatma — zaten aralık.",
-    rev: "İşler planladığın gibi gitmiyor, ama çarkın her dönüşü geçicidir. İnişte olan, çıkışa en yakın olandır.",
+  { n: "X", name: "Kader Çarkı", sym: "🎡", yn: "E", th: "dönen şans çarkı",
+    up: "Çark dönüyor ve bu kez senin lehine: beklenmedik bir telefon, denk gelen bir tanışma ya da tam vaktinde açılan bir kapı, tıkanan işleri çözebilir. Şansın kapısını tıklatmana gerek yok — zaten aralık; sadece içeri adım at.",
+    rev: "İşler planladığın gibi gitmiyor, ama çarkın her dönüşü geçicidir. Bugünkü aksilik, üç ay sonra 'iyi ki öyle olmuş' diyeceğin şey olabilir. İnişte olan, çıkışa en yakın olandır.",
     adv: "Kontrol edemediğini bırak, edebildiğine odaklan." },
-  { n: "XI", name: "Adalet", sym: "⚖️",
-    up: "Terazi doğru tartıyor: emeğin karşılığını, doğruluğun itibarını getiriyor. Bir karar aşamasındaysan vicdanın pusulan olsun.",
-    rev: "Bir haksızlık düzeltilmeyi bekliyor — belki senin yaptığın, belki sana yapılan. Dürüst bir konuşma dengeyi kurar.",
+  { n: "XI", name: "Adalet", sym: "⚖️", yn: "B", th: "dengelenen teraziler",
+    up: "Terazi doğru tartıyor: emeğin karşılığını, doğruluğun itibarını getiriyor. İmza, anlaşma, sınav ya da resmi bir işin varsa bu kart 'hakkın neyse o olacak' diyor. Bir karar aşamasındaysan vicdanın pusulan olsun.",
+    rev: "Bir haksızlık düzeltilmeyi bekliyor — belki senin yaptığın, belki sana yapılan. Halının altına süpürülen her şey orada büyür; dürüst bir konuşma dengeyi kurar, gecikmesi faturasını artırır.",
     adv: "Kendine karşı da adil ol; herkes kadar sen de hak ediyorsun." },
-  { n: "XII", name: "Asılan Adam", sym: "🙃",
-    up: "Bazen ilerlemenin yolu durmaktan geçer. Dünyaya ters bakınca göremediğin çözüm netleşecek.",
-    rev: "Kurban rolüne fazla alışmışsın; bekleyiş fedakarlık değil, erteleme olmuş. İpi çözmek senin elinde.",
+  { n: "XII", name: "Asılan Adam", sym: "🙃", yn: "H", th: "bekleyişin öğrettiği ders",
+    up: "Bazen ilerlemenin yolu durmaktan geçer. Zorladığın o iş şu an ilerlemiyorsa, itmeyi bırakıp açıyı değiştir: dünyaya ters bakınca göremediğin çözüm netleşecek. Bu askıda kalış kayıp değil, kuluçka.",
+    rev: "Kurban rolüne fazla alışmışsın; bekleyiş fedakârlık değil, erteleme olmuş. 'Şartlar düzelsin de öyle' diye beklediğin şartlar, senin adım atmanı bekliyor olabilir. İpi çözmek senin elinde.",
     adv: "Bugün bir şeyi tam tersinden düşünmeyi dene." },
-  { n: "XIII", name: "Dönüşüm", sym: "🦋",
-    up: "Bir kapı kapanıyor, ama duvar örülmüyor — yenisi açılıyor. Eskiyi onurlandır ve bırak; kozadan çıkma vakti.",
-    rev: "Bitmesi gerekene tutunmak, yeninin gelişini geciktiriyor. Korkma: kaybettiğin kabuk, kanadın kadar değerli değil.",
+  { n: "XIII", name: "Dönüşüm", sym: "🦋", yn: "H", th: "büyük bir dönüşüm",
+    up: "Bir kapı kapanıyor ama duvar örülmüyor — yenisi açılıyor. Biten şey bir dönem, bir alışkanlık ya da bir rol olabilir; eskiyi onurlandır ve bırak. Kozadan çıkmak ürkütücü, ama kanatlar ancak öyle açılıyor.",
+    rev: "Bitmesi gerekene tutunmak, yeninin gelişini geciktiriyor. Elinde tuttuğun şey seni tutmuyor artık — bunu sen de biliyorsun. Kaybettiğin kabuk, kazanacağın kanat kadar değerli değil.",
     adv: "Dolabından ya da hayatından eskimiş bir şeyi bugün uğurla." },
-  { n: "XIV", name: "Denge", sym: "🏺",
-    up: "Ölçülü olmak bugün süper gücün. Uçlara savrulmadan, suyu şaraba karıştırmadan ilerliyorsun — bu huzur kalıcı olabilir.",
-    rev: "Bir tarafa fazla yüklenmişsin: iş, duygu ya da harcama. Sarkacın ortası seni bekliyor.",
+  { n: "XIV", name: "Denge", sym: "🏺", yn: "B", th: "ölçülü ve sabırlı karışım",
+    up: "Ölçülü olmak bugün süper gücün: ne fazla ateş ne fazla su. Farklı istekleri, insanları ya da işleri harmanlayıp ortasını bulmayı başarıyorsun — bu simyadan kalıcı bir huzur çıkabilir. Acele etme; iyi karışım zaman ister.",
+    rev: "Bir tarafa fazla yüklenmişsin: iş, duygu ya da harcama. Sarkaç bir uca gittiyse, aynı hızla öbür uca döner — savrulmadan önce ortaya dön.",
     adv: "Her şeyin azı karar, çoğu zarar — bugünlük şiar bu." },
-  { n: "XV", name: "Zincir", sym: "⛓️",
-    up: "Seni bağlayan şeyin farkına varıyorsun — alışkanlık, kıskançlık ya da konfor. Farkındalık, zincirin ilk halkasını çözer.",
-    rev: "Özgürleşme başlamış bile. Bir bağımlılıktan, yükten ya da toksik bir düzenden uzaklaşıyorsun — devam et.",
+  { n: "XV", name: "Zincir", sym: "⛓️", yn: "H", th: "farkına varılan bağlar",
+    up: "Seni bağlayan şeyin farkına varıyorsun — bir alışkanlık, bir kıskançlık, belki fazla konforlu bir düzen. Bu kart suçlamıyor, sadece aynayı tutuyor: zinciri gör ki çözebilesin. Farkındalık, ilk halkayı çözer.",
+    rev: "Özgürleşme başlamış bile: bir bağımlılıktan, ağır bir yükten ya da seni küçülten bir ilişki düzeninden uzaklaşıyorsun. İlk adım en zoruydu ve onu attın — geri dönüp bakma.",
     adv: "Zincirlerin çoğu kilitli değildir; bir dene." },
-  { n: "XVI", name: "Kule", sym: "🌩️",
-    up: "Sarsıcı ama aydınlatıcı bir değişim kapıda. Yıkılan, zaten çürük olandı; enkazın altından daha sağlam bir zemin çıkacak.",
-    rev: "Kaçınılmaz bir değişimi ertelemeye çalışıyorsun. Küçük onarımlar yetmeyecekse, cesur yıkım daha az acıtır.",
+  { n: "XVI", name: "Kule", sym: "🌩️", yn: "H", th: "sarsıcı ama temizleyici değişim",
+    up: "Sarsıcı ama aydınlatıcı bir değişim kapıda. Yıkılan şey — bir plan, bir varsayım, bir düzen — zaten çürük temele oturuyordu; yıldırım aslında sana yerini gösteriyor. Enkazın altından daha sağlam bir zemin çıkacak.",
+    rev: "Kaçınılmaz bir değişimi küçük yamalarla ertelemeye çalışıyorsun. Çatlak duvarı boyamak duvarı onarmaz; yetmeyecekse, cesur yıkım daha az acıtır.",
     adv: "Fırtınadan sonra ilk iş: temeli sağlam atmak." },
-  { n: "XVII", name: "Yıldız", sym: "⭐",
-    up: "Umut geri geldi. Yaralar sarılıyor, ilham yenileniyor; dileğini yüksek sesle söylemekten çekinme — evren dinliyor.",
-    rev: "Yıldızını bulutlar kapatmış görünüyor, ama sönmedi. Umutsuzluk geçici bir hava durumu, iklim değil.",
+  { n: "XVII", name: "Yıldız", sym: "⭐", yn: "E", th: "tazelenen umut",
+    up: "Umut geri geldi: yaralar sarılıyor, ilham yenileniyor. Zor bir dönemin ardından gelen bu kart 'gökyüzü açıldı' demek — dileğini yüksek sesle söylemekten çekinme, evren dinliyor. Uzun vadeli hayaller kurmak için en berrak gece bu gece.",
+    rev: "Yıldızını bulutlar kapatmış görünüyor, ama sönmedi. Umutsuzluk geçici bir hava durumu, iklim değil; yarın aynı gökyüzünden bambaşka bir ışık düşebilir.",
     adv: "Bu gece gökyüzüne bak ve bir dilek tut — cidden." },
-  { n: "XVIII", name: "Ay", sym: "🌕",
-    up: "Her şey göründüğü gibi olmayabilir; sezgin fenerin olsun. Belirsizlik korkutucu değil, yaratıcılık için verimli bir topraktır.",
-    rev: "Sis dağılıyor, gerçekler netleşiyor. Kuruntularının çoğunun gölgeden ibaret olduğunu göreceksin.",
+  { n: "XVIII", name: "Ay", sym: "🌕", yn: "B", th: "sisin ardındaki gerçek",
+    up: "Her şey göründüğü gibi olmayabilir: eksik anlatılan bir hikâye, yanlış okunan bir mesaj ya da kendi kuruntuların sisi koyulaştırıyor. Sezgin fenerin olsun ama bu sis içinde büyük karar alma; belirsizlik korkutucu değil, sadece 'henüz değil' demek.",
+    rev: "Sis dağılıyor, gerçekler netleşiyor. Seni geceleri düşündüren kuruntuların çoğunun gölgeden ibaret olduğunu göreceksin — ve buna ilk sen güleceksin.",
     adv: "Karanlıkta karar verme; sabah ola, hayrola." },
-  { n: "XIX", name: "Güneş", sym: "☀️",
-    up: "Destenin en neşeli kartı seninle! Başarı, sağlık ve çocuksu bir sevinç dönemi. Işığını saklama — bulaşıcı cinsten.",
-    rev: "Güneşin orada, sadece perdeyi kapatmışsın. Küçük sevinçleri görmezden gelme; mutluluk detaylarda güneşlenir.",
+  { n: "XIX", name: "Güneş", sym: "☀️", yn: "E", th: "saf sevinç ve başarı",
+    up: "Destenin en neşeli kartı seninle! Başarı, sağlık ve çocuksu bir sevinç dönemi; üzerinde çalıştığın şey görünür bir takdirle taçlanabilir. Işığını saklama — senin neşen bugün başkasının da gününü aydınlatacak, bulaşıcı cinsten.",
+    rev: "Güneşin orada, sadece perdeyi kapatmışsın. Mükemmel gün beklemekten güzel günleri harcıyorsun; mutluluk detaylarda güneşlenir — sıcak çayda, denk gelen şarkıda, kısa telefonda.",
     adv: "Bugün en az bir kez kahkaha at — sesli olanından." },
-  { n: "XX", name: "Yargı", sym: "📯",
-    up: "Geçmişle hesaplaşma ve yeniden doğuş zamanı. Eski bir konu kapanıyor, vicdanın rahatlıyor; ikinci bir şans borazan çalıyor.",
-    rev: "Kendini fazla sert yargılıyorsun. Geçmişin hakimi değil, geleceğin mimarı ol.",
+  { n: "XX", name: "Yargı", sym: "📯", yn: "E", th: "geçmişle helalleşme",
+    up: "Geçmişle hesaplaşma ve yeniden doğuş zamanı: eski bir konu kapanıyor, vicdanın rahatlıyor, belki eski bir tanıdık yeni bir teklifle dönüyor. Borazan ikinci bir şans için çalıyor — bu kez aynı hatayı yapmayacak kadar büyüdün.",
+    rev: "Kendini fazla sert yargılıyorsun; iç sesindeki savcıyı biraz sustur. Geçmiş dosyalardan ders alınır, içinde yaşanmaz — sen geçmişin hâkimi değil, geleceğin mimarısın.",
     adv: "Kendini affet; dosya kapansın artık." },
-  { n: "XXI", name: "Dünya", sym: "🌍",
-    up: "Bir döngü muhteşem şekilde tamamlanıyor. Emek verdiğin yolculuk ödülünü getiriyor — kutlamayı hak ettin, dans et!",
-    rev: "Bitiş çizgisine az kaldı ama son adımı atmıyorsun. Tamamlanmamış işler enerji sızdırır; bitir, rahatla.",
+  { n: "XXI", name: "Dünya", sym: "🌍", yn: "E", th: "tamamlanan büyük döngü",
+    up: "Bir döngü muhteşem şekilde tamamlanıyor: uzun süredir taşıdığın bir iş, bir eğitim ya da bir süreç ödülünü getiriyor. Dünya kartı 'eksik parça kalmadı' demek — kutlamayı hak ettin, dans et! Ve bil ki her tamamlanış, daha büyük bir başlangıcın davetiyesidir.",
+    rev: "Bitiş çizgisine az kaldı ama son adımı atmıyorsun; belki de bitince ne yapacağını bilememek seni yavaşlatıyor. Tamamlanmamış işler enerji sızdırır — bitir, rahatla, sonrasını sonra düşün.",
     adv: "Yarım kalan o işi bugün bitir, sonra kendini ödüllendir." }
 ];
+
+/* ---------- 56 Küçük Arkana ---------- */
+/* [rütbe, düz, ters, tavsiye, yn] */
+var SUITS = [
+  { key: "kupa", name: "Kupa", sym: "🏆", label: "KUPALAR", theme: "duyguların ve ilişkilerin", cards: [
+    ["Ası", "Kalbinde yepyeni bir duygu filizleniyor: yeni bir sevgi, bir dostluk ya da eski bir bağın tazelenmesi. Kupanı uzat, dolacak.", "Duygularını bastırıyorsun; söylenmeyen her şey içeride birikiyor. Kalbindeki musluğu biraz gevşet.", "Hislerini bugün birine söyle.", "E"],
+    ["2'lisi", "Karşılıklı uyum ve güzel bir bağ — bir yakınlaşma, barışma ya da ortaklık güçleniyor. İki kupa aynı hizada.", "Küçük bir kırgınlık büyümeden konuşulmalı; sessizlik mesafeyi büyütür.", "İlk adımı sen at.", "E"],
+    ["3'lüsü", "Kutlama, dostluk ve kahkaha zamanı; güzel bir haber arkadaş ortamında paylaşılacak.", "Sosyal yorgunluk olabilir; her davete gitmek zorunda değilsin.", "Eski bir dostu ara.", "E"],
+    ["4'lüsü", "Önündeki fırsatı görmüyorsun; can sıkıntısı gözünü perdeliyor. Dördüncü kupa tam burnunun dibinde duruyor.", "Uyuşukluk dağılıyor, yeni bir heves geliyor; pencereyi aç.", "Sana uzatılan eli bir daha düşün.", "B"],
+    ["5'lisi", "Dökülene üzülüyorsun ama arkanda hâlâ dolu iki kupa duruyor. Kayıp gerçek, ama tablonun tamamı değil.", "Kayıpların yasını tuttun; toparlanma başlıyor. Dolu kupaları görebiliyorsun artık.", "Kalanlara bak, gidenlere değil.", "H"],
+    ["6'lısı", "Tatlı bir nostalji; geçmişten bir kişi, bir koku ya da bir anı gün yüzüne çıkıyor ve içini ısıtıyor.", "Geçmişe fazla takılmışsın; bugün de yaşanmayı bekliyor.", "Anılar ziyaret edilir, oturulmaz.", "B"],
+    ["7'lisi", "Seçenek çok, hepsi parlak görünüyor; ama bir kısmı köpükten. Hayal kurmak güzel, seçmek daha güzel.", "Sis dağılıyor, gerçekçi bir seçim yaklaşıyor.", "Birini seç, gerisini bırak.", "B"],
+    ["8'lisi", "Doyurmayanı geride bırakıp daha derin bir anlam aramaya çıkıyorsun. Bu terk ediş değil, kendine yürüyüş.", "Gitmekle kalmak arasında sıkıştın; kararsızlık iki taraftan da yoruyor.", "Kalbin neredeyse, ev orasıdır.", "H"],
+    ["9'lusu", "Dilek kartı! Küçük ama içten bir isteğin gerçekleşmek üzere; tadını sessizce çıkar.", "Tatmin dışarıdan değil içeriden gelir; şükür listesi yap.", "Bugün kendini şımart.", "E"],
+    ["10'lusu", "Aile, huzur ve gökkuşağı — duygusal doyumun en güzel hali. Ev bugün gerçekten yuva.", "Evdeki küçük bir uyumsuzluk ilgi bekliyor; büyümeden konuşun.", "Sevdiklerinle sofra kur.", "E"],
+    ["Prensi", "Sürpriz bir duygusal haber ya da yaratıcı bir ilham kapıda; balıktan mesaj var.", "Hayallere dalıp gerçeği kaçırma; kıyıya da bak.", "İçindeki çocuğa kulak ver.", "E"],
+    ["Şövalyesi", "Romantik bir teklif, zarif bir jest ya da içten bir özür yolda. Beyaz atlı bugün gerçekten geliyor olabilir.", "Tatlı sözlere kapılmadan niyete bak; ambalaj değil içerik önemli.", "Kalbinle git ama aklını da yanına al.", "E"],
+    ["Kraliçesi", "Sezgilerin ve şefkatin bugün çok güçlü; biri sana içini dökecek ve iyi geleceksin.", "Herkesin derdini yüklenme; duygusal sünger olma.", "Önce kendi kalbini doldur.", "E"],
+    ["Kralı", "Duygu fırtınasında bile sakin kalmayı biliyorsun; bu olgunluk bugün sana kapı açacak.", "Sakin yüzün altında biriktirdiklerin taşabilir; taşmadan konuş.", "Hislerini konuşmak zayıflık değildir.", "B"]
+  ]},
+  { key: "asa", name: "Asa", sym: "🔥", label: "ASALAR", theme: "enerjin, hevesin ve girişimlerin", cards: [
+    ["Ası", "Yeni bir fikir kıvılcımı — hemen harekete geçersen alev alır. Bu kıvılcım bir proje, bir hobi ya da cesur bir teklif olabilir.", "İlham var ama kibrit nemli; büyük planı bırak, küçük bir adım ateşi yakar.", "Bugün başla, mükemmelini sonra yaparsın.", "E"],
+    ["2'lisi", "Plan yapma ve ufka bakma zamanı; dünya sandığından geniş ve haritada senin de yerin var.", "Konfor alanı sıcak ama manzarası yok.", "Bir sonraki hedefini yaz.", "B"],
+    ["3'lüsü", "Attığın adımların ilk meyveleri ufukta göründü; gemilerin dönüyor.", "Gecikme var ama gemiler yolda; sabret.", "Beklerken yeni yelken dik.", "E"],
+    ["4'lüsü", "Kutlama ve istikrar; emeklerin güzel bir eşiğe ulaştı. Ev, ekip ya da ilişki — temel sağlam.", "Kutlamayı hak ettin ama erteliyorsun.", "Küçük başarıyı da kutla.", "E"],
+    ["5'lisi", "Fikir çatışması var; herkes asasını sallıyor. Rekabet seni bilesin diye, yıpratmasın diye.", "Tartışmanın tozu dumanı dağılıyor; ortak nokta görünüyor.", "Haklı çıkmak mı, huzur mu? Seç.", "H"],
+    ["6'lısı", "Zafer ve takdir! Başarın görünür oluyor; alkışı utanmadan kabul et, emeğinin sesi o.", "Takdir gecikiyor diye değerin düşmez.", "Kendi sırtını kendin sıvazla.", "E"],
+    ["7'lisi", "Yerini koruyorsun; baskı var ama yüksekte duran sensin, avantaj hâlâ sende.", "Her cepheyle aynı anda savaşma.", "En önemli kaleyi seç, onu savun.", "B"],
+    ["8'lisi", "İşler hızlanıyor! Haberler, mesajlar ve gelişmeler peş peşe gelecek; kemerini bağla.", "Acele işe şeytan karışır; biraz yavaşla.", "Telefonuna bak, güzel haber olabilir.", "E"],
+    ["9'lusu", "Yorgunsun ama son düzlüktesin; bunca yol pes etmek için yürünmedi.", "Savunmadan çık, herkes düşman değil.", "Mola ver ama havlu atma.", "B"],
+    ["10'lusu", "Yük ağır çünkü hepsini tek başına taşıyorsun; oysa kimse sana 'hepsini sen taşı' demedi.", "Yük hafifliyor; devretmeyi öğreniyorsun.", "Bir görevi bugün başkasına ver.", "H"],
+    ["Prensi", "Heyecanlı bir haber ya da yeni bir macera daveti geliyor; içindeki kaşif kıpırdanıyor.", "Hevesin çabuk sönüyorsa hedef yanlış olabilir.", "Merakının peşinden git.", "E"],
+    ["Şövalyesi", "Enerjin tavan! Cesur bir hamle için rüzgar arkanda; atı dörtnala sür.", "Balıklama atlamadan önce derinliği ölç.", "Cesaret güzel, plan daha güzel.", "E"],
+    ["Kraliçesi", "Karizman ve sıcaklığın bugün odayı aydınlatıyor; insanlar yanında olmak istiyor.", "Işığını kıskananlara enerji harcama.", "Kendin ol, yeter.", "E"],
+    ["Kralı", "Vizyon sahibisin ve insanlar seni takip etmeye hazır; liderlik bugün sana yakışıyor.", "Otoriteyi paylaşmak seni küçültmez.", "Büyük resmi anlat, ekip arkandan gelsin.", "E"]
+  ]},
+  { key: "kilic", name: "Kılıç", sym: "⚔️", label: "KILIÇLAR", theme: "zihnin, sözlerin ve kararların", cards: [
+    ["Ası", "Zihnin jilet gibi; net bir karar ya da parlak bir fikir doğuyor. Bugün imzalanan söz, uzun süre geçerli olur.", "Kafa karışıkken karar alma; önce sis dağılsın.", "Düşüncelerini kağıda dök.", "E"],
+    ["2'lisi", "İki seçenek arasında gözün bağlı; ama kalbin cevabı çoktan biliyor, sadece onayını bekliyor.", "Erteleme bitiyor, göz bağı çözülüyor.", "Yazı tura at; para havadayken hangisini istediğini anlarsın.", "B"],
+    ["3'lüsü", "Kalp kırıklığı ya da acı bir gerçek; ama bilmek, bilmemekten iyidir. Temiz kesik çabuk iyileşir.", "Yara kabuk bağlıyor; iyileşme sürecindesin.", "Acıyı konuş, içinde bekletme.", "H"],
+    ["4'lüsü", "Zihnin dinlenmeye ihtiyacı var; mola lüks değil, ilaç. Kılıçlar duvarda asılı kalsın bugün.", "Yeterince dinlendin; yavaşça sahaya dön.", "Bugün erken yat.", "B"],
+    ["5'lisi", "Kazandın belki, ama neye mal oldu? Sahada tek başına kalan galibiyet, galibiyet sayılmaz.", "Gerginlik sonrası onarım zamanı.", "Özür dilemek kaybetmek değildir.", "H"],
+    ["6'lısı", "Dalgalı sulardan sakin kıyıya geçiyorsun; geçiş başladı, kürek çekmeye devam.", "Geçmişin yüklerini tekneye alma; batırır.", "Arkana bakma, rota ileri.", "E"],
+    ["7'lisi", "Biri kurnazlık peşinde olabilir; stratejini herkese anlatma, planını sofraya koyma.", "Gizlenen açığa çıkıyor; dürüstlük kazanıyor.", "Kartlarını göğsüne yakın tut.", "H"],
+    ["8'lisi", "Kendini kısıtlanmış hissediyorsun ama ipler sandığından gevşek; hapishanenin kapısı kilitli değil.", "Zihnindeki hapisten çıkış başladı.", "\"Yapamam\" cümlesini bugünlük yasakla.", "H"],
+    ["9'lusu", "Gece kuruntuları büyütür; endişelerin çoğu sabah ışığında cebe sığacak kadar küçülür.", "Kabus bitiyor; rahat bir nefes yaklaşıyor.", "Endişeni yaz, yarın tekrar oku — gülümseyeceksin.", "H"],
+    ["10'lusu", "Bir şey kesin olarak bitti; ama dibe vuranın tek yönü kalır: yukarı. Şafak, en karanlık andan sonra söker.", "Toparlanma başladı; en kötüsü geride.", "Bitene ağıt yakma, doğana bak.", "H"],
+    ["Prensi", "Meraklı zihnin yeni bilgiler topluyor; ama duyduğun her rüzgârı haber sanma, dedikoduya dikkat.", "Her duyduğuna inanma, kaynağını sor.", "Bugün öğrendiğin bir şeyi doğrula.", "B"],
+    ["Şövalyesi", "Hızlı ve kararlı bir hamle gerekiyor; fikrini cesurca savun, ama kılıcı önce kınından söz çıksın.", "Acele hüküm kırıcı olabilir; kılıcının ucunu yumuşat.", "Önce dinle, sonra konuş.", "B"],
+    ["Kraliçesi", "Netliğin ve zekânla bugün kimse seni yanıltamaz; sisli havada pusula sensin.", "Keskin dil kalp kırabilir; ucunu törpüle.", "Doğruyu söyle ama tatlı söyle.", "B"],
+    ["Kralı", "Mantık ve adaletle karar veriyorsun; danışılan kişi sensin ve verdiğin akıl yerini bulacak.", "Soğuk mantık bazen sıcak bir kalbe ihtiyaç duyar.", "Kararına bir tutam merhamet ekle.", "B"]
+  ]},
+  { key: "tilsim", name: "Tılsım", sym: "🪙", label: "TILSIMLAR", theme: "maddi konuların ve emeğin", cards: [
+    ["Ası", "Somut bir fırsat — para, iş ya da sağlıkla ilgili taze bir tohum avucunda. Bu tohum bakılırsa ağaç olur.", "Fırsat kapıda ama kapıyı senin açman gerek.", "Küçük de olsa bugün bir adım at.", "E"],
+    ["2'lisi", "Birden çok topu aynı anda çeviriyorsun ve gayet iyi gidiyor; dengede kalma becerin bugün göz dolduruyor.", "Denge bozuluyor; bir topu yere bırak.", "Öncelik listesi yap, ilk ikiye odaklan.", "B"],
+    ["3'lüsü", "Ekip çalışması ve ustalık; emeğin görülüyor, işbirliği verim getiriyor. Usta, kalfa ve çırak aynı duvarı örüyor.", "Tek başına kahramanlık verimi düşürür.", "Yardım istemek de ustalıktır.", "E"],
+    ["4'lüsü", "Birikimini koruyorsun; tutumluluk güzel, ama sımsıkı kapalı avuç yeni hiçbir şey alamaz.", "Cimrilikle tutumluluk arasındaki çizgiye dikkat.", "Parayı tut, ama nefes aldır.", "B"],
+    ["5'lisi", "Kendini dışarıda kalmış hissedebilirsin; oysa yardım kapısı hemen yanında, ışığı da yanıyor.", "Zor dönem kapanıyor; destek geliyor.", "İhtiyacını söylemekten utanma.", "H"],
+    ["6'lısı", "Alan el ile veren el dengede; cömertliğin katlanarak dönecek. Bugün verdiğin, yarın başka kapıdan girer.", "Verirken kendini borçlandırma.", "Bugün küçük bir iyilik yap.", "E"],
+    ["7'lisi", "Ektiğin tohumlar büyüyor; hasat sabır ister, fideyi dürtmekle domates erken kızarmaz.", "Emeğinin karşılığını sorgulama vakti; belki saksı değişmeli.", "Değerlendir: sulamaya devam mı, yeni tarla mı?", "B"],
+    ["8'lisi", "İşine odaklanıp ustalaşıyorsun; bu sessiz emek yakında imzana dönüşecek.", "Rutine sıkışma; işine küçük bir yenilik kat.", "Bugün zanaatına yarım saat yatırım yap.", "E"],
+    ["9'lusu", "Kendi emeğinle kurduğun konfor — bağımsızlığının tadını çıkar; bahçendeki üzümler senin dikimin.", "Konfor güzel ama paylaşınca güzelleşir.", "Kendine bir hediye al, hak ettin.", "E"],
+    ["10'lusu", "Uzun vadeli güvence, aile ve kalıcı bolluk; temeller sağlam, çatı da geliyor.", "Maddi bir aile meselesi açıkça konuşulmalı.", "Geleceğe küçük bir tuğla daha koy.", "E"],
+    ["Prensi", "Yeni bir öğrenme ya da kazanç fırsatı filizleniyor; ciddiye alırsan meslek bile olabilir.", "Hayal kurmak yetmez; takvime yaz.", "Öğrenmek istediğin şeye bugün başla.", "E"],
+    ["Şövalyesi", "Yavaş ama emin adımlarla ilerliyorsun; istikrar senin süper gücün, tavşanlar uyuyakalsın.", "Fazla temkin treni kaçırtabilir.", "Rutinini koru ama bir vites yükselt.", "E"],
+    ["Kraliçesi", "Hem işini hem sevdiklerini büyütüyorsun; pratik zekân bereket getiriyor.", "Herkese yetişirken kendini unutma.", "Bugün kendine de bir öğün ayır.", "E"],
+    ["Kralı", "Maddi konularda güvenilir ve başarılısın; dokunduğun iş serpiliyor, sözün senet sayılıyor.", "Statü hırsı sofranın tadını kaçırmasın.", "Zenginlik sofrada paylaşılınca artar.", "E"]
+  ]}
+];
+
+var CARDS = MAJORS.map(function (c) { c.suit = "major"; return c; });
+SUITS.forEach(function (s) {
+  s.cards.forEach(function (row) {
+    CARDS.push({
+      n: s.label, name: s.name + " " + row[0], sym: s.sym, suit: s.key,
+      up: row[1], rev: row[2], adv: row[3], yn: row[4]
+    });
+  });
+});
+var SUIT_THEMES = { major: "hayatının büyük dönüm noktaları" };
+SUITS.forEach(function (s) { SUIT_THEMES[s.key] = s.theme; });
 
 /* ---------- yardımcılar ---------- */
 var $ = function (id) { return document.getElementById(id); };
 var MODES = {
-  daily:    { count: 1, positions: ["Günün Kartı"], hint: "Desteye dokun, bugünün kartı gelsin…" },
-  three:    { count: 3, positions: ["Geçmiş", "Şimdi", "Gelecek"], hint: "Desteye dokun, üç kartın açılsın…" },
-  question: { count: 1, positions: ["Cevap"], hint: "Sorunu içinden geçir… hazır olunca desteye dokun." }
+  daily:    { count: 1, positions: ["Günün Kartı"], leads: ["Bugünün enerjisi bu kartta saklı:"],
+              hint: "Desteye dokun, bugünün kartı gelsin…" },
+  three:    { count: 3, positions: ["Geçmiş", "Şimdi", "Gelecek"],
+              leads: ["Seni bugüne taşıyan iz:", "Şu an içinde bulunduğun enerji:", "Önündeki yolun işareti:"],
+              hint: "Desteye dokun, üç kartın açılsın…" },
+  love:     { count: 3, positions: ["Sen", "O", "İlişkinin Gidişatı"],
+              leads: ["Senin kalbinin hâli:", "Onun tarafında görünen:", "Bu bağın gittiği yön:"],
+              hint: "Kalbindeki kişiyi düşün… hazır olunca desteye dokun. 💘" },
+  career:   { count: 3, positions: ["Durum", "Engel", "Tavsiye"],
+              leads: ["İş hayatındaki mevcut tablo:", "Seni yavaşlatan şey:", "Kartların önerisi:"],
+              hint: "İşini ya da hedefini düşün… desteye dokun. 💼" },
+  yesno:    { count: 1, positions: ["Kartın Cevabı"], leads: ["Kartın gerekçesi:"],
+              hint: "Sorunu evet/hayır şeklinde içinden geçir… desteye dokun." },
+  question: { count: 1, positions: ["Cevap"], leads: ["Sorduğun sorunun aynası:"],
+              hint: "Sorunu içinden geçir… hazır olunca desteye dokun." }
 };
 var state = { mode: null, drawn: [] };
 
+function getName() {
+  try { return localStorage.getItem("tarot_kisi") || ""; } catch (e) { return ""; }
+}
 function todayKey() {
   var d = new Date();
   return d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
 }
-
 function mulberry32(seed) {
   return function () {
     seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
@@ -305,7 +470,6 @@ function mulberry32(seed) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
-
 function drawCards(count, rng) {
   var idx = CARDS.map(function (_, i) { return i; });
   var out = [];
@@ -316,14 +480,81 @@ function drawCards(count, rng) {
   }
   return out;
 }
-
-/* günün kartı: aynı gün aynı kart gelsin diye tarihten tohum üretilir */
+/* günün kartı: tarih + isimden tohum — aynı gün aynı kişiye aynı kart */
 function dailySeed() {
-  var s = todayKey(), h = 0;
-  try { s += "|" + (localStorage.getItem("tarot_kisi") || ""); } catch (e) {}
+  var s = todayKey() + "|" + getName(), h = 0;
   for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
   return h;
 }
+function ynAnswer(d) {
+  var v = d.card.yn || "B";
+  if (d.reversed) v = (v === "E") ? "B" : "H";
+  return v === "E" ? "EVET 🌕" : (v === "H" ? "HAYIR 🌑" : "BELKİ 🌗");
+}
+
+var LUCKY_COLORS = ["Altın sarısı", "Gece mavisi", "Zümrüt yeşili", "Bordo", "Lavanta moru", "Turkuaz", "Gül kurusu", "Turuncu", "Gümüş", "Fıstık yeşili"];
+function luckyLine(rng) {
+  var renk = LUCKY_COLORS[Math.floor(rng() * LUCKY_COLORS.length)];
+  var sayi = 1 + Math.floor(rng() * 33);
+  return "🎨 Şanslı rengin: <b>" + renk + "</b> &nbsp;·&nbsp; 🔢 Şanslı sayın: <b>" + sayi + "</b>";
+}
+
+/* açılımın genel yorumu: kart temaları + ters/düz dengesi birleştirilir */
+function generalReading(drawn, mode) {
+  var revCount = drawn.filter(function (d) { return d.reversed; }).length;
+  var counts = {};
+  drawn.forEach(function (d) { counts[d.card.suit] = (counts[d.card.suit] || 0) + 1; });
+  var dominant = null;
+  Object.keys(counts).forEach(function (k) { if (!dominant || counts[k] > counts[dominant]) dominant = k; });
+
+  var parts = [];
+  if (counts[dominant] >= 2) {
+    parts.push("Bu açılımın ağırlığı " + SUIT_THEMES[dominant] + " üzerinde toplanmış — kartlar dikkatini özellikle oraya çekiyor.");
+  } else {
+    parts.push("Kartların her biri hayatının ayrı bir alanına dokunuyor; dağınıklık değil, genişlik bu — birden çok cephede aynı anda hareket var.");
+  }
+  var majorCount = counts["major"] || 0;
+  if (majorCount >= 2) {
+    parts.push("Üstelik " + majorCount + " Büyük Arkana birden açıldı: bu döneme sıradan günler değil, yön belirleyen günler diyebiliriz.");
+  }
+  if (revCount === 0) {
+    parts.push("Kartların hepsinin düz gelmesi güzel işaret: enerji akışkan, yollar açık. İçinden geleni yapmak için uygun bir dönemdesin.");
+  } else if (revCount === drawn.length) {
+    parts.push("Kartların tümü ters geldi — bu bir uyarı değil, bir iç muhasebe daveti: dış dünyada hamle yapmadan önce içeride toparlanacak şeyler var.");
+  } else {
+    parts.push("Ters gelen kart" + (revCount > 1 ? "lar" : "") + " ise şunu hatırlatıyor: her şey aynı hızda ilerlemek zorunda değil; takılan yerde biraz dur, orada bir ders var.");
+  }
+  var mid = drawn[Math.floor((drawn.length - 1) / 2)];
+  parts.push("Bu açılımdan cebine koyacağın cümle şu olsun: “" + mid.card.adv + "”");
+  return parts.join(" ");
+}
+
+/* ---------- isim ekranı ---------- */
+function refreshGreet() {
+  var name = getName();
+  $("greet").innerHTML = name
+    ? "✨ Hoş geldin, <b>" + escapeHtml(name) + "</b> &nbsp;<a id='chgName'>değiştir</a>"
+    : "";
+  var a = document.getElementById("chgName");
+  if (a) a.addEventListener("click", function () {
+    $("nameInput").value = getName();
+    $("nameOverlay").classList.add("show");
+  });
+}
+function escapeHtml(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+$("nameSave").addEventListener("click", function () {
+  var v = $("nameInput").value.trim().slice(0, 20) || "Gizemli Yolcu";
+  try { localStorage.setItem("tarot_kisi", v); } catch (e) {}
+  $("nameOverlay").classList.remove("show");
+  refreshGreet();
+});
+$("nameInput").addEventListener("keydown", function (e) {
+  if (e.key === "Enter") $("nameSave").click();
+});
+if (!getName()) $("nameOverlay").classList.add("show");
+refreshGreet();
 
 /* ---------- ekran akışı ---------- */
 document.querySelectorAll(".mode-btn").forEach(function (btn) {
@@ -335,8 +566,10 @@ function startMode(mode) {
   $("modes").style.display = "none";
   $("deckArea").style.display = "block";
   $("deckHint").textContent = MODES[mode].hint;
+  $("bigAnswer").style.display = "none";
   $("spread").style.display = "none";
   $("spread").innerHTML = "";
+  $("readIntro").style.display = "none";
   $("readings").style.display = "none";
   $("readings").innerHTML = "";
   $("actions").style.display = "none";
@@ -369,15 +602,32 @@ function reveal() {
       '<div class="pos-label">' + conf.positions[i] + "</div>" +
       '<div class="flip"><div class="flip-inner">' +
       '<div class="face back"></div>' +
-      '<div class="face front' + (d.reversed ? " is-rev" : "") + '">' +
+      '<div class="face front suit-' + d.card.suit + (d.reversed ? " is-rev" : "") + '">' +
       '<div class="num">' + d.card.n + "</div>" +
       '<div class="sym">' + d.card.sym + "</div>" +
       '<div class="nm">' + d.card.name + "</div>" +
       '<div class="rev-tag">' + (d.reversed ? "ters" : "") + "</div>" +
       "</div></div></div>";
     spread.appendChild(slot);
-    setTimeout(function () { slot.classList.add("revealed"); }, 350 + i * 650);
+    setTimeout(function () {
+      slot.classList.add("revealed");
+      if (navigator.vibrate) navigator.vibrate(25);
+    }, 350 + i * 650);
   });
+
+  if (state.mode === "yesno") {
+    setTimeout(function () {
+      $("bigAnswerText").textContent = ynAnswer(state.drawn[0]);
+      $("bigAnswer").style.display = "block";
+      if (navigator.vibrate) navigator.vibrate([30, 60, 30]);
+    }, 1250);
+  }
+
+  var name = getName();
+  if (name) {
+    $("readIntro").textContent = name + ", kartların şöyle diyor…";
+    $("readIntro").style.display = "block";
+  }
 
   var readings = $("readings");
   readings.style.display = "block";
@@ -387,26 +637,53 @@ function reveal() {
     r.innerHTML =
       "<h3>" + d.card.sym + " " + d.card.name + (d.reversed ? " (ters)" : "") + "</h3>" +
       '<div class="pos">' + conf.positions[i] + "</div>" +
+      '<div class="lead">' + conf.leads[i] + "</div>" +
       "<p>" + (d.reversed ? d.card.rev : d.card.up) + "</p>" +
       '<div class="advice">✨ ' + d.card.adv + "</div>";
     readings.appendChild(r);
     setTimeout(function () { r.classList.add("show"); }, 900 + i * 650);
   });
 
+  /* üç kartlı açılımlara genel yorum, günün kartına şans köşesi */
+  var extraDelay = 900 + state.drawn.length * 650;
+  if (state.drawn.length >= 3) {
+    var g = document.createElement("div");
+    g.className = "reading general";
+    g.innerHTML = "<h3>🌟 Genel Yorum</h3><p>" + generalReading(state.drawn, state.mode) + "</p>";
+    readings.appendChild(g);
+    setTimeout(function () { g.classList.add("show"); }, extraDelay);
+    extraDelay += 400;
+  }
+  if (state.mode === "daily") {
+    var l = document.createElement("div");
+    l.className = "reading general";
+    l.innerHTML = "<h3>🍀 Günün Şansı</h3><p class='lucky'>" + luckyLine(rng) + "</p>";
+    readings.appendChild(l);
+    setTimeout(function () { l.classList.add("show"); }, extraDelay);
+    extraDelay += 400;
+  }
+
   setTimeout(function () {
     $("actions").style.display = "flex";
-  }, 900 + conf.count * 650);
+  }, extraDelay);
 }
 
 /* ---------- paylaş & tekrar ---------- */
+var MODE_TITLES = {
+  daily: "Günün Kartı", three: "Üç Kart Açılımı", love: "Aşk Açılımı",
+  career: "Kariyer Açılımı", yesno: "Evet mi Hayır mı", question: "Soru Kartı"
+};
 $("shareBtn").addEventListener("click", function () {
   var conf = MODES[state.mode];
-  var lines = ["🔮 Tarot Falım (" + todayKey() + ")", ""];
+  var name = getName();
+  var lines = ["🔮 Tarot Falı — " + MODE_TITLES[state.mode] + (name ? " · " + name : ""), ""];
+  if (state.mode === "yesno") lines.push("Cevap: " + ynAnswer(state.drawn[0]), "");
   state.drawn.forEach(function (d, i) {
     lines.push(conf.positions[i] + ": " + d.card.sym + " " + d.card.name + (d.reversed ? " (ters)" : ""));
-    lines.push((d.reversed ? d.card.rev : d.card.up));
+    lines.push(d.reversed ? d.card.rev : d.card.up);
     lines.push("");
   });
+  if (state.drawn.length >= 3) lines.push("🌟 " + generalReading(state.drawn, state.mode), "");
   lines.push("Sen de bak: " + location.href.split("#")[0]);
   var text = lines.join("\n");
   if (navigator.share) {
@@ -425,7 +702,9 @@ function showToast() {
 }
 
 $("againBtn").addEventListener("click", function () {
+  $("bigAnswer").style.display = "none";
   $("spread").style.display = "none";
+  $("readIntro").style.display = "none";
   $("readings").style.display = "none";
   $("actions").style.display = "none";
   $("modes").style.display = "flex";
